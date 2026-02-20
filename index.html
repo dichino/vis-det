@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Impact MVP</title>
+
+  <!-- Pico -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+  <!-- Your overrides (MUST be after Pico) -->
+  <link rel="stylesheet" href="./styles.css">
+
+  <!-- IndexedDB helper -->
+  <script src="https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.min.js"></script>
+  <!-- QR generator -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+  <script defer src="./app.js"></script>
+</head>
+
+<body>
+  <!-- Required nav structure -->
+  <nav class="container-fluid">
+    <ul>
+      <li><strong><span class="logo-badge" aria-hidden="true"></span>Impact MVP</strong></li>
+    </ul>
+    <ul>
+      <li><a href="#app">App</a></li>
+      <li><a href="#kontakt">Kontakt</a></li>
+      <li><a href="#app" role="button" class="btn-dark">Åpne</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <div class="grid">
+      <section>
+        <hgroup class="hero">
+          <h2>Impact tracking (MVP)</h2>
+          <h3>Lokalt lagret • Journal + Survey • Del via QR-kode uten backend</h3>
+        </hgroup>
+
+        <!-- SHARED SURVEY MODE (opens when URL has ?s=...) -->
+        <article id="sharedView" class="shell" hidden>
+          <header class="shared-head">
+            <div>
+              <div class="kicker">Deltaker</div>
+              <h3 id="sharedTitle" style="margin:0;">Survey</h3>
+              <p class="muted" style="margin:.25rem 0 0;">Svar og last ned response JSON for å sende tilbake.</p>
+            </div>
+            <a class="secondary pill-btn" href="./">Tilbake</a>
+          </header>
+
+          <div class="panel">
+            <form id="sharedForm"></form>
+
+            <div class="share-actions" style="margin-top:1rem;">
+              <button id="sharedCopyBtn" class="secondary" type="button" disabled>Kopier response JSON</button>
+              <button id="sharedDownloadBtn" class="btn-dark" type="button" disabled>Last ned response JSON</button>
+            </div>
+
+            <small class="muted">
+              Tips: hvis du ikke kan sende fil, kopier JSON og lim inn i mail/chat.
+            </small>
+          </div>
+        </article>
+
+        <!-- APP MODE -->
+        <article id="appView" class="shell">
+          <header class="app-top">
+            <div>
+              <div class="kicker" id="topKicker">Mine prosjekter</div>
+              <h3 id="topTitle" style="margin:0;">Oversikt</h3>
+              <p class="muted" style="margin:.25rem 0 0;">Dokumentér • Mål • Del</p>
+            </div>
+
+            <div class="top-actions">
+              <input id="searchInput" placeholder="Søk prosjekt…" />
+              <button class="secondary" id="exportAllBtn" type="button">Eksport</button>
+              <button class="secondary" id="importOpenBtn" type="button">Importer</button>
+              <button id="newProjectBtn" class="btn-dark" type="button">+ Ny</button>
+            </div>
+          </header>
+
+          <!-- App navigation -->
+          <div class="app-nav" role="navigation" aria-label="App navigation">
+            <button class="nav-btn" data-nav="projects" aria-selected="true" type="button">Prosjekter</button>
+            <button class="nav-btn" data-nav="overview" aria-selected="false" type="button" disabled>Oversikt</button>
+            <button class="nav-btn" data-nav="journal" aria-selected="false" type="button" disabled>Journal</button>
+            <button class="nav-btn" data-nav="survey" aria-selected="false" type="button" disabled>Survey</button>
+            <button class="nav-btn" data-nav="export" aria-selected="false" type="button" disabled>Eksport</button>
+          </div>
+
+          <!-- Filter chips -->
+          <div class="chip-row" id="stageChips"></div>
+
+          <div class="app-content">
+            <!-- LIST -->
+            <section id="listView">
+              <div class="project-grid" id="projectGrid"></div>
+              <div class="empty-hint muted" id="emptyHint" hidden>
+                Ingen prosjekter enda. Trykk <strong>+ Ny</strong> for å starte.
+              </div>
+            </section>
+
+            <!-- DETAIL -->
+            <section id="detailView" hidden>
+              <header class="detail-header">
+                <button id="backBtn" class="secondary back-btn" type="button">← Tilbake</button>
+
+                <div>
+                  <h3 id="projectTitle" style="margin:0;"></h3>
+                  <p id="projectDesc" class="muted" style="margin:.25rem 0 0;"></p>
+                </div>
+
+                <div class="detail-actions">
+                  <button class="secondary" id="editProjectBtn" type="button">Rediger</button>
+                  <button class="danger" id="deleteProjectBtn" type="button">Slett</button>
+                </div>
+              </header>
+
+              <!-- OVERVIEW TAB -->
+              <div id="tab-overview">
+                <div class="two-col">
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Stage</strong>
+                      <span class="muted tiny">Trykk for å oppdatere</span>
+                    </header>
+
+                    <div class="stage-track" id="stageTrack"></div>
+
+                    <div class="stats-row">
+                      <div class="stat">
+                        <div class="stat-num" id="statPeople">0</div>
+                        <div class="stat-label">Personer nådd</div>
+                      </div>
+                      <div class="stat">
+                        <div class="stat-num" id="statEntries">0</div>
+                        <div class="stat-label">Journal-innlegg</div>
+                      </div>
+                      <div class="stat">
+                        <div class="stat-num" id="statSurveys">0</div>
+                        <div class="stat-label">Spørreskjema</div>
+                      </div>
+                    </div>
+
+                    <div class="quick-actions">
+                      <button class="btn-dark" id="quickAddEntryBtn" type="button">+ Journal</button>
+                      <button class="secondary" id="quickAddSurveyBtn" type="button">+ Survey</button>
+                    </div>
+                  </article>
+
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Siste aktivitet</strong>
+                      <span class="muted tiny">Journal + survey</span>
+                    </header>
+                    <div class="stack" id="recentList"></div>
+                  </article>
+                </div>
+              </div>
+
+              <!-- JOURNAL TAB -->
+              <div id="tab-journal" hidden>
+                <div class="two-col">
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Nytt journal-innlegg</strong>
+                      <span class="muted tiny">tekst + teller + vedlegg</span>
+                    </header>
+
+                    <form id="journalForm">
+                      <label for="journalText">Beskrivelse</label>
+                      <textarea id="journalText" required rows="4" placeholder="Hva skjedde? Hva lærte dere?"></textarea>
+
+                      <div class="grid">
+                        <div>
+                          <label for="journalCount">Hvor mange personer (teller)</label>
+                          <input id="journalCount" type="number" min="0" value="0" />
+                        </div>
+                        <div>
+                          <label for="journalFiles">Vedlegg / foto (valgfritt)</label>
+                          <input id="journalFiles" type="file" multiple />
+                          <small class="muted">MVP: Eksport tar kun metadata (ikke filene).</small>
+                        </div>
+                      </div>
+
+                      <button type="submit" class="btn-dark">Lagre innlegg</button>
+                    </form>
+                  </article>
+
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Innlegg</strong>
+                      <span class="muted tiny">slett for å rydde</span>
+                    </header>
+                    <div id="journalList" class="stack"></div>
+                  </article>
+                </div>
+              </div>
+
+              <!-- SURVEY TAB -->
+              <div id="tab-survey" hidden>
+                <div class="two-col">
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Lag survey</strong>
+                      <span class="muted tiny">Tekst • Rating • Flervalg (én)</span>
+                    </header>
+
+                    <form id="surveyForm">
+                      <label for="surveyTitle">Tittel</label>
+                      <input id="surveyTitle" required placeholder="F.eks. Kort evaluering" />
+
+                      <fieldset class="panel inner">
+                        <legend><strong>Spørsmål</strong></legend>
+
+                        <label for="qText">Spørsmålstekst</label>
+                        <input id="qText" placeholder="F.eks. Hvor fornøyd er du?" />
+
+                        <label for="qType">Type</label>
+                        <select id="qType">
+                          <option value="text">Tekstsvar</option>
+                          <option value="rating">Lineær rating</option>
+                          <option value="choice">Flervalg (én)</option>
+                        </select>
+
+                        <div id="qChoiceWrap" hidden>
+                          <label for="qOptions">Alternativer (kommaseparert)</label>
+                          <input id="qOptions" placeholder="Ja, Nei, Vet ikke" />
+                        </div>
+
+                        <div id="qRatingWrap" hidden class="grid">
+                          <div>
+                            <label for="qMin">Min</label>
+                            <input id="qMin" type="number" value="1" />
+                          </div>
+                          <div>
+                            <label for="qMax">Maks</label>
+                            <input id="qMax" type="number" value="5" />
+                          </div>
+                        </div>
+
+                        <button type="button" class="secondary" id="addQuestionBtn">+ Legg til</button>
+                        <div id="questionList" class="stack" style="margin-top:.75rem;"></div>
+                      </fieldset>
+
+                      <button type="submit" class="btn-dark">Lagre survey</button>
+                    </form>
+                  </article>
+
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Del survey via QR</strong>
+                      <span class="muted tiny">brukertest uten backend</span>
+                    </header>
+
+                    <label for="surveyPicker">Velg survey</label>
+                    <select id="surveyPicker"></select>
+
+                    <div class="share-box">
+                      <div class="share-actions">
+                        <button class="btn-dark" id="shareSurveyBtn" type="button">Lag QR / link</button>
+                        <button class="secondary" id="copyShareLinkBtn" type="button">Kopier</button>
+                      </div>
+
+                      <input id="shareLink" readonly placeholder="Delbar link dukker opp her…" />
+
+                      <div class="qr-wrap">
+                        <canvas id="qrCanvas" width="220" height="220"></canvas>
+                      </div>
+
+                      <p class="muted tiny" style="margin:.4rem 0 0;">
+                        Deltaker åpner linken → svarer → laster ned response JSON → du importerer.
+                      </p>
+                    </div>
+
+                    <details class="panel inner" style="margin-top:.75rem;">
+                      <summary>Importer response JSON</summary>
+                      <div class="stack" style="margin-top:.75rem;">
+                        <input type="file" id="importResponsesFile" accept="application/json" multiple />
+                        <button class="secondary" id="importResponsesBtn" type="button">Importer svar</button>
+                        <small class="muted">Velg flere filer om du har mange svar.</small>
+                      </div>
+                    </details>
+
+                    <details class="panel inner" style="margin-top:.75rem;">
+                      <summary>Se svar</summary>
+                      <div id="responseList" class="stack" style="margin-top:.75rem;"></div>
+                    </details>
+                  </article>
+                </div>
+              </div>
+
+              <!-- EXPORT TAB -->
+              <div id="tab-export" hidden>
+                <div class="two-col">
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Eksport</strong>
+                      <span class="muted tiny">ta med deg data</span>
+                    </header>
+
+                    <button class="btn-dark" id="exportProjectBtn" type="button">Eksporter prosjekt (JSON)</button>
+                    <button class="secondary" id="exportCsvBtn" type="button">Eksporter journal (CSV)</button>
+
+                    <p class="muted tiny" style="margin-top:.75rem;">
+                      Vedlegg eksporteres ikke i MVP (kun metadata).
+                    </p>
+                  </article>
+
+                  <article class="panel">
+                    <header class="panel-head">
+                      <strong>Importer</strong>
+                      <span class="muted tiny">legg inn lokalt</span>
+                    </header>
+
+                    <input type="file" id="importFile" accept="application/json" />
+                    <button class="secondary" id="importBtn" type="button">Importer JSON</button>
+                  </article>
+                </div>
+              </div>
+            </section>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <section aria-label="Subscribe example" id="kontakt">
+    <div class="container">
+      <article>
+        <hgroup>
+          <h2>Kontakt</h2>
+          <h3>Placeholder (ingen backend).</h3>
+        </hgroup>
+        <form class="grid">
+          <input type="text" id="firstname" name="firstname" placeholder="Navn" aria-label="Navn" required />
+          <input type="email" id="email" name="email" placeholder="E-post" aria-label="E-post" required />
+          <button type="submit" onclick="event.preventDefault()">Send</button>
+        </form>
+      </article>
+    </div>
+  </section>
+
+  <footer class="container">
+    <small><a href="#app">Til app</a> • <a href="#">Personvern</a></small>
+  </footer>
+
+  <!-- Project dialog -->
+  <dialog id="projectDialog">
+    <article>
+      <header>
+        <a href="#close" aria-label="Close" class="close" id="closeDialog"></a>
+        <strong id="dialogTitle">Nytt prosjekt</strong>
+      </header>
+
+      <form id="projectForm">
+        <label for="pName">Prosjektnavn</label>
+        <input id="pName" required placeholder="F.eks. Mentorprogram våren" />
+
+        <label for="pDesc">Kort beskrivelse</label>
+        <textarea id="pDesc" rows="3" placeholder="Hva prøver dere å oppnå?"></textarea>
+
+        <footer class="dialog-actions">
+          <button type="button" class="secondary" id="cancelDialogBtn">Avbryt</button>
+          <button type="submit" class="btn-dark">Lagre</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <!-- Import dialog -->
+  <dialog id="importDialog">
+    <article>
+      <header>
+        <a href="#close" aria-label="Close" class="close" id="closeImportDialog"></a>
+        <strong>Importer JSON</strong>
+      </header>
+
+      <input type="file" id="importFile2" accept="application/json" />
+      <footer class="dialog-actions">
+        <button type="button" class="secondary" id="cancelImportBtn">Lukk</button>
+        <button type="button" class="btn-dark" id="importBtn2">Importer</button>
+      </footer>
+    </article>
+  </dialog>
+</body>
+</html>
