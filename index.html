@@ -1,240 +1,162 @@
-<!doctype html>
-<html lang="no">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Impact Journal – MVP</title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
-  <link rel="stylesheet" href="./styles.css">
-
-  <!-- IndexedDB helper -->
-  <script src="https://cdn.jsdelivr.net/npm/dexie@4.0.8/dist/dexie.min.js"></script>
-  <script defer src="./app.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Impact Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <!-- Required nav structure -->
-  <nav class="container-fluid">
-    <ul><li><strong>Impact Journal</strong></li></ul>
-    <ul>
-      <li><a href="#app">Journal</a></li>
-      <li><a href="#help">Hjelp</a></li>
-      <li><a href="#app" role="button" class="btn-dark">Åpne</a></li>
-    </ul>
-  </nav>
 
-  <main class="container" id="app">
-    <div class="grid">
-      <section>
-        <hgroup class="hero">
-          <h2>Journal som faktisk er lett å bruke</h2>
-          <h3>Logg aktiviteter, last opp dokumentasjon, og før enkel teller på “hvor mange nådd”. Alt lagres lokalt.</h3>
-        </hgroup>
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-top">
+      <div class="logo">
+        <span class="logo-mark">IJ</span>
+        <span class="logo-text">Impact<br>Journal</span>
+      </div>
+      <button class="btn-new-project" id="btnNewProject">+ New Project</button>
+    </div>
+    <nav id="projectList" class="project-list"></nav>
+    <div class="sidebar-footer">
+      <button class="btn-ghost" id="btnImport">↑ Import</button>
+      <button class="btn-ghost" id="btnExport">↓ Export</button>
+    </div>
+  </aside>
 
-        <p class="subpill">
-          Offline-first • Prosjekter • Journal • Vedlegg • Eksport/Import
-        </p>
+  <!-- MAIN -->
+  <main id="main">
 
-        <figure class="hero-figure">
-          <img
-            alt="Illustrativ bakgrunn"
-            src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%201200%20550'%3E%3Crect%20width='1200'%20height='550'%20fill='%23ffffff'/%3E%3Ccircle%20cx='210'%20cy='150'%20r='170'%20fill='%23bda7ff'%20fill-opacity='.35'/%3E%3Ccircle%20cx='980'%20cy='135'%20r='190'%20fill='%23ffe55a'%20fill-opacity='.35'/%3E%3Crect%20x='120'%20y='170'%20width='960'%20height='280'%20rx='28'%20fill='%23f6f7f8'/%3E%3Crect%20x='170'%20y='220'%20width='520'%20height='18'%20rx='9'%20fill='%230b0b0c'%20fill-opacity='.12'/%3E%3Crect%20x='170'%20y='252'%20width='760'%20height='14'%20rx='7'%20fill='%230b0b0c'%20fill-opacity='.08'/%3E%3Crect%20x='170'%20y='278'%20width='700'%20height='14'%20rx='7'%20fill='%230b0b0c'%20fill-opacity='.08'/%3E%3Crect%20x='170'%20y='304'%20width='520'%20height='14'%20rx='7'%20fill='%230b0b0c'%20fill-opacity='.08'/%3E%3Crect%20x='170'%20y='360'%20width='220'%20height='52'%20rx='26'%20fill='%230b0b0c'/%3E%3C/svg%3E"
-          />
-          <figcaption>
-            <a href="#journalShell" target="_self">Scroll ned til journal-appen</a>
-          </figcaption>
-        </figure>
+    <!-- EMPTY STATE (no projects) -->
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-blob"></div>
+      <h1>Track your impact.</h1>
+      <p>Create your first project to start logging evidence and counting the people you reach.</p>
+      <button class="btn-primary" id="btnNewProjectEmpty">+ New Project</button>
+    </div>
 
-        <div class="section-divider" aria-hidden="true">
-          <span class="divider-dot"></span>
-          <span>Journal-app</span>
-          <span class="divider-line"></span>
-        </div>
+    <!-- PROJECT VIEW -->
+    <div id="projectView" class="hidden">
 
-        <!-- JOURNAL APP SHELL -->
-        <article class="shell" id="journalShell">
-          <header class="app-top">
-            <div>
-              <div class="kicker">Mine prosjekter</div>
-              <h3 style="margin:0;">Oversikt</h3>
-              <p class="muted" style="margin:.25rem 0 0;">Velg prosjekt → legg til journalinnlegg → eksporter ved behov</p>
-            </div>
-
-            <div class="top-actions">
-              <input id="searchInput" placeholder="Søk i innlegg…" />
-              <button class="secondary" id="exportAllBtn" type="button">Eksport</button>
-              <button class="secondary" id="importOpenBtn" type="button">Importer</button>
-              <button class="btn-dark" id="newProjectBtn" type="button">+ Nytt prosjekt</button>
-            </div>
-          </header>
-
-          <div class="layout">
-            <!-- Sidebar projects -->
-            <aside class="panel sidebar">
-              <div class="sidebar-head">
-                <strong>Prosjekter</strong>
-                <button class="secondary" id="renameProjectBtn" type="button" disabled>Rediger</button>
-              </div>
-
-              <div class="project-list" id="projectList"></div>
-
-              <hr />
-
-              <div class="tiny muted">
-                <div><strong>Tips</strong>: For brukertest, be folk eksportere JSON og sende deg.</div>
-              </div>
-            </aside>
-
-            <!-- Main journal -->
-            <section class="panel">
-              <header class="panel-head">
-                <div>
-                  <strong id="activeProjectTitle">Velg et prosjekt</strong>
-                  <div class="muted tiny" id="activeProjectDesc">—</div>
-                </div>
-
-                <div class="panel-actions">
-                  <button class="btn-dark" id="addEntryBtn" type="button" disabled>+ Nytt innlegg</button>
-                  <button class="danger" id="deleteProjectBtn" type="button" disabled>Slett</button>
-                </div>
-              </header>
-
-              <div class="filters">
-                <button class="chip" data-filter="all" aria-selected="true" type="button">Alle</button>
-                <button class="chip" data-filter="week" aria-selected="false" type="button">Siste 7 dager</button>
-                <button class="chip" data-filter="month" aria-selected="false" type="button">Siste 30 dager</button>
-              </div>
-
-              <div class="stats">
-                <div class="stat">
-                  <div class="stat-num" id="statEntries">0</div>
-                  <div class="stat-label">Innlegg</div>
-                </div>
-                <div class="stat">
-                  <div class="stat-num" id="statPeople">0</div>
-                  <div class="stat-label">Personer nådd (sum)</div>
-                </div>
-                <div class="stat">
-                  <div class="stat-num" id="statFiles">0</div>
-                  <div class="stat-label">Vedlegg</div>
-                </div>
-              </div>
-
-              <div class="stack" id="entryList"></div>
-
-              <div class="empty-hint muted" id="entryEmpty" hidden>
-                Ingen innlegg enda. Trykk <strong>+ Nytt innlegg</strong> for å starte.
-              </div>
-            </section>
+      <header class="project-header">
+        <div class="project-title-row">
+          <h1 id="projectTitle" class="project-title">Project Name</h1>
+          <div class="header-actions">
+            <button class="btn-icon" id="btnEditProject" title="Edit project">✎</button>
+            <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project">✕</button>
           </div>
-        </article>
+        </div>
+        <p id="projectDesc" class="project-desc"></p>
 
-        <h3 id="help">Hvordan dele til andre (uten backend)</h3>
-        <p class="muted">
-          Bruk <strong>Eksport</strong> for å laste ned en JSON-fil med prosjekter + journalinnlegg.
-          Du kan importere den igjen på en annen maskin. (Vedlegg eksporteres kun som metadata i denne MVP-en.)
-        </p>
-      </section>
+        <!-- STATS BAR -->
+        <div class="stats-bar">
+          <div class="stat">
+            <span class="stat-value" id="statEntries">0</span>
+            <span class="stat-label">Entries</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="statPeople">0</span>
+            <span class="stat-label">People Reached</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="statAttachments">0</span>
+            <span class="stat-label">Attachments</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="searchInput" placeholder="Search entries…" />
+        </div>
+        <div class="filter-pills" id="filterPills">
+          <button class="pill active" data-filter="all">All time</button>
+          <button class="pill" data-filter="7">Last 7 days</button>
+          <button class="pill" data-filter="30">Last 30 days</button>
+        </div>
+        <button class="btn-primary" id="btnAddEntry">+ Add Entry</button>
+      </div>
+
+      <!-- ENTRY LIST -->
+      <div id="entryList" class="entry-list"></div>
+
+      <!-- EMPTY ENTRIES STATE -->
+      <div id="emptyEntries" class="empty-entries hidden">
+        <p>No entries yet — start documenting your impact!</p>
+      </div>
+
     </div>
   </main>
 
-  <!-- Required subscribe section -->
-  <section aria-label="Subscribe example">
-    <div class="container">
-      <article>
-        <hgroup>
-          <h2>Vil du samle testdata?</h2>
-          <h3>Be testere eksportere JSON og sende deg fila. Dette skjemaet er bare placeholder.</h3>
-        </hgroup>
-        <form class="grid">
-          <input type="text" id="firstname" name="firstname" placeholder="Navn" aria-label="Navn" required />
-          <input type="email" id="email" name="email" placeholder="E-post" aria-label="E-post" required />
-          <button type="submit" onclick="event.preventDefault()">Send</button>
-        </form>
-      </article>
+  <!-- ===== MODALS ===== -->
+
+  <!-- Project Modal -->
+  <div id="projectModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 id="projectModalTitle">New Project</h2>
+      <label>Project Name
+        <input type="text" id="inputProjectName" placeholder="e.g. Youth Workshop Series" />
+      </label>
+      <label>Description <span class="optional">(optional)</span>
+        <textarea id="inputProjectDesc" rows="3" placeholder="What is this project about?"></textarea>
+      </label>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnCancelProject">Cancel</button>
+        <button class="btn-primary" id="btnSaveProject">Save Project</button>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Required footer -->
-  <footer class="container">
-    <small><a href="#app">Til toppen</a> • <a href="#">Personvern</a></small>
-  </footer>
-
-  <!-- Dialog: project -->
-  <dialog id="projectDialog">
-    <article>
-      <header>
-        <a href="#close" aria-label="Close" class="close" id="closeProjectDialog"></a>
-        <strong id="projectDialogTitle">Nytt prosjekt</strong>
-      </header>
-
-      <form id="projectForm">
-        <label for="pName">Prosjektnavn</label>
-        <input id="pName" required placeholder="F.eks. Nabodugnad i bydelen" />
-
-        <label for="pDesc">Kort beskrivelse</label>
-        <textarea id="pDesc" rows="3" placeholder="Hva prøver dere å oppnå?"></textarea>
-
-        <footer class="dialog-actions">
-          <button type="button" class="secondary" id="cancelProjectBtn">Avbryt</button>
-          <button type="submit" class="btn-dark">Lagre</button>
-        </footer>
-      </form>
-    </article>
-  </dialog>
-
-  <!-- Dialog: entry -->
-  <dialog id="entryDialog">
-    <article>
-      <header>
-        <a href="#close" aria-label="Close" class="close" id="closeEntryDialog"></a>
-        <strong>Nytt journalinnlegg</strong>
-      </header>
-
-      <form id="entryForm">
-        <label for="eText">Beskrivelse</label>
-        <textarea id="eText" rows="5" required placeholder="Hva skjedde? Hva lærte dere?"></textarea>
-
-        <div class="grid">
-          <div>
-            <label for="eCount">Hvor mange personer (teller)</label>
-            <input id="eCount" type="number" min="0" value="0" />
-          </div>
-          <div>
-            <label for="eTags">Tags (kommaseparert)</label>
-            <input id="eTags" placeholder="f.eks. workshop, ungdom, helse" />
-          </div>
+  <!-- Entry Modal -->
+  <div id="entryModal" class="modal-overlay hidden">
+    <div class="modal modal-wide">
+      <h2 id="entryModalTitle">New Entry</h2>
+      <label>What happened?
+        <textarea id="inputEntryText" rows="4" placeholder="Describe what took place and the impact you observed…"></textarea>
+      </label>
+      <div class="row-2col">
+        <label>People Reached
+          <input type="number" id="inputEntryCount" placeholder="0" min="0" />
+        </label>
+        <label>Tags <span class="optional">(comma-separated)</span>
+          <input type="text" id="inputEntryTags" placeholder="workshop, youth, online" />
+        </label>
+      </div>
+      <label>Attachments <span class="optional">(photos, docs)</span>
+        <div class="file-drop" id="fileDrop">
+          <span>Drag & drop or <label class="file-link" for="fileInput">browse</label></span>
+          <input type="file" id="fileInput" multiple accept="image/*,.pdf,.docx,.xlsx,.csv" style="display:none" />
         </div>
+        <div id="filePreview" class="file-preview"></div>
+      </label>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnCancelEntry">Cancel</button>
+        <button class="btn-primary" id="btnSaveEntry">Save Entry</button>
+      </div>
+    </div>
+  </div>
 
-        <label for="eFiles">Vedlegg / bilder (valgfritt)</label>
-        <input id="eFiles" type="file" multiple />
-        <small class="muted">Vedlegg lagres lokalt i nettleseren.</small>
+  <!-- Delete Confirm Modal -->
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <h2>Are you sure?</h2>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnCancelConfirm">Cancel</button>
+        <button class="btn-danger-solid" id="btnConfirm">Delete</button>
+      </div>
+    </div>
+  </div>
 
-        <footer class="dialog-actions">
-          <button type="button" class="secondary" id="cancelEntryBtn">Avbryt</button>
-          <button type="submit" class="btn-dark">Lagre innlegg</button>
-        </footer>
-      </form>
-    </article>
-  </dialog>
+  <!-- Hidden input for import -->
+  <input type="file" id="importInput" accept=".json" style="display:none" />
 
-  <!-- Dialog: import -->
-  <dialog id="importDialog">
-    <article>
-      <header>
-        <a href="#close" aria-label="Close" class="close" id="closeImportDialog"></a>
-        <strong>Importer JSON</strong>
-      </header>
-
-      <input type="file" id="importFile" accept="application/json" />
-      <footer class="dialog-actions">
-        <button type="button" class="secondary" id="cancelImportBtn">Lukk</button>
-        <button type="button" class="btn-dark" id="importBtn">Importer</button>
-      </footer>
-
-      <small class="muted">Tips: Import brukes for å få inn data fra brukertester.</small>
-    </article>
-  </dialog>
+  <script src="app.js"></script>
 </body>
 </html>
