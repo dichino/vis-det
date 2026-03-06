@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -31,7 +32,7 @@
   <!-- MAIN -->
   <main id="main">
 
-    <!-- EMPTY STATE (no projects) -->
+    <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state hidden">
       <div class="empty-blob"></div>
       <h1>Track your impact.</h1>
@@ -41,7 +42,6 @@
 
     <!-- PROJECT VIEW -->
     <div id="projectView" class="hidden">
-
       <header class="project-header">
         <div class="project-title-row">
           <h1 id="projectTitle" class="project-title">Project Name</h1>
@@ -51,8 +51,6 @@
           </div>
         </div>
         <p id="projectDesc" class="project-desc"></p>
-
-        <!-- STATS BAR -->
         <div class="stats-bar">
           <div class="stat">
             <span class="stat-value" id="statEntries">0</span>
@@ -66,32 +64,132 @@
             <span class="stat-value" id="statAttachments">0</span>
             <span class="stat-label">Attachments</span>
           </div>
+          <div class="stat">
+            <span class="stat-value" id="statSurveys">0</span>
+            <span class="stat-label">Surveys</span>
+          </div>
         </div>
       </header>
 
-      <!-- TOOLBAR -->
-      <div class="toolbar">
-        <div class="search-wrap">
-          <span class="search-icon">⌕</span>
-          <input type="text" id="searchInput" placeholder="Search entries…" />
-        </div>
-        <div class="filter-pills" id="filterPills">
-          <button class="pill active" data-filter="all">All time</button>
-          <button class="pill" data-filter="7">Last 7 days</button>
-          <button class="pill" data-filter="30">Last 30 days</button>
-        </div>
-        <button class="btn-primary" id="btnAddEntry">+ Add Entry</button>
+      <!-- PROJECT TABS -->
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="journal">📓 Journal</button>
+        <button class="view-tab" data-view="surveys">📋 Surveys</button>
       </div>
 
-      <!-- ENTRY LIST -->
-      <div id="entryList" class="entry-list"></div>
-
-      <!-- EMPTY ENTRIES STATE -->
-      <div id="emptyEntries" class="empty-entries hidden">
-        <p>No entries yet — start documenting your impact!</p>
+      <!-- JOURNAL SECTION -->
+      <div id="journalSection">
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input type="text" id="searchInput" placeholder="Search entries…" />
+          </div>
+          <div class="filter-pills" id="filterPills">
+            <button class="pill active" data-filter="all">All time</button>
+            <button class="pill" data-filter="7">Last 7 days</button>
+            <button class="pill" data-filter="30">Last 30 days</button>
+          </div>
+          <button class="btn-primary" id="btnAddEntry">+ Add Entry</button>
+        </div>
+        <div id="entryList" class="entry-list"></div>
+        <div id="emptyEntries" class="empty-entries hidden">
+          <p>No entries yet — start documenting your impact!</p>
+        </div>
       </div>
 
+      <!-- SURVEYS SECTION -->
+      <div id="surveysSection" class="hidden">
+        <div class="toolbar">
+          <p class="section-hint">Build a survey, share it via QR or file, then import the responses here.</p>
+          <button class="btn-primary" id="btnNewSurvey">+ New Survey</button>
+        </div>
+        <div id="surveyList" class="survey-list"></div>
+        <div id="emptySurveys" class="empty-entries hidden">
+          <p>No surveys yet. Create one to start collecting responses!</p>
+        </div>
+      </div>
     </div>
+
+    <!-- SURVEY DETAIL VIEW -->
+    <div id="surveyDetailView" class="hidden">
+      <div class="back-bar">
+        <button class="btn-back" id="btnBackToProject">← Back to project</button>
+      </div>
+
+      <header class="project-header">
+        <div class="project-title-row">
+          <h1 id="surveyDetailTitle" class="project-title"></h1>
+          <div class="header-actions">
+            <button class="btn-icon btn-danger" id="btnDeleteSurvey" title="Delete survey">✕</button>
+          </div>
+        </div>
+        <p id="surveyDetailDesc" class="project-desc"></p>
+        <div class="survey-meta-chips">
+          <span class="meta-chip" id="surveyQChip">0 questions</span>
+          <span class="meta-chip" id="surveyRChip">0 responses</span>
+        </div>
+      </header>
+
+      <!-- SURVEY TABS -->
+      <div class="view-tabs">
+        <button class="view-tab active" data-survey-tab="questions">Questions</button>
+        <button class="view-tab" data-survey-tab="responses">Responses</button>
+        <button class="view-tab" data-survey-tab="share">Share & QR</button>
+      </div>
+
+      <!-- QUESTIONS TAB -->
+      <div id="surveyTabQuestions">
+        <div id="surveyQuestionsList" class="questions-display-list"></div>
+      </div>
+
+      <!-- RESPONSES TAB -->
+      <div id="surveyTabResponses" class="hidden">
+        <div class="toolbar">
+          <p class="section-hint">Respondents download a JSON after submitting — they send it to you — import it here.</p>
+          <button class="btn-primary" id="btnImportResponse">↑ Import Response JSON</button>
+        </div>
+        <div id="responsesAggregation"></div>
+        <div id="emptyResponses" class="empty-entries">
+          <p>No responses yet. Import a response JSON file to see results here.</p>
+        </div>
+      </div>
+
+      <!-- SHARE TAB -->
+      <div id="surveyTabShare" class="hidden">
+        <div class="share-grid">
+
+          <div class="share-card">
+            <div class="share-step-num">1</div>
+            <h3>Export survey file</h3>
+            <p>Download a self-contained HTML file. Respondents open it in any browser, fill it in, and download their answers as a JSON file to send back to you.</p>
+            <button class="btn-primary" id="btnExportSurveyHtml">↓ Download Survey HTML</button>
+          </div>
+
+          <div class="share-card">
+            <div class="share-step-num">2</div>
+            <h3>Host it online <span class="optional">(for QR code)</span></h3>
+            <p>To share via a QR code, host the file online for free:</p>
+            <div class="hosting-options">
+              <a href="https://app.netlify.com/drop" target="_blank" class="hosting-link">Netlify Drop →</a>
+              <span class="hosting-note">Drag & drop the HTML file — get a live URL in seconds.</span>
+            </div>
+          </div>
+
+          <div class="share-card share-card-wide">
+            <div class="share-step-num">3</div>
+            <h3>Generate QR code</h3>
+            <p>Paste your hosted URL below to generate a QR code you can print, display at events, or share digitally.</p>
+            <div class="qr-input-row">
+              <input type="url" id="qrUrlInput" placeholder="https://yoursite.netlify.app" />
+              <button class="btn-primary" id="btnGenerateQr">Generate QR</button>
+            </div>
+            <div id="qrDisplay" class="qr-display"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- ===== MODALS ===== -->
@@ -142,6 +240,40 @@
     </div>
   </div>
 
+  <!-- Survey Builder Modal -->
+  <div id="surveyBuilderModal" class="modal-overlay hidden">
+    <div class="modal modal-builder">
+      <div class="builder-header">
+        <h2>New Survey</h2>
+        <button class="btn-icon" id="btnCloseSurveyBuilder" title="Close">✕</button>
+      </div>
+      <div class="builder-body">
+        <div class="builder-meta">
+          <label>Survey Title
+            <input type="text" id="inputSurveyTitle" placeholder="e.g. Workshop Feedback" />
+          </label>
+          <label>Description <span class="optional">(optional — shown to respondents)</span>
+            <input type="text" id="inputSurveyDesc" placeholder="A short intro for your respondents" />
+          </label>
+        </div>
+        <div class="builder-questions-section">
+          <div class="builder-questions-header">
+            <span class="section-label">Questions</span>
+            <button class="btn-add-question" id="btnAddQuestion">+ Add Question</button>
+          </div>
+          <div id="questionBuilderList" class="question-builder-list"></div>
+          <div id="emptyQBuilder" class="empty-qbuilder">
+            <p>No questions yet — click "+ Add Question" to start building.</p>
+          </div>
+        </div>
+      </div>
+      <div class="builder-footer">
+        <button class="btn-ghost" id="btnCancelSurveyBuilder">Cancel</button>
+        <button class="btn-primary" id="btnSaveSurvey">Save Survey</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Delete Confirm Modal -->
   <div id="confirmModal" class="modal-overlay hidden">
     <div class="modal modal-sm">
@@ -154,8 +286,9 @@
     </div>
   </div>
 
-  <!-- Hidden input for import -->
+  <!-- Hidden file inputs -->
   <input type="file" id="importInput" accept=".json" style="display:none" />
+  <input type="file" id="responseImportInput" accept=".json" style="display:none" />
 
   <script src="app.js"></script>
 </body>
