@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Impact Journal</title>
+  <meta name="description" content="A local-first MVP for documenting community impact, evidence, and lightweight survey responses." />
+  <title>Vis Det – Impact Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="style.css" />
@@ -16,28 +17,226 @@
   <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sidebar-top">
-      <div class="logo">
-        <span class="logo-mark">IJ</span>
-        <span class="logo-text">Impact<br>Journal</span>
+      <div class="brand-lockup">
+        <div class="logo">
+          <span class="logo-mark">VD</span>
+          <span class="logo-text">Vis Det<br><small>Impact Journal</small></span>
+        </div>
       </div>
       <button class="btn-new-project" id="btnNewProject">+ New Project</button>
     </div>
+
+    <nav class="app-nav" aria-label="Main sections">
+      <button class="nav-item active" data-nav="journal">Journal</button>
+      <button class="nav-item" data-nav="surveys">Surveys</button>
+      <button class="nav-item" data-nav="summary">Impact Summary</button>
+      <button class="nav-item" data-nav="about">About Vis Det</button>
+      <button class="nav-item" data-nav="notes">Project Notes</button>
+    </nav>
+
+    <div class="project-list-label">Projects</div>
     <nav id="projectList" class="project-list"></nav>
     <div class="sidebar-footer">
-      <button class="btn-ghost" id="btnImport">↑ Import</button>
-      <button class="btn-ghost" id="btnExport">↓ Export</button>
+      <div class="data-actions">
+        <button class="btn-ghost" id="btnImport">Import</button>
+        <button class="btn-ghost" id="btnExport">Export</button>
+      </div>
+      <p class="prototype-notice">Local-first prototype. Not a production Norge Unlimited system.</p>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main id="main">
+    <div id="demoBanner" class="demo-banner hidden">
+      <span>Demo data loaded. This is sample impact documentation for exploring the prototype.</span>
+      <button type="button" id="btnDismissDemoBanner" title="Dismiss notice">Dismiss</button>
+    </div>
 
     <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state hidden">
       <div class="empty-blob"></div>
-      <h1>Track your impact.</h1>
-      <p>Create your first project to start logging evidence and counting the people you reach.</p>
-      <button class="btn-primary" id="btnNewProjectEmpty">+ New Project</button>
+      <p class="eyebrow">Vis Det – Impact Journal</p>
+      <h1>Document what happened.</h1>
+      <p>Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.</p>
+      <div class="empty-actions">
+        <button class="btn-primary" id="btnNewProjectEmpty">Create Project</button>
+        <button class="btn-secondary" id="btnLoadDemoEmpty">Load Demo Data</button>
+      </div>
+    </div>
+
+    <!-- ABOUT VIEW -->
+    <div id="aboutView" class="about-view hidden">
+      <section class="about-hero">
+        <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
+        <p class="eyebrow">About Vis Det</p>
+        <h1>Vis Det – Impact Journal</h1>
+        <p class="about-lede">A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.</p>
+        <button class="btn-primary" id="btnAboutBack">Open Journal</button>
+      </section>
+
+      <section class="about-section">
+        <h2>Why this exists</h2>
+        <p>The prototype is inspired by Norge Unlimited's work with local social entrepreneurship, neighbourhood incubators and impact documentation. It explores how early impact data can be captured before it becomes formal reporting.</p>
+      </section>
+
+      <section class="about-columns">
+        <div class="about-point">
+          <span class="about-kicker">Journal evidence</span>
+          <h3>Document evidence</h3>
+          <p>Log entries with people reached, tags, and optional files so progress can be reviewed later.</p>
+        </div>
+        <div class="about-point">
+          <span class="about-kicker">People reached</span>
+          <h3>Track reach</h3>
+          <p>Keep simple counts close to the qualitative notes that explain what changed.</p>
+        </div>
+        <div class="about-point">
+          <span class="about-kicker">Surveys and QR</span>
+          <h3>Collect responses</h3>
+          <p>Create lightweight surveys, export them as standalone HTML, and import response JSON files.</p>
+        </div>
+        <div class="about-point">
+          <span class="about-kicker">Local-first data</span>
+          <h3>Stay local</h3>
+          <p>Data is stored in this browser with IndexedDB. Export and import are explicit file actions.</p>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>How it works</h2>
+        <div class="workflow-strip">
+          <div class="workflow-step">
+            <span>1</span>
+            <strong>Document activities</strong>
+            <p>Write short notes from workshops, meetings and follow-ups.</p>
+          </div>
+          <div class="workflow-step">
+            <span>2</span>
+            <strong>Add evidence and reach</strong>
+            <p>Record people reached, tags and optional attachments.</p>
+          </div>
+          <div class="workflow-step">
+            <span>3</span>
+            <strong>Collect feedback</strong>
+            <p>Use lightweight surveys and import responses locally.</p>
+          </div>
+          <div class="workflow-step">
+            <span>4</span>
+            <strong>Summarize impact</strong>
+            <p>Export data or draft a report-ready summary from local evidence.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section about-note">
+        <h2>Prototype disclaimer</h2>
+        <p>This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.</p>
+      </section>
+    </div>
+
+    <!-- PROJECT NOTES VIEW -->
+    <div id="projectNotesView" class="project-notes-view hidden">
+      <section class="notes-hero">
+        <div>
+          <p class="eyebrow">Project Notes</p>
+          <h1>Built as a focused app prototype.</h1>
+          <p class="about-lede">A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.</p>
+        </div>
+        <img src="bilder/bilde2.jpg" alt="Dichino Nguyen" class="builder-photo" onerror="this.hidden=true" />
+      </section>
+
+      <section class="notes-grid">
+        <div class="notes-block">
+          <h2>Built by</h2>
+          <p>Dichino Nguyen as an app development prototype for Norge Unlimited.</p>
+        </div>
+        <div class="notes-block">
+          <h2>Tech stack</h2>
+          <ul>
+            <li>HTML, CSS and vanilla JavaScript</li>
+            <li>Dexie.js with IndexedDB</li>
+            <li>Local JSON import and export</li>
+          </ul>
+        </div>
+        <div class="notes-block">
+          <h2>Prototype scope</h2>
+          <ul>
+            <li>Project-based journal entries</li>
+            <li>Tags, attachments and people reached</li>
+            <li>Survey builder, QR sharing flow and response imports</li>
+          </ul>
+        </div>
+        <div class="notes-block">
+          <h2>Current limits</h2>
+          <ul>
+            <li>Local-only data</li>
+            <li>No authentication, backend or multi-user sync</li>
+            <li>Not a production CRM or reporting system</li>
+          </ul>
+        </div>
+        <div class="notes-block notes-block-wide">
+          <h2>Architecture</h2>
+          <p>Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.</p>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>Possible next steps</h2>
+        <p>Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.</p>
+      </section>
+    </div>
+
+    <!-- IMPACT SUMMARY VIEW -->
+    <div id="impactSummaryView" class="impact-summary-view hidden">
+      <header class="summary-hero">
+        <div>
+          <p class="eyebrow">AI-ready reporting workflow</p>
+          <h1>Impact Summary Draft</h1>
+          <p class="about-lede">Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.</p>
+        </div>
+        <div class="summary-context">
+          <span class="summary-context-label">Selected project</span>
+          <strong id="summaryProjectName">No project selected</strong>
+          <span id="summaryPeriod">No reporting period yet</span>
+          <small id="summaryUpdated">Local-first draft</small>
+        </div>
+      </header>
+
+      <section class="summary-metrics" id="summaryMetrics"></section>
+
+      <section class="summary-grid">
+        <article class="summary-card summary-card-wide">
+          <h2>Narrative summary</h2>
+          <div id="summaryNarrative"></div>
+        </article>
+        <article class="summary-card">
+          <h2>Key themes</h2>
+          <ul id="summaryThemes"></ul>
+        </article>
+        <article class="summary-card">
+          <h2>Signals of change</h2>
+          <ul id="summarySignals"></ul>
+        </article>
+        <article class="summary-card">
+          <h2>Evidence gaps</h2>
+          <ul id="summaryGaps"></ul>
+        </article>
+        <article class="summary-card">
+          <h2>Recommended next steps</h2>
+          <ul id="summaryNextSteps"></ul>
+        </article>
+      </section>
+
+      <section class="summary-actions">
+        <div>
+          <h2>Export actions</h2>
+          <p>Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.</p>
+        </div>
+        <div class="summary-action-buttons">
+          <button class="btn-primary" id="btnCopyMarkdown">Copy Markdown summary</button>
+          <button class="btn-secondary" id="btnCopyAiPrompt">Copy AI prompt</button>
+        </div>
+      </section>
     </div>
 
     <!-- PROJECT VIEW -->
@@ -73,8 +272,8 @@
 
       <!-- PROJECT TABS -->
       <div class="view-tabs">
-        <button class="view-tab active" data-view="journal">📓 Journal</button>
-        <button class="view-tab" data-view="surveys">📋 Surveys</button>
+        <button class="view-tab active" data-view="journal">Journal</button>
+        <button class="view-tab" data-view="surveys">Surveys</button>
       </div>
 
       <!-- JOURNAL SECTION -->
@@ -113,7 +312,7 @@
     <!-- SURVEY DETAIL VIEW -->
     <div id="surveyDetailView" class="hidden">
       <div class="back-bar">
-        <button class="btn-back" id="btnBackToProject">← Back to project</button>
+        <button class="btn-back" id="btnBackToProject">Back to project</button>
       </div>
 
       <header class="project-header">
@@ -145,8 +344,8 @@
       <!-- RESPONSES TAB -->
       <div id="surveyTabResponses" class="hidden">
         <div class="toolbar">
-          <p class="section-hint">Respondents download a JSON after submitting — they send it to you — import it here.</p>
-          <button class="btn-primary" id="btnImportResponse">↑ Import Response JSON</button>
+          <p class="section-hint">Import response JSON files after people complete the exported survey.</p>
+          <button class="btn-primary" id="btnImportResponse">Import Response JSON</button>
         </div>
         <div id="responsesAggregation"></div>
         <div id="emptyResponses" class="empty-entries">
@@ -160,17 +359,17 @@
 
           <div class="share-card">
             <div class="share-step-num">1</div>
-            <h3>Export survey file</h3>
+            <h3>Export survey</h3>
             <p>Download a self-contained HTML file. Respondents open it in any browser, fill it in, and download their answers as a JSON file to send back to you.</p>
-            <button class="btn-primary" id="btnExportSurveyHtml">↓ Download Survey HTML</button>
+            <button class="btn-primary" id="btnExportSurveyHtml">Download Survey HTML</button>
           </div>
 
           <div class="share-card">
             <div class="share-step-num">2</div>
-            <h3>Host it online <span class="optional">(for QR code)</span></h3>
-            <p>To share via a QR code, host the file online for free:</p>
+            <h3>Host or share file <span class="optional">(for QR code)</span></h3>
+            <p>Host the HTML file online when you want a QR code, or share the file directly for small pilots.</p>
             <div class="hosting-options">
-              <a href="https://app.netlify.com/drop" target="_blank" class="hosting-link">Netlify Drop →</a>
+              <a href="https://app.netlify.com/drop" target="_blank" class="hosting-link">Netlify Drop</a>
               <span class="hosting-note">Drag & drop the HTML file — get a live URL in seconds.</span>
             </div>
           </div>
@@ -199,7 +398,7 @@
     <div class="modal">
       <h2 id="projectModalTitle">New Project</h2>
       <label>Project Name
-        <input type="text" id="inputProjectName" placeholder="e.g. Te m/ TU" />
+        <input type="text" id="inputProjectName" placeholder="e.g. Nabolagets kraft" />
       </label>
       <label>Description <span class="optional">(optional)</span>
         <textarea id="inputProjectDesc" rows="3" placeholder="What is this project about?"></textarea>
@@ -292,4 +491,4 @@
 
   <script src="app.js"></script>
 </body>
-</html>vi
+</html>
