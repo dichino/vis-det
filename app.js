@@ -34,13 +34,583 @@ let pendingFiles      = [];
 let pendingDeleteFn   = null;
 let editingEntryId    = null;
 let buildingQuestions = [];          // questions staged in survey builder
+const LANG_KEY        = 'visdetLanguage';
+let currentLanguage   = localStorage.getItem(LANG_KEY) || 'en';
+
+const i18n = {
+  en: {
+    mainSections: 'Main sections',
+    newProject: '+ New Project',
+    productStatus: 'Local-first MVP',
+    productStatusText: 'Impact documentation workspace',
+    navJournal: 'Journal',
+    navSurveys: 'Surveys',
+    navSummary: 'Impact Summary',
+    navAbout: 'About Vis Det',
+    navNotes: 'Project Notes',
+    projectsLabel: 'Projects',
+    import: 'Import',
+    export: 'Export',
+    prototypeNotice: 'Local-first prototype. Not a production Norge Unlimited system.',
+    demoBanner: 'Demo data loaded. This is sample impact documentation for exploring the prototype.',
+    dismiss: 'Dismiss',
+    dismissNotice: 'Dismiss notice',
+    emptyTitle: 'Document what happened.',
+    emptyText: 'Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.',
+    createProject: 'Create Project',
+    loadDemoData: 'Load Demo Data',
+    resetDemoData: 'Reset demo data',
+    aboutEyebrow: 'About Vis Det',
+    aboutLede: 'A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.',
+    openJournal: 'Open Journal',
+    whyExists: 'Why this exists',
+    whyExistsText: "The prototype is inspired by Norge Unlimited's work with local social entrepreneurship, neighbourhood incubators and impact documentation. It explores how early impact data can be captured before it becomes formal reporting.",
+    aboutPoint1Kicker: 'Journal evidence',
+    aboutPoint1Title: 'Document evidence',
+    aboutPoint1Text: 'Log entries with people reached, tags, and optional files so progress can be reviewed later.',
+    aboutPoint2Kicker: 'People reached',
+    aboutPoint2Title: 'Track reach',
+    aboutPoint2Text: 'Keep simple counts close to the qualitative notes that explain what changed.',
+    aboutPoint3Kicker: 'Surveys and QR',
+    aboutPoint3Title: 'Collect responses',
+    aboutPoint3Text: 'Create lightweight surveys, export them as standalone HTML, and import response JSON files.',
+    aboutPoint4Kicker: 'Local-first data',
+    aboutPoint4Title: 'Stay local',
+    aboutPoint4Text: 'Data is stored in this browser with IndexedDB. Export and import are explicit file actions.',
+    howItWorks: 'How it works',
+    workflow1Title: 'Document activities',
+    workflow1Text: 'Write short notes from workshops, meetings and follow-ups.',
+    workflow2Title: 'Add evidence and reach',
+    workflow2Text: 'Record people reached, tags and optional attachments.',
+    workflow3Title: 'Collect feedback',
+    workflow3Text: 'Use lightweight surveys and import responses locally.',
+    workflow4Title: 'Summarize impact',
+    workflow4Text: 'Export data or draft a report-ready summary from local evidence.',
+    prototypeDisclaimer: 'Prototype disclaimer',
+    prototypeDisclaimerText: 'This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.',
+    notesEyebrow: 'Project Notes',
+    notesTitle: 'Built as a focused app prototype.',
+    notesLede: 'A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.',
+    builtBy: 'Built by',
+    builtByText: 'Dichino Nguyen as an app development prototype for Norge Unlimited.',
+    techStack: 'Tech stack',
+    tech1: 'HTML, CSS and vanilla JavaScript',
+    tech2: 'Dexie.js with IndexedDB',
+    tech3: 'Local JSON import and export',
+    prototypeScope: 'Prototype scope',
+    scope1: 'Project-based journal entries',
+    scope2: 'Tags, attachments and people reached',
+    scope3: 'Survey builder, QR sharing flow and response imports',
+    currentLimits: 'Current limits',
+    limit1: 'Local-only data',
+    limit2: 'No authentication, backend or multi-user sync',
+    limit3: 'Not a production CRM or reporting system',
+    architecture: 'Architecture',
+    architectureText: 'Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.',
+    possibleNextSteps: 'Possible next steps',
+    possibleNextStepsText: 'Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.',
+    summaryEyebrow: 'AI-ready reporting workflow',
+    summaryTitle: 'Impact Summary Draft',
+    summaryLede: 'Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.',
+    selectedProject: 'Selected project',
+    noProjectSelected: 'No project selected',
+    noReportingPeriod: 'No reporting period yet',
+    localFirstDraft: 'Local-first draft',
+    narrativeSummary: 'Narrative summary',
+    keyThemes: 'Key themes',
+    signalsOfChange: 'Signals of change',
+    evidenceGaps: 'Evidence gaps',
+    recommendedNextSteps: 'Recommended next steps',
+    exportActions: 'Export actions',
+    exportActionsText: 'Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.',
+    copyMarkdown: 'Copy Markdown summary',
+    copyAiPrompt: 'Copy AI prompt',
+    statEntries: 'Entries',
+    statPeople: 'People Reached',
+    statAttachments: 'Attachments',
+    statSurveys: 'Surveys',
+    tabJournal: 'Journal',
+    tabSurveys: 'Surveys',
+    searchEntries: 'Search entries...',
+    allTime: 'All time',
+    last7: 'Last 7 days',
+    last30: 'Last 30 days',
+    addEntry: '+ Add Entry',
+    noEntries: 'No entries yet — start documenting your impact!',
+    noEntriesShort: 'No entries yet',
+    surveyHint: 'Build a survey, share it via QR or file, then import the responses here.',
+    newSurvey: '+ New Survey',
+    noSurveys: 'No surveys yet. Create one to start collecting responses!',
+    backToProject: 'Back to project',
+    deleteSurvey: 'Delete survey',
+    tabQuestions: 'Questions',
+    tabResponses: 'Responses',
+    tabShare: 'Share & QR',
+    responsesHint: 'Import response JSON files after people complete the exported survey.',
+    importResponse: 'Import Response JSON',
+    noResponses: 'No responses yet. Import a response JSON file to see results here.',
+    shareStep1Title: 'Export survey',
+    shareStep1Text: 'Download a self-contained HTML file. Respondents open it in any browser, fill it in, and download their answers as a JSON file to send back to you.',
+    downloadSurveyHtml: 'Download Survey HTML',
+    shareStep2Title: 'Host or share file',
+    forQrCode: '(for QR code)',
+    shareStep2Text: 'Host the HTML file online when you want a QR code, or share the file directly for small pilots.',
+    netlifyNote: 'Drag & drop the HTML file — get a live URL in seconds.',
+    shareStep3Title: 'Generate QR code',
+    shareStep3Text: 'Paste your hosted URL below to generate a QR code you can print, display at events, or share digitally.',
+    generateQr: 'Generate QR',
+    modalNewProject: 'New Project',
+    modalEditProject: 'Edit Project',
+    projectNameLabel: 'Project Name',
+    descriptionLabel: 'Description',
+    optional: '(optional)',
+    projectDescPlaceholder: 'What is this project about?',
+    cancel: 'Cancel',
+    saveProject: 'Save Project',
+    modalNewEntry: 'New Entry',
+    modalEditEntry: 'Edit Entry',
+    whatHappened: 'What happened?',
+    entryTextPlaceholder: 'Describe what took place and the impact you observed...',
+    peopleReachedLabel: 'People Reached',
+    tagsLabel: 'Tags',
+    commaSeparated: '(comma-separated)',
+    tagsPlaceholder: 'workshop, youth, online',
+    attachmentsLabel: 'Attachments',
+    photosDocs: '(photos, docs)',
+    dragDropOr: 'Drag & drop or',
+    browse: 'browse',
+    saveEntry: 'Save Entry',
+    modalNewSurvey: 'New Survey',
+    close: 'Close',
+    surveyTitleLabel: 'Survey Title',
+    optionalShown: '(optional — shown to respondents)',
+    surveyDescPlaceholder: 'A short intro for your respondents',
+    questionsLabel: 'Questions',
+    addQuestion: '+ Add Question',
+    noBuilderQuestions: 'No questions yet — click "+ Add Question" to start building.',
+    saveSurvey: 'Save Survey',
+    areYouSure: 'Are you sure?',
+    cannotUndo: 'This action cannot be undone.',
+    delete: 'Delete',
+    feedbackCollection: 'Feedback collection',
+    updated: 'Updated {date}',
+    questionCount: '{count} questions',
+    responseCount: '{count} response{plural}',
+    peopleReached: '{count} people reached',
+    copied: 'Copied',
+    copyFailed: 'Copy failed. You can still select and copy the generated text manually from the page.',
+    lastUpdatedLocal: 'Last updated {date} · Local-first prototype',
+    noTagsYet: 'No tags yet',
+    noQuestionsSurvey: 'No questions in this survey.',
+    questionRequired: 'Question {number} · Required',
+    questionPlain: 'Question {number}',
+    required: 'Required',
+    shortText: 'Short text',
+    multipleChoice: 'Multiple choice (pick one)',
+    linearScale: 'Linear scale',
+    checkboxes: 'Checkboxes (pick many)',
+    scaleRange: 'Scale: {min} – {max}',
+    responsesCollected: '{count} response{plural} collected',
+    noAnswersYet: 'No answers yet.',
+    avgOutOf: 'avg out of {max} · {count} answer{plural}',
+    answeredCount: '{answered} of {total} answered',
+    downloadQr: 'Download QR as PNG',
+    qrNotReady: 'QR not ready yet, try again.',
+    deleteEntryConfirm: 'Delete this entry? This cannot be undone.',
+    deleteProjectConfirm: 'Delete this project and all its data? This cannot be undone.',
+    deleteSurveyConfirm: 'Delete this survey and all its responses? This cannot be undone.',
+    demoExistsConfirm: 'Demo data already exists. Add another copy anyway?',
+    mergeDemoConfirm: 'Add demo projects to your existing local data?',
+    addQuestionAlert: 'Add at least one question to the survey.',
+    fillLabelsAlert: 'Please fill in all question labels before saving.',
+    importInvalidJson: 'Invalid JSON file.',
+    importUnknownFormat: 'Unrecognized file format.',
+    importMergeConfirm: 'Merge {projects} project(s) and {entries} entries into your data?\n\nThis will not overwrite existing data.',
+    importComplete: 'Import complete: {projects} project(s) and {entries} entries imported.',
+    fileTooLarge: '"{name}" is too large (max 10 MB).',
+    untitledEvidenceNote: 'Untitled evidence note',
+    selectedPeriod: 'the selected period',
+    openSummary: 'Open Summary',
+    workspaceKicker: 'Impact workspace',
+    projectOverview: 'Project overview',
+    topTags: 'Top tags',
+    latestSurveyActivity: 'Latest survey activity',
+    evidenceReadiness: 'Evidence readiness',
+    noSurveyActivity: 'No survey activity yet.',
+    evidenceSnapshot: '{attachments} attachments across {entries} evidence notes',
+    noTopTags: 'No tags yet',
+    resetDemoConfirm: 'Reset local data and load the full Nabolagets kraft demo dataset?',
+    demoResetBanner: 'Demo data reset. Nabolagets kraft is ready with rich sample impact documentation.',
+    dataModel: 'Data model',
+    modelProjects: 'Projects',
+    modelEntries: 'Entries',
+    modelSurveys: 'Surveys',
+    modelResponses: 'Responses',
+    modelExport: 'Export / Import',
+    modelSummary: 'Impact Summary'
+  },
+  no: {
+    mainSections: 'Hovedseksjoner',
+    newProject: '+ Nytt prosjekt',
+    productStatus: 'Lokal MVP',
+    productStatusText: 'Arbeidsflate for effektdokumentasjon',
+    navJournal: 'Journal',
+    navSurveys: 'Spørreskjema',
+    navSummary: 'Effektsammendrag',
+    navAbout: 'Om Vis Det',
+    navNotes: 'Prosjektnotater',
+    projectsLabel: 'Prosjekter',
+    import: 'Importer',
+    export: 'Eksporter',
+    prototypeNotice: 'Lokal prototype. Ikke et produksjonssystem for Norge Unlimited.',
+    demoBanner: 'Demodata er lastet inn. Dette er eksempeldokumentasjon for å utforske prototypen.',
+    dismiss: 'Lukk',
+    dismissNotice: 'Lukk varsel',
+    emptyTitle: 'Dokumenter det som skjedde.',
+    emptyText: 'Samle prosjektnotater, personer nådd, evidens og enkle tilbakemeldinger før det blir formell rapportering.',
+    createProject: 'Opprett prosjekt',
+    loadDemoData: 'Last demodata',
+    resetDemoData: 'Reset demodata',
+    aboutEyebrow: 'Om Vis Det',
+    aboutLede: 'En lokal prototype for strukturert effektdokumentasjon. Den hjelper team med å dokumentere prosjekter, observasjoner, evidens, personer nådd og enkle spørreskjema på ett sted.',
+    openJournal: 'Åpne journal',
+    whyExists: 'Hvorfor dette finnes',
+    whyExistsText: 'Prototypen er inspirert av Norge Unlimited sitt arbeid med lokalt sosialt entreprenørskap, nabolagsinkubatorer og effektdokumentasjon. Den utforsker hvordan tidlige effektdata kan fanges før de blir formell rapportering.',
+    aboutPoint1Kicker: 'Journalevidens',
+    aboutPoint1Title: 'Dokumenter evidens',
+    aboutPoint1Text: 'Loggfør notater med personer nådd, tags og valgfrie filer slik at fremdrift kan vurderes senere.',
+    aboutPoint2Kicker: 'Personer nådd',
+    aboutPoint2Title: 'Følg rekkevidde',
+    aboutPoint2Text: 'Hold enkle tall tett på de kvalitative notatene som forklarer hva som endret seg.',
+    aboutPoint3Kicker: 'Skjema og QR',
+    aboutPoint3Title: 'Samle svar',
+    aboutPoint3Text: 'Lag enkle spørreskjema, eksporter dem som frittstående HTML og importer svar som JSON.',
+    aboutPoint4Kicker: 'Lokale data',
+    aboutPoint4Title: 'Behold data lokalt',
+    aboutPoint4Text: 'Data lagres i denne nettleseren med IndexedDB. Eksport og import er tydelige filhandlinger.',
+    howItWorks: 'Slik fungerer det',
+    workflow1Title: 'Dokumenter aktiviteter',
+    workflow1Text: 'Skriv korte notater fra workshops, møter og oppfølging.',
+    workflow2Title: 'Legg til evidens og rekkevidde',
+    workflow2Text: 'Registrer personer nådd, tags og valgfrie vedlegg.',
+    workflow3Title: 'Samle tilbakemeldinger',
+    workflow3Text: 'Bruk enkle spørreskjema og importer svar lokalt.',
+    workflow4Title: 'Oppsummer effekt',
+    workflow4Text: 'Eksporter data eller lag et rapportklart utkast fra lokal evidens.',
+    prototypeDisclaimer: 'Prototypeavklaring',
+    prototypeDisclaimerText: 'Dette er en lokal prototype for å utforske effektdokumentasjon. Det er ikke et offisielt produksjonssystem for Norge Unlimited.',
+    notesEyebrow: 'Prosjektnotater',
+    notesTitle: 'Bygget som en fokusert app-prototype.',
+    notesLede: 'En liten, inspiserbar MVP for rekrutterere og tekniske vurderinger: enkle filer, lokal lagring, ekte import/eksport og ingen falsk tjenestelogikk.',
+    builtBy: 'Bygget av',
+    builtByText: 'Dichino Nguyen som en apputviklingsprototype for Norge Unlimited.',
+    techStack: 'Teknologi',
+    tech1: 'HTML, CSS og vanilla JavaScript',
+    tech2: 'Dexie.js med IndexedDB',
+    tech3: 'Lokal JSON-import og -eksport',
+    prototypeScope: 'Prototypeomfang',
+    scope1: 'Prosjektbaserte journalnotater',
+    scope2: 'Tags, vedlegg og personer nådd',
+    scope3: 'Skjemabygger, QR-deling og import av svar',
+    currentLimits: 'Nåværende begrensninger',
+    limit1: 'Kun lokale data',
+    limit2: 'Ingen innlogging, backend eller flerbrukersynk',
+    limit3: 'Ikke et produksjonsklart CRM- eller rapporteringssystem',
+    architecture: 'Arkitektur',
+    architectureText: 'Prosjekter, notater, spørreskjema og svar lagres lokalt i IndexedDB med Dexie.js. Eksport/import bruker JSON. En produksjonsversjon ville trenge backend-synk, innlogging og rollebasert tilgang før teamdeling.',
+    possibleNextSteps: 'Mulige neste steg',
+    possibleNextStepsText: 'Backend-synk, brukerkontoer, rollebasert tilgang, CSV/PDF-eksport, hostede spørreskjema, analysevisninger og adminrapportering kan utforskes etter validering av dokumentasjonsflyten.',
+    summaryEyebrow: 'AI-klar rapporteringsflyt',
+    summaryTitle: 'Utkast til effektsammendrag',
+    summaryLede: 'Generert fra lokale journal-, skjema- og evidensdata. Ingen ekte AI-API brukes i denne statiske prototypen.',
+    selectedProject: 'Valgt prosjekt',
+    noProjectSelected: 'Ingen prosjekt valgt',
+    noReportingPeriod: 'Ingen rapporteringsperiode ennå',
+    localFirstDraft: 'Lokalt utkast',
+    narrativeSummary: 'Narrativ oppsummering',
+    keyThemes: 'Hovedtemaer',
+    signalsOfChange: 'Tegn på endring',
+    evidenceGaps: 'Evidensgap',
+    recommendedNextSteps: 'Anbefalte neste steg',
+    exportActions: 'Eksporthandlinger',
+    exportActionsText: 'Kopier et rent markdown-utkast, eller kopier en prompt til ChatGPT eller et annet AI-verktøy. Prompten bruker bare lokale prosjektdata.',
+    copyMarkdown: 'Kopier Markdown-sammendrag',
+    copyAiPrompt: 'Kopier AI-prompt',
+    statEntries: 'Notater',
+    statPeople: 'Personer nådd',
+    statAttachments: 'Vedlegg',
+    statSurveys: 'Skjema',
+    tabJournal: 'Journal',
+    tabSurveys: 'Skjema',
+    searchEntries: 'Søk i notater...',
+    allTime: 'Hele perioden',
+    last7: 'Siste 7 dager',
+    last30: 'Siste 30 dager',
+    addEntry: '+ Nytt notat',
+    noEntries: 'Ingen notater ennå — start med å dokumentere effekt.',
+    noEntriesShort: 'Ingen notater ennå',
+    surveyHint: 'Lag et skjema, del det via QR eller fil, og importer svarene her.',
+    newSurvey: '+ Nytt skjema',
+    noSurveys: 'Ingen skjema ennå. Lag ett for å begynne å samle svar.',
+    backToProject: 'Tilbake til prosjekt',
+    deleteSurvey: 'Slett skjema',
+    tabQuestions: 'Spørsmål',
+    tabResponses: 'Svar',
+    tabShare: 'Deling og QR',
+    responsesHint: 'Importer JSON-svar etter at personer har fylt ut det eksporterte skjemaet.',
+    importResponse: 'Importer svar-JSON',
+    noResponses: 'Ingen svar ennå. Importer en JSON-fil for å se resultater her.',
+    shareStep1Title: 'Eksporter skjema',
+    shareStep1Text: 'Last ned en frittstående HTML-fil. Respondenter åpner den i en nettleser, fyller den ut og laster ned svarene som en JSON-fil som kan sendes tilbake.',
+    downloadSurveyHtml: 'Last ned skjema-HTML',
+    shareStep2Title: 'Host eller del filen',
+    forQrCode: '(for QR-kode)',
+    shareStep2Text: 'Host HTML-filen på nett når du vil bruke QR-kode, eller del filen direkte for små piloter.',
+    netlifyNote: 'Dra og slipp HTML-filen — få en live URL på sekunder.',
+    shareStep3Title: 'Lag QR-kode',
+    shareStep3Text: 'Lim inn hostet URL under for å lage en QR-kode du kan printe, vise på arrangement eller dele digitalt.',
+    generateQr: 'Lag QR',
+    modalNewProject: 'Nytt prosjekt',
+    modalEditProject: 'Rediger prosjekt',
+    projectNameLabel: 'Prosjektnavn',
+    descriptionLabel: 'Beskrivelse',
+    optional: '(valgfritt)',
+    projectDescPlaceholder: 'Hva handler prosjektet om?',
+    cancel: 'Avbryt',
+    saveProject: 'Lagre prosjekt',
+    modalNewEntry: 'Nytt notat',
+    modalEditEntry: 'Rediger notat',
+    whatHappened: 'Hva skjedde?',
+    entryTextPlaceholder: 'Beskriv hva som skjedde og hvilken effekt du observerte...',
+    peopleReachedLabel: 'Personer nådd',
+    tagsLabel: 'Tags',
+    commaSeparated: '(kommaseparert)',
+    tagsPlaceholder: 'workshop, ungdom, digitalt',
+    attachmentsLabel: 'Vedlegg',
+    photosDocs: '(bilder, dokumenter)',
+    dragDropOr: 'Dra og slipp eller',
+    browse: 'bla gjennom',
+    saveEntry: 'Lagre notat',
+    modalNewSurvey: 'Nytt skjema',
+    close: 'Lukk',
+    surveyTitleLabel: 'Skjematittel',
+    optionalShown: '(valgfritt — vises til respondenter)',
+    surveyDescPlaceholder: 'En kort introduksjon til respondentene',
+    questionsLabel: 'Spørsmål',
+    addQuestion: '+ Legg til spørsmål',
+    noBuilderQuestions: 'Ingen spørsmål ennå — klikk "+ Legg til spørsmål" for å starte.',
+    saveSurvey: 'Lagre skjema',
+    areYouSure: 'Er du sikker?',
+    cannotUndo: 'Denne handlingen kan ikke angres.',
+    delete: 'Slett',
+    feedbackCollection: 'Tilbakemeldingsinnsamling',
+    updated: 'Oppdatert {date}',
+    questionCount: '{count} spørsmål',
+    responseCount: '{count} svar',
+    peopleReached: '{count} personer nådd',
+    copied: 'Kopiert',
+    copyFailed: 'Kopiering feilet. Du kan fortsatt markere og kopiere teksten manuelt fra siden.',
+    lastUpdatedLocal: 'Sist oppdatert {date} · Lokal prototype',
+    noTagsYet: 'Ingen tags ennå',
+    noQuestionsSurvey: 'Ingen spørsmål i dette skjemaet.',
+    questionRequired: 'Spørsmål {number} · Påkrevd',
+    questionPlain: 'Spørsmål {number}',
+    required: 'Påkrevd',
+    shortText: 'Kort tekst',
+    multipleChoice: 'Flervalg (velg ett)',
+    linearScale: 'Lineær skala',
+    checkboxes: 'Avkryssing (velg flere)',
+    scaleRange: 'Skala: {min} – {max}',
+    responsesCollected: '{count} svar samlet',
+    noAnswersYet: 'Ingen svar ennå.',
+    avgOutOf: 'snitt av {max} · {count} svar',
+    answeredCount: '{answered} av {total} besvart',
+    downloadQr: 'Last ned QR som PNG',
+    qrNotReady: 'QR er ikke klar ennå, prøv igjen.',
+    deleteEntryConfirm: 'Slette dette notatet? Dette kan ikke angres.',
+    deleteProjectConfirm: 'Slette dette prosjektet og alle data? Dette kan ikke angres.',
+    deleteSurveyConfirm: 'Slette dette skjemaet og alle svar? Dette kan ikke angres.',
+    demoExistsConfirm: 'Demodata finnes allerede. Vil du legge til en ny kopi likevel?',
+    mergeDemoConfirm: 'Legge demoprosjekter til dine eksisterende lokale data?',
+    addQuestionAlert: 'Legg til minst ett spørsmål i skjemaet.',
+    fillLabelsAlert: 'Fyll ut alle spørsmålstekster før du lagrer.',
+    importInvalidJson: 'Ugyldig JSON-fil.',
+    importUnknownFormat: 'Ukjent filformat.',
+    importMergeConfirm: 'Slå sammen {projects} prosjekt(er) og {entries} notater med dine data?\n\nDette overskriver ikke eksisterende data.',
+    importComplete: 'Import fullført: {projects} prosjekt(er) og {entries} notater importert.',
+    fileTooLarge: '"{name}" er for stor (maks 10 MB).',
+    untitledEvidenceNote: 'Notat uten tittel',
+    selectedPeriod: 'den valgte perioden',
+    openSummary: 'Åpne sammendrag',
+    workspaceKicker: 'Effektarbeidsflate',
+    projectOverview: 'Prosjektoversikt',
+    topTags: 'Topp-tags',
+    latestSurveyActivity: 'Siste skjemaaktivitet',
+    evidenceReadiness: 'Evidensstatus',
+    noSurveyActivity: 'Ingen skjemaaktivitet ennå.',
+    evidenceSnapshot: '{attachments} vedlegg på {entries} evidensnotater',
+    noTopTags: 'Ingen tags ennå',
+    resetDemoConfirm: 'Nullstille lokale data og laste hele Nabolagets kraft-demoen?',
+    demoResetBanner: 'Demodata er nullstilt. Nabolagets kraft er klar med rik eksempeldokumentasjon.',
+    dataModel: 'Datamodell',
+    modelProjects: 'Prosjekter',
+    modelEntries: 'Notater',
+    modelSurveys: 'Skjema',
+    modelResponses: 'Svar',
+    modelExport: 'Eksport / import',
+    modelSummary: 'Effektsammendrag'
+  }
+};
+
+const demoNorwegianText = new Map([
+  ['Recurring local meeting point for social entrepreneurs, residents and partners to build networks, share learning and develop local initiatives. Period: January 2025 – June 2026.', 'Tilbakevendende møtepunkt for sosiale entreprenører, beboere og partnere som bygger nettverk, deler læring og utvikler lokale initiativer. Periode: januar 2025 – juni 2026.'],
+  ['Focused youth workshop series connected to confidence, belonging and practical project ideas.', 'Målrettet workshopserie for ungdom knyttet til mestring, tilhørighet og praktiske prosjektideer.'],
+  ['Mentor gatherings and practical follow-up with local changemakers.', 'Mentorsamlinger og praktisk oppfølging med lokale endringsaktører.'],
+  ['Needs mapping kickoff. Held a local workshop with residents and social entrepreneurs to map current needs and possible collaborations.', 'Oppstart for behovskartlegging. Gjennomførte en lokal workshop med beboere og sosiale entreprenører for å kartlegge behov og mulige samarbeid.'],
+  ['Partner check-in. Followed up with partner organisation after community meeting and documented possible collaboration points for spring activities.', 'Partnersjekk. Fulgte opp partnerorganisasjon etter nabolagsmøte og dokumenterte mulige samarbeidspunkter for vårens aktiviteter.'],
+  ['Youth ideas workshop. Participants shared challenges around funding, visibility and local recruitment, then sketched small initiative ideas.', 'Idéworkshop for ungdom. Deltakerne delte utfordringer rundt finansiering, synlighet og lokal rekruttering, og skisserte små initiativideer.'],
+  ['Mentor follow-up. Collected feedback after a mentoring session and documented early signs of increased confidence among participants.', 'Mentoroppfølging. Samlet tilbakemeldinger etter en mentorsamtale og dokumenterte tidlige tegn på økt trygghet hos deltakerne.'],
+  ['Founder stories evening. Local changemakers shared early project stories and practical questions about testing ideas with residents.', 'Kveld med gründerhistorier. Lokale endringsaktører delte tidlige prosjekterfaringer og praktiske spørsmål om å teste ideer med beboere.'],
+  ['Evidence routine test. Documented recurring questions that should inform the next workshop format and future reporting structure.', 'Test av evidensrutine. Dokumenterte tilbakevendende spørsmål som bør forme neste workshopformat og fremtidig rapportering.'],
+  ['Community partner roundtable. Several ideas moved from early exploration to concrete follow-up actions with local partners.', 'Rundebord med lokale partnere. Flere ideer gikk fra tidlig utforsking til konkrete oppfølgingspunkter med lokale partnere.'],
+  ['Summer learning session. Residents and entrepreneurs compared what had been tested so far and identified where peer learning was most useful.', 'Sommerøkt for læring. Beboere og entreprenører sammenlignet det som var testet så langt og pekte på hvor erfaringsdeling var mest nyttig.'],
+  ['Mentor clinic. Three early-stage initiatives received practical feedback on budgets, local recruitment and next-step planning.', 'Mentorklinikk. Tre initiativer i tidlig fase fikk praktiske tilbakemeldinger på budsjett, lokal rekruttering og planlegging av neste steg.'],
+  ['Youth network evening. Participants described the meeting point as useful for building confidence, contacts and local belonging.', 'Ungdomskveld for nettverk. Deltakerne beskrev møtepunktet som nyttig for å bygge trygghet, kontakter og lokal tilhørighet.'],
+  ['Impact documentation workshop. The group tested simple ways to describe change without turning every activity into formal reporting.', 'Workshop om effektdokumentasjon. Gruppen testet enkle måter å beskrive endring på uten å gjøre hver aktivitet til formell rapportering.'],
+  ['Municipality dialogue. Followed up on partner questions about what early evidence would be useful for future funding conversations.', 'Dialog med kommunen. Fulgte opp partnerspørsmål om hvilken tidlig evidens som er nyttig i fremtidige finansieringssamtaler.'],
+  ['Neighbourhood listening session. Residents mapped barriers to participation and suggested more informal formats for first-time attendees.', 'Lyttemøte i nabolaget. Beboere kartla barrierer for deltakelse og foreslo mer uformelle formater for førstegangsbesøkende.'],
+  ['End-of-year reflection. Participants reviewed what helped initiatives move forward and where longer follow-up data is still missing.', 'Årsrefleksjon. Deltakerne vurderte hva som hjalp initiativene videre, og hvor lengre oppfølgingsdata fortsatt mangler.'],
+  ['New year project lab. Social entrepreneurs refined project ideas and identified concrete tests for the next six weeks.', 'Prosjektlab ved nyttår. Sosiale entreprenører spisset prosjektideer og identifiserte konkrete tester for de neste seks ukene.'],
+  ['Mentor matching session. New mentor connections were formed around communication, local partnerships and measuring early outcomes.', 'Mentor-matching. Nye mentorkoblinger ble etablert rundt kommunikasjon, lokale partnerskap og måling av tidlige resultater.'],
+  ['Youth participation follow-up. Young participants reviewed previous ideas and selected two concepts for practical testing.', 'Oppfølging av ungdomsdeltakelse. Unge deltakere vurderte tidligere ideer og valgte to konsepter for praktisk testing.'],
+  ['Evidence review. The team reviewed journal notes and identified activities with strong stories but limited attachments.', 'Evidensgjennomgang. Teamet gikk gjennom journalnotater og fant aktiviteter med sterke historier, men få vedlegg.'],
+  ['Partner follow-up sprint. Several partner conversations created new opportunities for collaboration and shared venues.', 'Oppfølgingssprint med partnere. Flere partnersamtaler skapte nye muligheter for samarbeid og delte lokaler.'],
+  ['Open neighbourhood gathering. Participants exchanged learning across initiatives and invited new residents into the network.', 'Åpen nabolagssamling. Deltakerne delte læring på tvers av initiativer og inviterte nye beboere inn i nettverket.'],
+  ['Reporting preparation. Summarized the strongest signals of change and listed evidence gaps for the next reporting period.', 'Forberedelse til rapportering. Oppsummerte de sterkeste tegnene på endring og listet evidensgap for neste rapporteringsperiode.'],
+  ['Youth workshop pilot. Young participants mapped local challenges and sketched small initiatives they could test.', 'Pilot for ungdomsworkshop. Unge deltakere kartla lokale utfordringer og skisserte små initiativer de kunne teste.'],
+  ['Follow-up mentoring. Participants asked for practical help with budgeting, outreach and presenting their ideas.', 'Oppfølgende mentoring. Deltakerne ba om praktisk hjelp med budsjett, synlighet og presentasjon av ideene sine.'],
+  ['Peer learning meetup. Participants shared progress and named confidence, contacts and structure as useful outcomes.', 'Møte for erfaringsdeling. Deltakerne delte fremdrift og trakk frem trygghet, kontakter og struktur som nyttige resultater.'],
+  ['Mentor gathering. Case discussions focused on role clarity, useful documentation routines and practical next steps.', 'Mentorsamling. Case-diskusjoner handlet om rolleavklaring, nyttige dokumentasjonsrutiner og praktiske neste steg.'],
+  ['Mentor reflection session. Mentors shared patterns they observed across local initiatives and where support was still thin.', 'Refleksjonsøkt for mentorer. Mentorene delte mønstre de så på tvers av lokale initiativer, og hvor støtten fortsatt var tynn.'],
+  ['Impact note review. Mentors tested a short reflection template for capturing observed progress after conversations.', 'Gjennomgang av effektnotater. Mentorene testet en kort refleksjonsmal for å fange observert fremgang etter samtaler.'],
+  ['Quick participant feedback after local workshops and learning sessions.', 'Kort deltakertilbakemelding etter lokale workshops og læringsøkter.'],
+  ['Short survey for partners after collaboration meetings.', 'Kort spørreskjema til partnere etter samarbeidsmøter.'],
+  ['Lightweight reflection after mentor clinics and follow-up sessions.', 'Enkel refleksjon etter mentorklinikker og oppfølgingsøkter.'],
+  ['How useful was the session?', 'Hvor nyttig var økten?'],
+  ['What was the most valuable part?', 'Hva var mest verdifullt?'],
+  ['Do you want follow-up?', 'Ønsker du oppfølging?'],
+  ['Which topic should be covered next?', 'Hvilket tema bør tas opp neste gang?'],
+  ['How valuable was the collaboration conversation?', 'Hvor verdifull var samarbeidssamtalen?'],
+  ['Is there a clear next step?', 'Finnes det et tydelig neste steg?'],
+  ['What should be followed up?', 'Hva bør følges opp?'],
+  ['Did the session increase confidence to move forward?', 'Ga økten mer trygghet til å gå videre?'],
+  ['What support is still needed?', 'Hvilken støtte trengs fortsatt?'],
+  ['Any useful observation?', 'Noen nyttige observasjoner?'],
+  ['Yes', 'Ja'],
+  ['Maybe', 'Kanskje'],
+  ['No', 'Nei'],
+  ['Partly', 'Delvis'],
+  ['Funding', 'Finansiering'],
+  ['Visibility', 'Synlighet'],
+  ['Partnerships', 'Partnerskap'],
+  ['Measuring impact', 'Måle effekt'],
+  ['Budgeting', 'Budsjett'],
+  ['Communication', 'Kommunikasjon'],
+  ['Recruitment', 'Rekruttering'],
+  ['Impact documentation', 'Effektdokumentasjon'],
+  ['Meeting others with similar ideas made the project feel possible.', 'Å møte andre med lignende ideer gjorde at prosjektet føltes mulig.'],
+  ['The practical examples helped us understand next steps.', 'De praktiske eksemplene hjalp oss å forstå neste steg.'],
+  ['I left with a clearer idea and two people to contact.', 'Jeg gikk derfra med en tydeligere idé og to personer å kontakte.'],
+  ['Good energy and useful structure.', 'God energi og nyttig struktur.'],
+  ['The group discussion made local collaboration easier.', 'Gruppediskusjonen gjorde lokalt samarbeid enklere.'],
+  ['It helped me explain my idea more clearly.', 'Det hjalp meg å forklare ideen min tydeligere.'],
+  ['Share venue calendar and invite two initiatives to the next meeting.', 'Del kalender for lokaler og inviter to initiativer til neste møte.'],
+  ['Explore a joint workshop around recruitment and local visibility.', 'Utforsk en felles workshop om rekruttering og lokal synlighet.'],
+  ['Clarify what data is useful for reporting before summer.', 'Avklar hvilke data som er nyttige for rapportering før sommeren.'],
+  ['Connect youth project leads with communications support.', 'Koble ungdomsprosjektledere med kommunikasjonsstøtte.'],
+  ['Follow up on shared space and available mentor capacity.', 'Følg opp delt lokale og tilgjengelig mentorkapasitet.'],
+  ['The participant had a clearer next step after mapping costs.', 'Deltakeren hadde et tydeligere neste steg etter å ha kartlagt kostnader.'],
+  ['Good progress, but needs more help finding local volunteers.', 'God fremdrift, men trenger mer hjelp til å finne lokale frivillige.'],
+  ['Useful to write down small changes directly after sessions.', 'Nyttig å skrive ned små endringer rett etter øktene.'],
+  ['The pitch became more grounded and easier to understand.', 'Pitchen ble mer forankret og lettere å forstå.']
+]);
+
+function t(key, params = {}) {
+  const source = i18n[currentLanguage] || i18n.en;
+  const fallback = i18n.en[key] || key;
+  const template = source[key] || fallback;
+  return Object.entries(params).reduce((text, [name, value]) => {
+    return text.replaceAll(`{${name}}`, value);
+  }, template);
+}
+
+function plural(count) {
+  return count === 1 ? '' : 's';
+}
+
+function getLocale() {
+  return currentLanguage === 'no' ? 'nb-NO' : 'en-GB';
+}
+
+function localizeDemoText(text) {
+  if (currentLanguage !== 'no') return text || '';
+  if (Array.isArray(text)) return text.map(localizeDemoText);
+  return demoNorwegianText.get(text) || text || '';
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage === 'no' ? 'no' : 'en';
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => {
+    el.title = t(el.dataset.i18nTitle);
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+    el.setAttribute('aria-label', t(el.dataset.i18nAria));
+  });
+  document.querySelectorAll('.language-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
+    btn.setAttribute('aria-pressed', btn.dataset.lang === currentLanguage ? 'true' : 'false');
+  });
+}
+
+async function setLanguage(lang) {
+  if (!i18n[lang]) return;
+  currentLanguage = lang;
+  localStorage.setItem(LANG_KEY, lang);
+  applyLanguage();
+
+  if (currentProjectId) {
+    await renderProjectList(false);
+    if (!document.getElementById('projectView').classList.contains('hidden')) {
+      await renderProjectView(currentProjectTab);
+    }
+    if (!document.getElementById('impactSummaryView').classList.contains('hidden')) {
+      await renderImpactSummary();
+    }
+  }
+
+  if (currentSurveyId && !document.getElementById('surveyDetailView').classList.contains('hidden')) {
+    await openSurveyDetail(currentSurveyId, currentSurveyTab);
+  }
+}
 
 // ============ INIT ============
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const seededDemo = await autoSeedDemoIfEmpty();
+  let seededDemo = await autoSeedDemoIfEmpty();
+  if (!seededDemo && await isWeakLegacyDemo()) {
+    await replaceAllDataWithDemo();
+    seededDemo = true;
+  }
   await renderProjectList();
   attachEventListeners();
+  applyLanguage();
   if (seededDemo) showDemoBanner();
 });
 
@@ -109,7 +679,7 @@ async function navigateToSection(section) {
 
 // ============ RENDER PROJECT LIST (SIDEBAR) ============
 
-async function renderProjectList() {
+async function renderProjectList(renderCurrentView = true) {
   const projects = await db.projects.orderBy('updatedAt').reverse().toArray();
   const list = document.getElementById('projectList');
   list.innerHTML = '';
@@ -124,19 +694,24 @@ async function renderProjectList() {
     currentProjectId = projects[0].id;
   }
 
-  projects.forEach(project => {
+  for (const project of projects) {
+    const entryCount = await db.entries.where('projectId').equals(project.id).count();
     const btn = document.createElement('button');
     btn.className = 'project-item' + (project.id === currentProjectId ? ' active' : '');
     btn.dataset.id = project.id;
     btn.innerHTML = `
-      <div class="project-item-name">${escapeHtml(project.name)}</div>
+      <div class="project-item-row">
+        <span class="project-item-dot" aria-hidden="true"></span>
+        <div class="project-item-name">${escapeHtml(project.name)}</div>
+        <span class="project-item-count">${entryCount}</span>
+      </div>
       <div class="project-item-meta">${formatDate(project.updatedAt)}</div>
     `;
     btn.addEventListener('click', () => selectProject(project.id));
     list.appendChild(btn);
-  });
+  }
 
-  renderProjectView(currentProjectTab || 'journal');
+  if (renderCurrentView) renderProjectView(currentProjectTab || 'journal');
 }
 
 // ============ SELECT PROJECT ============
@@ -161,12 +736,13 @@ async function renderProjectView(tab = currentProjectTab || 'journal') {
 
   document.getElementById('projectTitle').textContent = project.name;
   const descEl = document.getElementById('projectDesc');
-  descEl.textContent = project.description || '';
+  descEl.textContent = localizeDemoText(project.description || '');
   descEl.style.display = project.description ? '' : 'none';
 
   switchProjectTab(tab);
 
   await renderStats();
+  await renderProjectOverview();
   if (tab === 'journal') await renderEntries();
 }
 
@@ -194,10 +770,10 @@ async function loadDemoData() {
   const existingDemoCount = await db.projects.where('name').anyOf(demoNames).count();
 
   if (existingDemoCount > 0) {
-    const duplicateOk = confirm('Demo data already exists. Add another copy anyway?');
+    const duplicateOk = confirm(t('demoExistsConfirm'));
     if (!duplicateOk) return;
   } else if (existingCount > 0) {
-    const mergeOk = confirm('Add demo projects to your existing local data?');
+    const mergeOk = confirm(t('mergeDemoConfirm'));
     if (!mergeOk) return;
   }
 
@@ -212,7 +788,7 @@ async function loadDemoData() {
 
 async function autoSeedDemoIfEmpty() {
   const existingCount = await db.projects.count();
-  if (existingCount > 0 || localStorage.getItem('visdetDemoSeeded')) return false;
+  if (existingCount > 0) return false;
 
   currentProjectId = await createDemoData();
   currentProjectTab = 'journal';
@@ -220,8 +796,63 @@ async function autoSeedDemoIfEmpty() {
   return true;
 }
 
-function showDemoBanner() {
-  document.getElementById('demoBanner')?.classList.remove('hidden');
+async function isWeakLegacyDemo() {
+  const projects = await db.projects.toArray();
+  if (projects.length === 0) return false;
+  if (projects.some(project => project.name === 'Nabolagets kraft')) {
+    const nabolag = projects.find(project => project.name === 'Nabolagets kraft');
+    const entries = await db.entries.where('projectId').equals(nabolag.id).toArray();
+    const surveys = await db.surveys.where('projectId').equals(nabolag.id).toArray();
+    const entryIds = entries.map(entry => entry.id);
+    const attachments = entryIds.length
+      ? await db.attachments.where('entryId').anyOf(entryIds).count()
+      : 0;
+    const people = entries.reduce((sum, entry) => sum + (parseInt(entry.count) || 0), 0);
+    return entries.length > 0 && (entries.length < 15 || surveys.length < 3 || attachments < 8 || people < 600);
+  }
+  if (projects.length !== 1) return false;
+
+  const project = projects[0];
+  const entries = await db.entries.where('projectId').equals(project.id).toArray();
+  const surveys = await db.surveys.where('projectId').equals(project.id).toArray();
+  const people = entries.reduce((sum, entry) => sum + (parseInt(entry.count) || 0), 0);
+  const weakName = /te\s*med\s*tu|te med|tu/i.test(project.name || '');
+
+  return weakName || (entries.length <= 2 && surveys.length === 0 && people <= 50);
+}
+
+async function clearLocalData() {
+  await db.transaction('rw', db.responses, db.surveys, db.attachments, db.entries, db.projects, async () => {
+    await db.responses.clear();
+    await db.surveys.clear();
+    await db.attachments.clear();
+    await db.entries.clear();
+    await db.projects.clear();
+  });
+}
+
+async function replaceAllDataWithDemo() {
+  await clearLocalData();
+  currentProjectId = await createDemoData();
+  currentProjectTab = 'journal';
+  currentSurveyId = null;
+  localStorage.setItem('visdetDemoSeeded', 'true');
+}
+
+async function resetDemoData() {
+  const ok = confirm(t('resetDemoConfirm'));
+  if (!ok) return;
+  await replaceAllDataWithDemo();
+  setActiveNav('journal');
+  await renderProjectList();
+  showDemoBanner(t('demoResetBanner'));
+}
+
+function showDemoBanner(message) {
+  const banner = document.getElementById('demoBanner');
+  const text = banner?.querySelector('span');
+  if (message && text) text.textContent = message;
+  banner?.classList.remove('hidden');
 }
 
 async function createDemoData() {
@@ -429,6 +1060,58 @@ async function renderStats() {
   document.getElementById('statSurveys').textContent    = surveys.length;
 }
 
+async function renderProjectOverview() {
+  const project = await db.projects.get(currentProjectId);
+  if (!project) return;
+
+  const entries = await db.entries.where('projectId').equals(currentProjectId).toArray();
+  entries.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const entryIds = entries.map(e => e.id);
+  const attachments = entryIds.length
+    ? await db.attachments.where('entryId').anyOf(entryIds).toArray()
+    : [];
+  const surveys = await db.surveys.where('projectId').equals(currentProjectId).toArray();
+  surveys.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const period = getDateRange(entries);
+  document.getElementById('projectPeriodChip').textContent = period.label;
+
+  const tagCounts = {};
+  entries.forEach(entry => (entry.tags || []).forEach(tag => {
+    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+  }));
+  const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  document.getElementById('projectTopTags').innerHTML = topTags.length
+    ? `<div class="overview-tags">${topTags.map(([tag, count]) => `<span class="overview-tag">${escapeHtml(tag)} <small>${count}</small></span>`).join('')}</div>`
+    : `<p>${escapeHtml(t('noTopTags'))}</p>`;
+
+  const latestSurvey = surveys[0];
+  if (latestSurvey) {
+    const responseCount = await db.responses.where('surveyId').equals(latestSurvey.id).count();
+    document.getElementById('projectSurveySnapshot').innerHTML = `
+      <div class="overview-snapshot">
+        <span class="overview-icon overview-icon-blue">SV</span>
+        <div>
+          <strong>${escapeHtml(latestSurvey.title)}</strong>
+          <p>${escapeHtml(t('questionCount', { count: (latestSurvey.questions || []).length }))} · ${escapeHtml(t('responseCount', { count: responseCount, plural: plural(responseCount) }))}</p>
+        </div>
+      </div>
+    `;
+  } else {
+    document.getElementById('projectSurveySnapshot').innerHTML = `<p>${escapeHtml(t('noSurveyActivity'))}</p>`;
+  }
+
+  document.getElementById('projectEvidenceSnapshot').innerHTML = `
+    <div class="overview-snapshot">
+      <span class="overview-icon overview-icon-mint">EV</span>
+      <div>
+        <strong>${escapeHtml(t('evidenceSnapshot', { attachments: attachments.length, entries: entries.length }))}</strong>
+        <p>${escapeHtml(project.name)} · ${escapeHtml(period.label)}</p>
+      </div>
+    </div>
+  `;
+}
+
 // ============ IMPACT SUMMARY ============
 
 async function getImpactSummaryData() {
@@ -458,7 +1141,7 @@ async function getImpactSummaryData() {
     tagCounts[tag] = (tagCounts[tag] || 0) + 1;
   }));
 
-  const topTag = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'No tags yet';
+  const topTag = Object.entries(tagCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || t('noTagsYet');
   const period = getDateRange(entries);
 
   return { project, entries, attachments, surveys, responsesBySurvey, responseCount, totalPeople, tagCounts, topTag, period };
@@ -472,14 +1155,14 @@ async function renderImpactSummary() {
 
   document.getElementById('summaryProjectName').textContent = project.name;
   document.getElementById('summaryPeriod').textContent = period.label;
-  document.getElementById('summaryUpdated').textContent = `Last updated ${formatDate(project.updatedAt || project.createdAt)} · Local-first prototype`;
+  document.getElementById('summaryUpdated').textContent = t('lastUpdatedLocal', { date: formatDate(project.updatedAt || project.createdAt) });
 
   document.getElementById('summaryMetrics').innerHTML = [
-    ['People reached', totalPeople.toLocaleString()],
-    ['Journal entries', entries.length],
-    ['Surveys', surveys.length],
-    ['Attachments', attachments.length],
-    ['Top tag', topTag]
+    [t('statPeople'), totalPeople.toLocaleString(getLocale())],
+    [t('statEntries'), entries.length],
+    [t('statSurveys'), surveys.length],
+    [t('statAttachments'), attachments.length],
+    [currentLanguage === 'no' ? 'Topp-tag' : 'Top tag', topTag]
   ].map(([label, value], i) => `
     <div class="summary-metric summary-metric-${i + 1}">
       <span>${escapeHtml(label)}</span>
@@ -498,7 +1181,14 @@ async function renderImpactSummary() {
 function buildNarrativeSummary(data) {
   const { project, entries, surveys, responseCount, totalPeople, period, tagCounts } = data;
   const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([tag]) => tag);
-  const activityTypes = topTags.length ? topTags.join(', ') : 'documented local activities';
+  const activityTypes = topTags.length ? topTags.join(', ') : (currentLanguage === 'no' ? 'dokumenterte lokale aktiviteter' : 'documented local activities');
+
+  if (currentLanguage === 'no') {
+    return [
+      `Mellom ${period.plain} dokumenterte ${project.name} ${entries.length} aktiviteter og nådde ${totalPeople.toLocaleString(getLocale())} personer gjennom ${activityTypes}. Journalnotatene viser gjentakende arbeid med lokale nettverk, mentoring, læring og sosialt entreprenørskap i tidlig fase.`,
+      `${surveys.length} skjema og ${responseCount} importerte svar støtter rapporteringsflyten. Dataene er fortsatt lokale og på utkastnivå, men de er strukturerte nok til å lage et effektsammendrag, identifisere evidensgap og forberede en AI-klar rapporteringsprompt uten å eksponere API-nøkler i frontend.`
+    ];
+  }
 
   return [
     `Between ${period.plain}, ${project.name} documented ${entries.length} activities and reached ${totalPeople.toLocaleString()} people through ${activityTypes}. The journal entries show recurring work around local network building, mentorship, learning and early-stage social entrepreneurship.`,
@@ -508,23 +1198,41 @@ function buildNarrativeSummary(data) {
 
 function inferThemes(data) {
   const text = data.entries.map(e => `${e.text} ${(e.tags || []).join(' ')}`).join(' ').toLowerCase();
+  const no = currentLanguage === 'no';
   const candidates = [
-    ['Local network building', ['nabolag', 'nettverk', 'partnerskap', 'collaboration']],
-    ['Youth participation', ['ungdom', 'young', 'youth']],
-    ['Mentorship and follow-up', ['mentor', 'oppfølging', 'follow-up']],
-    ['Community learning', ['læring', 'workshop', 'innsikt', 'learning']],
-    ['Early impact documentation', ['effektmåling', 'rapportering', 'evidence', 'impact']],
-    ['Social entrepreneurship', ['sosialt entreprenørskap', 'entrepreneur']]
+    [no ? 'Lokal nettverksbygging' : 'Local network building', ['nabolag', 'nettverk', 'partnerskap', 'collaboration']],
+    [no ? 'Ungdomsdeltakelse' : 'Youth participation', ['ungdom', 'young', 'youth']],
+    [no ? 'Mentoring og oppfølging' : 'Mentorship and follow-up', ['mentor', 'oppfølging', 'follow-up']],
+    [no ? 'Læring i fellesskap' : 'Community learning', ['læring', 'workshop', 'innsikt', 'learning']],
+    [no ? 'Tidlig effektdokumentasjon' : 'Early impact documentation', ['effektmåling', 'rapportering', 'evidence', 'impact']],
+    [no ? 'Sosialt entreprenørskap' : 'Social entrepreneurship', ['sosialt entreprenørskap', 'entrepreneur']]
   ];
 
   const themes = candidates
     .filter(([, words]) => words.some(word => text.includes(word)))
     .map(([label]) => label);
 
-  return themes.length ? themes.slice(0, 5) : ['Structured activity documentation', 'Local learning and follow-up'];
+  return themes.length ? themes.slice(0, 5) : (no
+    ? ['Strukturert aktivitetsdokumentasjon', 'Lokal læring og oppfølging']
+    : ['Structured activity documentation', 'Local learning and follow-up']);
 }
 
 function buildSignals(data) {
+  if (currentLanguage === 'no') {
+    const signals = [
+      'Deltakere beskriver gjentatte ganger møtepunktet som nyttig for å bygge trygghet, kontakter og lokal tilhørighet.',
+      'Flere lokale ideer gikk fra uformell samtale til konkrete oppfølgingspunkter med mentorer eller partnere.',
+      'Partnersamtaler skapte nye muligheter for samarbeid, delte lokaler og praktisk støtte.',
+      'Journalnotatene viser gjentakende læring om finansiering, synlighet, rekruttering og effektdokumentasjon.'
+    ];
+
+    if (data.responseCount > 0) {
+      signals.push(`${data.responseCount} importerte skjemasvar legger til enkel deltaker- og partnertilbakemelding i evidensgrunnlaget.`);
+    }
+
+    return signals.slice(0, 5);
+  }
+
   const signals = [
     'Participants repeatedly described the meeting point as useful for building confidence, contacts and local belonging.',
     'Several local ideas moved from informal discussion to concrete follow-up actions with mentors or partners.',
@@ -540,6 +1248,20 @@ function buildSignals(data) {
 }
 
 function buildEvidenceGaps(data) {
+  if (currentLanguage === 'no') {
+    const gaps = [
+      'Mer strukturert deltakertilbakemelding trengs på tvers av de gjentakende aktivitetsformatene.',
+      'Langsiktige resultater etter 3–6 måneder er ennå ikke dokumentert jevnt.',
+      'Noen aktiviteter har få vedlegg eller oppfølgingsnotater.'
+    ];
+
+    if (data.responseCount < data.entries.length) {
+      gaps.push('Skjemasvarene er nyttige, men dekningen er fortsatt ufullstendig sammenlignet med antall journalførte aktiviteter.');
+    }
+
+    return gaps;
+  }
+
   const gaps = [
     'More structured participant feedback is needed across all recurring activity formats.',
     'Long-term outcomes after 3–6 months are not yet consistently documented.',
@@ -554,6 +1276,18 @@ function buildEvidenceGaps(data) {
 }
 
 function buildNextSteps(data) {
+  if (currentLanguage === 'no') {
+    const steps = [
+      'Legg til oppfølgende skjemasvar etter sentrale workshops og mentorøkter.',
+      'Knytt bilder, notater eller partneroppsummeringer til aktivitetene med høyest verdi.',
+      'Eksporter markdown-sammendraget til rapportering eller finansieringssamtaler.',
+      'Følg opp deltakerresultater etter 3–6 måneder.',
+      'Legg til partnernotater der samarbeidsmuligheter ble identifisert.'
+    ];
+
+    return data.attachments.length ? steps : ['Legg ved evidens fra de sterkeste journalnotatene.', ...steps.slice(0, 4)];
+  }
+
   const steps = [
     'Add follow-up survey responses after key workshops and mentoring sessions.',
     'Attach photos, notes or partner summaries from high-value activities.',
@@ -585,6 +1319,35 @@ function buildMarkdownSummary(data) {
   const { project, entries, attachments, surveys, responseCount, totalPeople, topTag, period } = data;
   const narrative = buildNarrativeSummary(data);
 
+  if (currentLanguage === 'no') {
+    return `# Utkast til effektsammendrag: ${project.name}
+
+**Rapporteringsperiode:** ${period.label}
+**Personer nådd:** ${totalPeople.toLocaleString(getLocale())}
+**Journalnotater:** ${entries.length}
+**Skjema:** ${surveys.length}
+**Skjemasvar:** ${responseCount}
+**Vedlegg:** ${attachments.length}
+**Topp-tag:** ${topTag}
+
+## Narrativ Oppsummering
+
+${narrative.join('\n\n')}
+
+## Hovedtemaer
+${inferThemes(data).map(item => `- ${item}`).join('\n')}
+
+## Tegn På Endring
+${buildSignals(data).map(item => `- ${item}`).join('\n')}
+
+## Evidensgap
+${buildEvidenceGaps(data).map(item => `- ${item}`).join('\n')}
+
+## Anbefalte Neste Steg
+${buildNextSteps(data).map(item => `- ${item}`).join('\n')}
+`;
+  }
+
   return `# Impact Summary Draft: ${project.name}
 
 **Reporting period:** ${period.label}
@@ -615,8 +1378,42 @@ ${buildNextSteps(data).map(item => `- ${item}`).join('\n')}
 
 function buildAiPrompt(data) {
   const { project, entries, attachments, surveys, responseCount, totalPeople, tagCounts, period } = data;
-  const recentEntries = entries.slice(-8).map(e => `- ${formatDate(e.createdAt)}: ${e.text} (${e.count || 0} people; tags: ${(e.tags || []).join(', ') || 'none'})`).join('\n');
+  const recentEntries = entries.slice(-8).map(e => {
+    const text = localizeDemoText(e.text);
+    const suffix = currentLanguage === 'no'
+      ? `${e.count || 0} personer; tags: ${(e.tags || []).join(', ') || 'ingen'}`
+      : `${e.count || 0} people; tags: ${(e.tags || []).join(', ') || 'none'}`;
+    return `- ${formatDate(e.createdAt)}: ${text} (${suffix})`;
+  }).join('\n');
   const tags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(([tag, count]) => `${tag} (${count})`).join(', ');
+
+  if (currentLanguage === 'no') {
+    return `Du hjelper med å forberede et effektsammendrag fra lokal prosjektdokumentasjon.
+
+Prosjekttittel: ${project.name}
+Beskrivelse: ${localizeDemoText(project.description) || 'Ingen beskrivelse lagt inn.'}
+Datoperiode: ${period.label}
+
+Nøkkeltall:
+- Personer nådd: ${totalPeople.toLocaleString(getLocale())}
+- Journalnotater: ${entries.length}
+- Vedlegg: ${attachments.length}
+- Skjema: ${surveys.length}
+- Importerte skjemasvar: ${responseCount}
+- Tags: ${tags || 'Ingen tags ennå'}
+
+Nyeste aktivitetsnotater:
+${recentEntries || '- Ingen notater ennå.'}
+
+Skjemanotater:
+${surveys.map(s => `- ${s.title}: ${(s.questions || []).length} spørsmål`).join('\n') || '- Ingen skjema ennå.'}
+
+Instruksjon:
+Skriv et polert effektsammendrag i en profesjonell, men jordnær tone. Vær ærlig om evidensgap og unngå å overdrive resultater.
+
+Implementeringsnotat:
+Denne statiske prototypen kaller ikke et AI-API. I en produksjonsversjon bør AI-genererte sammendrag håndteres via backend eller serverless-funksjon slik at API-nøkler ikke eksponeres i frontend.`;
+  }
 
   return `You are helping prepare an impact report summary from local project documentation.
 
@@ -639,7 +1436,10 @@ Survey notes:
 ${surveys.map(s => `- ${s.title}: ${(s.questions || []).length} questions`).join('\n') || '- No surveys yet.'}
 
 Instruction:
-Write a polished impact report summary in a professional but grounded tone. Be honest about evidence gaps and avoid overstating outcomes.`;
+Write a polished impact report summary in a professional but grounded tone. Be honest about evidence gaps and avoid overstating outcomes.
+
+Implementation note:
+This static prototype does not call an AI API. In a production version, AI-generated summaries should be handled through a backend or serverless function so API keys are not exposed in the frontend.`;
 }
 
 async function copyText(text, button) {
@@ -657,9 +1457,9 @@ async function copyText(text, button) {
       document.execCommand('copy');
       textarea.remove();
     }
-    flashButton(button, 'Copied');
+    flashButton(button, t('copied'));
   } catch {
-    alert('Copy failed. You can still select and copy the generated text manually from the page.');
+    alert(t('copyFailed'));
   }
 }
 
@@ -671,17 +1471,19 @@ function flashButton(button, text) {
 }
 
 function getDateRange(entries) {
-  if (!entries.length) return { label: 'No entries yet', plain: 'the selected period' };
+  if (!entries.length) return { label: t('noEntriesShort'), plain: t('selectedPeriod') };
   const first = entries[0].createdAt;
   const last = entries[entries.length - 1].createdAt;
   return {
     label: `${formatMonthYear(first)} – ${formatMonthYear(last)}`,
-    plain: `${formatMonthYear(first)} and ${formatMonthYear(last)}`
+    plain: currentLanguage === 'no'
+      ? `${formatMonthYear(first)} og ${formatMonthYear(last)}`
+      : `${formatMonthYear(first)} and ${formatMonthYear(last)}`
   };
 }
 
 function formatMonthYear(iso) {
-  return new Date(iso).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(getLocale(), { month: 'long', year: 'numeric' });
 }
 
 // ============ RENDER ENTRIES ============
@@ -725,8 +1527,9 @@ function buildEntryCard(entry, attachments) {
   const card = document.createElement('div');
   card.className = 'entry-card';
 
-  const entryTitle = getEntryTitle(entry.text);
-  const entryPreview = getEntryPreview(entry.text, entryTitle);
+  const localizedText = localizeDemoText(entry.text);
+  const entryTitle = getEntryTitle(localizedText);
+  const entryPreview = getEntryPreview(localizedText, entryTitle);
   const tagsHtml   = (entry.tags || []).map(t => `<span class="entry-tag">${escapeHtml(t)}</span>`).join('');
   const attachHtml = attachments.map(a => `
     <div class="attach-chip" data-attach-id="${a.id}" title="${escapeHtml(a.name)}">
@@ -747,7 +1550,7 @@ function buildEntryCard(entry, attachments) {
       </div>
     </div>
     <div class="entry-meta">
-      ${entry.count ? `<span class="entry-count">${parseInt(entry.count).toLocaleString()} people reached</span>` : ''}
+      ${entry.count ? `<span class="entry-count">${t('peopleReached', { count: parseInt(entry.count).toLocaleString(getLocale()) })}</span>` : ''}
       <div class="entry-tags">${tagsHtml}</div>
       <span class="entry-date">${formatDate(entry.createdAt)}</span>
     </div>
@@ -756,11 +1559,12 @@ function buildEntryCard(entry, attachments) {
 
   card.querySelector(`[data-edit="${entry.id}"]`).addEventListener('click', () => openEditEntry(entry.id));
   card.querySelector(`[data-delete="${entry.id}"]`).addEventListener('click', () => {
-    openConfirm('Delete this entry? This cannot be undone.', async () => {
+    openConfirm(t('deleteEntryConfirm'), async () => {
       await db.attachments.where('entryId').equals(entry.id).delete();
       await db.entries.delete(entry.id);
       await db.projects.update(currentProjectId, { updatedAt: new Date().toISOString() });
       await renderStats();
+      await renderProjectOverview();
       await renderEntries();
     });
   });
@@ -782,7 +1586,7 @@ function getEntryTitle(text) {
   const clean = String(text || '').trim();
   const firstSentence = clean.match(/^(.{12,110}?[.!?])\s/)?.[1];
   if (firstSentence) return firstSentence.replace(/[.!?]$/, '');
-  return clean.length > 80 ? `${clean.slice(0, 77)}...` : clean || 'Untitled evidence note';
+  return clean.length > 80 ? `${clean.slice(0, 77)}...` : clean || t('untitledEvidenceNote');
 }
 
 function getEntryPreview(text, title) {
@@ -795,7 +1599,8 @@ function getEntryPreview(text, title) {
 // ============ PROJECT CRUD ============
 
 function openNewProject() {
-  document.getElementById('projectModalTitle').textContent = 'New Project';
+  document.getElementById('projectModalTitle').dataset.i18n = 'modalNewProject';
+  document.getElementById('projectModalTitle').textContent = t('modalNewProject');
   document.getElementById('inputProjectName').value  = '';
   document.getElementById('inputProjectDesc').value  = '';
   document.getElementById('projectModal').dataset.editing = '';
@@ -806,7 +1611,8 @@ function openNewProject() {
 async function openEditProject() {
   const project = await db.projects.get(currentProjectId);
   if (!project) return;
-  document.getElementById('projectModalTitle').textContent = 'Edit Project';
+  document.getElementById('projectModalTitle').dataset.i18n = 'modalEditProject';
+  document.getElementById('projectModalTitle').textContent = t('modalEditProject');
   document.getElementById('inputProjectName').value  = project.name;
   document.getElementById('inputProjectDesc').value  = project.description || '';
   document.getElementById('projectModal').dataset.editing = currentProjectId;
@@ -833,7 +1639,7 @@ async function saveProject() {
 }
 
 function deleteCurrentProject() {
-  openConfirm('Delete this project and all its data? This cannot be undone.', async () => {
+  openConfirm(t('deleteProjectConfirm'), async () => {
     const entries  = await db.entries.where('projectId').equals(currentProjectId).toArray();
     const entryIds = entries.map(e => e.id);
     if (entryIds.length) await db.attachments.where('entryId').anyOf(entryIds).delete();
@@ -854,7 +1660,8 @@ function deleteCurrentProject() {
 function openNewEntry() {
   editingEntryId = null;
   pendingFiles   = [];
-  document.getElementById('entryModalTitle').textContent  = 'New Entry';
+  document.getElementById('entryModalTitle').dataset.i18n = 'modalNewEntry';
+  document.getElementById('entryModalTitle').textContent  = t('modalNewEntry');
   document.getElementById('inputEntryText').value         = '';
   document.getElementById('inputEntryCount').value        = '';
   document.getElementById('inputEntryTags').value         = '';
@@ -868,7 +1675,8 @@ async function openEditEntry(entryId) {
   if (!entry) return;
   editingEntryId = entryId;
   pendingFiles   = [];
-  document.getElementById('entryModalTitle').textContent = 'Edit Entry';
+  document.getElementById('entryModalTitle').dataset.i18n = 'modalEditEntry';
+  document.getElementById('entryModalTitle').textContent = t('modalEditEntry');
   document.getElementById('inputEntryText').value        = entry.text;
   document.getElementById('inputEntryCount').value       = entry.count || '';
   document.getElementById('inputEntryTags').value        = (entry.tags || []).join(', ');
@@ -910,6 +1718,7 @@ async function saveEntry() {
   pendingFiles   = [];
   editingEntryId = null;
   await renderStats();
+  await renderProjectOverview();
   await renderEntries();
 }
 
@@ -932,7 +1741,7 @@ function setupFileDrop() {
 
 function handleFiles(files) {
   files.forEach(file => {
-    if (file.size > 10 * 1024 * 1024) { alert(`"${file.name}" is too large (max 10 MB).`); return; }
+    if (file.size > 10 * 1024 * 1024) { alert(t('fileTooLarge', { name: file.name })); return; }
     pendingFiles.push(file);
     addFilePreviewChip(file.name, file, null);
   });
@@ -984,11 +1793,11 @@ async function exportData() {
 async function importData(file) {
   let payload;
   try { payload = JSON.parse(await file.text()); }
-  catch { alert('Invalid JSON file.'); return; }
+  catch { alert(t('importInvalidJson')); return; }
 
-  if (!payload.projects || !payload.entries) { alert('Unrecognized file format.'); return; }
+  if (!payload.projects || !payload.entries) { alert(t('importUnknownFormat')); return; }
 
-  const ok = confirm(`Merge ${payload.projects.length} project(s) and ${payload.entries.length} entries into your data?\n\nThis will not overwrite existing data.`);
+  const ok = confirm(t('importMergeConfirm', { projects: payload.projects.length, entries: payload.entries.length }));
   if (!ok) return;
 
   const projectIdMap = {};
@@ -1021,7 +1830,7 @@ async function importData(file) {
   }
 
   await renderProjectList();
-  alert(`Import complete: ${payload.projects.length} project(s) and ${payload.entries.length} entries imported.`);
+  alert(t('importComplete', { projects: payload.projects.length, entries: payload.entries.length }));
 }
 
 // ============ SURVEY LIST ============
@@ -1042,13 +1851,13 @@ async function renderSurveyList() {
     card.innerHTML = `
       <div class="survey-card-icon">SV</div>
       <div class="survey-card-info">
-        <div class="survey-card-label">Feedback collection</div>
+        <div class="survey-card-label">${escapeHtml(t('feedbackCollection'))}</div>
         <div class="survey-card-title">${escapeHtml(survey.title)}</div>
-        ${survey.description ? `<div class="survey-card-desc">${escapeHtml(survey.description)}</div>` : ''}
+        ${survey.description ? `<div class="survey-card-desc">${escapeHtml(localizeDemoText(survey.description))}</div>` : ''}
         <div class="survey-card-chips">
-          <span class="meta-chip">${(survey.questions || []).length} questions</span>
-          <span class="meta-chip">${responseCount} response${responseCount !== 1 ? 's' : ''}</span>
-          <span class="meta-chip">Updated ${formatDate(survey.updatedAt || survey.createdAt)}</span>
+          <span class="meta-chip">${escapeHtml(t('questionCount', { count: (survey.questions || []).length }))}</span>
+          <span class="meta-chip">${escapeHtml(t('responseCount', { count: responseCount, plural: plural(responseCount) }))}</span>
+          <span class="meta-chip">${escapeHtml(t('updated', { date: formatDate(survey.updatedAt || survey.createdAt) }))}</span>
         </div>
       </div>
       <div class="survey-card-arrow" aria-hidden="true"></div>
@@ -1060,7 +1869,7 @@ async function renderSurveyList() {
 
 // ============ OPEN SURVEY DETAIL ============
 
-async function openSurveyDetail(surveyId) {
+async function openSurveyDetail(surveyId, preferredTab = 'questions') {
   currentSurveyId = surveyId;
   const survey    = await db.surveys.get(surveyId);
   if (!survey) return;
@@ -1069,15 +1878,14 @@ async function openSurveyDetail(surveyId) {
 
   document.getElementById('surveyDetailTitle').textContent = survey.title;
   const descEl = document.getElementById('surveyDetailDesc');
-  descEl.textContent = survey.description || '';
+  descEl.textContent = localizeDemoText(survey.description || '');
   descEl.style.display = survey.description ? '' : 'none';
 
-  // Reset to questions tab
-  switchSurveyTab('questions');
+  switchSurveyTab(preferredTab || 'questions');
 
   const responseCount = await db.responses.where('surveyId').equals(surveyId).count();
-  document.getElementById('surveyQChip').textContent = `${(survey.questions || []).length} questions`;
-  document.getElementById('surveyRChip').textContent = `${responseCount} response${responseCount !== 1 ? 's' : ''}`;
+  document.getElementById('surveyQChip').textContent = t('questionCount', { count: (survey.questions || []).length });
+  document.getElementById('surveyRChip').textContent = t('responseCount', { count: responseCount, plural: plural(responseCount) });
 
   renderSurveyQuestions(survey);
 }
@@ -1106,29 +1914,29 @@ function renderSurveyQuestions(survey) {
   const questions = survey.questions || [];
 
   if (questions.length === 0) {
-    list.innerHTML = '<p style="color:var(--text-muted);font-size:14px;">No questions in this survey.</p>';
+    list.innerHTML = `<p style="color:var(--text-muted);font-size:14px;">${escapeHtml(t('noQuestionsSurvey'))}</p>`;
     return;
   }
 
   questions.forEach((q, i) => {
-    const typeLabels = { text: 'Short text', mc: 'Multiple choice (pick one)', scale: 'Linear scale', checkboxes: 'Checkboxes (pick many)' };
+    const typeLabels = { text: t('shortText'), mc: t('multipleChoice'), scale: t('linearScale'), checkboxes: t('checkboxes') };
     const card = document.createElement('div');
     card.className = 'question-display-card';
 
     let optionsHtml = '';
     if (q.type === 'mc' || q.type === 'checkboxes') {
       optionsHtml = `<div class="question-options-preview">
-        ${(q.options || []).map(o => `<span class="option-pill-preview">${escapeHtml(o)}</span>`).join('')}
+        ${(q.options || []).map(o => `<span class="option-pill-preview">${escapeHtml(localizeDemoText(o))}</span>`).join('')}
       </div>`;
     } else if (q.type === 'scale') {
       optionsHtml = `<div class="question-options-preview">
-        <span class="option-pill-preview">Scale: ${q.scaleMin} – ${q.scaleMax}</span>
+        <span class="option-pill-preview">${escapeHtml(t('scaleRange', { min: q.scaleMin, max: q.scaleMax }))}</span>
       </div>`;
     }
 
     card.innerHTML = `
-      <div class="question-display-num">Question ${i + 1}${q.required ? ' · Required' : ''}</div>
-      <div class="question-display-label">${escapeHtml(q.label)}</div>
+      <div class="question-display-num">${escapeHtml(t(q.required ? 'questionRequired' : 'questionPlain', { number: i + 1 }))}</div>
+      <div class="question-display-label">${escapeHtml(localizeDemoText(q.label))}</div>
       <div class="question-display-type">${typeLabels[q.type] || q.type}</div>
       ${optionsHtml}
     `;
@@ -1164,14 +1972,14 @@ function renderQuestionBuilderList() {
     let extraHtml = '';
     if (q.type === 'mc' || q.type === 'checkboxes') {
       extraHtml = `
-        <p class="q-options-label">Options — one per line (or comma-separated)</p>
+        <p class="q-options-label">${escapeHtml(currentLanguage === 'no' ? 'Alternativer — ett per linje (eller kommaseparert)' : 'Options — one per line (or comma-separated)')}</p>
         <textarea class="q-options-input" rows="3" placeholder="Option A&#10;Option B&#10;Option C">${escapeHtml((q.options || []).join('\n'))}</textarea>
       `;
     } else if (q.type === 'scale') {
       extraHtml = `
         <div class="scale-range-row">
-          <label>Min <input type="number" class="q-scale-min" value="${q.scaleMin ?? 1}" min="0" max="10" /></label>
-          <label>Max <input type="number" class="q-scale-max" value="${q.scaleMax ?? 5}" min="1" max="10" /></label>
+          <label>${currentLanguage === 'no' ? 'Min' : 'Min'} <input type="number" class="q-scale-min" value="${q.scaleMin ?? 1}" min="0" max="10" /></label>
+          <label>${currentLanguage === 'no' ? 'Maks' : 'Max'} <input type="number" class="q-scale-max" value="${q.scaleMax ?? 5}" min="1" max="10" /></label>
         </div>
       `;
     }
@@ -1180,17 +1988,17 @@ function renderQuestionBuilderList() {
       <div class="question-builder-top">
         <span class="q-num-badge">Q${i + 1}</span>
         <select class="q-type-select">
-          <option value="text"       ${q.type === 'text'       ? 'selected' : ''}>Short text</option>
-          <option value="mc"         ${q.type === 'mc'         ? 'selected' : ''}>Multiple choice (pick one)</option>
-          <option value="scale"      ${q.type === 'scale'      ? 'selected' : ''}>Linear scale</option>
-          <option value="checkboxes" ${q.type === 'checkboxes' ? 'selected' : ''}>Checkboxes (pick many)</option>
+          <option value="text"       ${q.type === 'text'       ? 'selected' : ''}>${escapeHtml(t('shortText'))}</option>
+          <option value="mc"         ${q.type === 'mc'         ? 'selected' : ''}>${escapeHtml(t('multipleChoice'))}</option>
+          <option value="scale"      ${q.type === 'scale'      ? 'selected' : ''}>${escapeHtml(t('linearScale'))}</option>
+          <option value="checkboxes" ${q.type === 'checkboxes' ? 'selected' : ''}>${escapeHtml(t('checkboxes'))}</option>
         </select>
         <label class="q-required-wrap">
-          <input type="checkbox" class="q-required-cb" ${q.required ? 'checked' : ''} /> Required
+          <input type="checkbox" class="q-required-cb" ${q.required ? 'checked' : ''} /> ${escapeHtml(t('required'))}
         </label>
-        <button class="btn-icon btn-danger q-delete-btn" title="Remove question">✕</button>
+        <button class="btn-icon btn-danger q-delete-btn" title="${escapeHtml(currentLanguage === 'no' ? 'Fjern spørsmål' : 'Remove question')}">✕</button>
       </div>
-      <input type="text" class="q-label-input" placeholder="Your question…" value="${escapeHtml(q.label || '')}" />
+      <input type="text" class="q-label-input" placeholder="${escapeHtml(currentLanguage === 'no' ? 'Ditt spørsmål...' : 'Your question...')}" value="${escapeHtml(q.label || '')}" />
       ${extraHtml}
     `;
 
@@ -1248,11 +2056,11 @@ function addQuestion() {
 async function saveSurvey() {
   const title = document.getElementById('inputSurveyTitle').value.trim();
   if (!title) { document.getElementById('inputSurveyTitle').focus(); return; }
-  if (buildingQuestions.length === 0) { alert('Add at least one question to the survey.'); return; }
+  if (buildingQuestions.length === 0) { alert(t('addQuestionAlert')); return; }
 
   // Validate labels
   for (const q of buildingQuestions) {
-    if (!q.label.trim()) { alert('Please fill in all question labels before saving.'); return; }
+    if (!q.label.trim()) { alert(t('fillLabelsAlert')); return; }
   }
 
   const desc = document.getElementById('inputSurveyDesc').value.trim();
@@ -1271,17 +2079,19 @@ async function saveSurvey() {
   buildingQuestions = [];
 
   await renderStats();
+  await renderProjectOverview();
   await renderSurveyList();
   openSurveyDetail(id);
 }
 
 function deleteCurrentSurvey() {
-  openConfirm('Delete this survey and all its responses? This cannot be undone.', async () => {
+  openConfirm(t('deleteSurveyConfirm'), async () => {
     await db.responses.where('surveyId').equals(currentSurveyId).delete();
     await db.surveys.delete(currentSurveyId);
     await db.projects.update(currentProjectId, { updatedAt: new Date().toISOString() });
     currentSurveyId = null;
     await renderStats();
+    await renderProjectOverview();
     showView('projectView');
     switchProjectTab('surveys');
     renderSurveyList();
@@ -1297,8 +2107,13 @@ async function exportSurveyHtml() {
   const surveyData = JSON.stringify({
     id:          survey.id,
     title:       survey.title,
-    description: survey.description || '',
-    questions:   survey.questions   || []
+    description: localizeDemoText(survey.description || ''),
+    language:    currentLanguage === 'no' ? 'no' : 'en',
+    questions:   (survey.questions || []).map(q => ({
+      ...q,
+      label: localizeDemoText(q.label),
+      options: (q.options || []).map(localizeDemoText)
+    }))
   });
 
   const html = buildSurveyHtml(surveyData, survey.title);
@@ -1314,14 +2129,14 @@ async function exportSurveyHtml() {
 // Generate the standalone survey HTML (self-contained, no external deps)
 function buildSurveyHtml(surveyDataJson, title) {
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${currentLanguage === 'no' ? 'no' : 'en'}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeHtml(title)}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f7f5; color: #111110; min-height: 100vh; padding: 40px 20px 80px; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f6f1; color: #171717; min-height: 100vh; padding: 40px 20px 80px; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
     .container { max-width: 600px; margin: 0 auto; }
     .survey-header { margin-bottom: 36px; }
     .survey-title { font-size: 32px; font-weight: 700; letter-spacing: 0; line-height: 1.14; margin-bottom: 12px; }
@@ -1362,6 +2177,27 @@ function buildSurveyHtml(surveyDataJson, title) {
   <script>
     const SURVEY = ${surveyDataJson};
     const answers = {};
+    const UI = SURVEY.language === 'no'
+      ? {
+          question: 'Spørsmål',
+          answer: 'Ditt svar...',
+          low: 'Lav',
+          high: 'Høy',
+          required: 'Dette spørsmålet er påkrevd.',
+          submit: 'Send svar',
+          successTitle: 'Svar lagret',
+          successMsg: 'Svaret ditt er lastet ned som en JSON-fil.<br><br>Send den tilbake til arrangøren slik at de kan importere den i Vis Det.'
+        }
+      : {
+          question: 'Question',
+          answer: 'Your answer...',
+          low: 'Low',
+          high: 'High',
+          required: 'This question is required.',
+          submit: 'Submit Response',
+          successTitle: 'Response saved',
+          successMsg: 'Your response has been downloaded as a JSON file.<br><br>Please send it back to the organiser so they can import it into Vis Det.'
+        };
 
     function esc(s) {
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1374,11 +2210,11 @@ function buildSurveyHtml(surveyDataJson, title) {
 
       SURVEY.questions.forEach(function(q, i) {
         html += '<div class="question-card" data-qid="' + q.id + '">';
-        html += '<div class="q-num">Question ' + (i+1) + (q.required ? ' <span class="required-star">*</span>' : '') + '</div>';
+        html += '<div class="q-num">' + UI.question + ' ' + (i+1) + (q.required ? ' <span class="required-star">*</span>' : '') + '</div>';
         html += '<div class="q-label">' + esc(q.label) + '</div>';
 
         if (q.type === 'text') {
-          html += '<textarea class="text-input" data-qid="' + q.id + '" placeholder="Your answer…"></textarea>';
+          html += '<textarea class="text-input" data-qid="' + q.id + '" placeholder="' + UI.answer + '"></textarea>';
         } else if (q.type === 'mc') {
           (q.options||[]).forEach(function(opt) {
             html += '<div class="option" data-qid="' + q.id + '" data-val="' + esc(opt) + '" data-type="mc"><span class="option-indicator radio-indicator"></span><span class="option-label">' + esc(opt) + '</span></div>';
@@ -1393,14 +2229,14 @@ function buildSurveyHtml(surveyDataJson, title) {
           for (var n = min; n <= max; n++) {
             html += '<button class="scale-btn" data-qid="' + q.id + '" data-val="' + n + '">' + n + '</button>';
           }
-          html += '</div><div class="scale-labels"><span>' + min + ' — Low</span><span>High — ' + max + '</span></div>';
+          html += '</div><div class="scale-labels"><span>' + min + ' — ' + UI.low + '</span><span>' + UI.high + ' — ' + max + '</span></div>';
         }
 
-        html += '<div class="error-msg" id="err-' + q.id + '">This question is required.</div>';
+        html += '<div class="error-msg" id="err-' + q.id + '">' + UI.required + '</div>';
         html += '</div>';
       });
 
-      html += '<div class="submit-bar"><button class="btn-submit" id="btnSubmit">Submit Response</button></div>';
+      html += '<div class="submit-bar"><button class="btn-submit" id="btnSubmit">' + UI.submit + '</button></div>';
       document.getElementById('app').innerHTML = html;
       wire();
     }
@@ -1470,7 +2306,7 @@ function buildSurveyHtml(surveyDataJson, title) {
       a.href = url; a.download = 'response-' + new Date().toISOString().slice(0,10) + '.json'; a.click();
       URL.revokeObjectURL(url);
 
-      document.getElementById('app').innerHTML = '<div class="success-screen"><h2 class="success-title">Response saved</h2><p class="success-msg">Your response has been downloaded as a JSON file.<br><br>Please send it back to the organiser so they can import it into Vis Det.</p></div>';
+      document.getElementById('app').innerHTML = '<div class="success-screen"><h2 class="success-title">' + UI.successTitle + '</h2><p class="success-msg">' + UI.successMsg + '</p></div>';
     }
 
     render();
@@ -1527,7 +2363,7 @@ async function renderResponseAggregation() {
   // Summary header
   const header = document.createElement('div');
   header.style.cssText = 'font-size:13px;color:var(--text-muted);margin-bottom:20px;';
-  header.textContent   = `${total} response${total !== 1 ? 's' : ''} collected`;
+  header.textContent   = t('responsesCollected', { count: total, plural: plural(total) });
   container.appendChild(header);
 
   questions.forEach(q => {
@@ -1544,8 +2380,8 @@ async function renderResponseAggregation() {
     if (q.type === 'text') {
       const textAnswers = allAnswers.filter(a => typeof a === 'string' && a.trim());
       contentHtml = textAnswers.length
-        ? textAnswers.map(a => `<div class="response-text-answer">${escapeHtml(a)}</div>`).join('')
-        : '<p style="color:var(--text-muted);font-size:13px;">No answers yet.</p>';
+        ? textAnswers.map(a => `<div class="response-text-answer">${escapeHtml(localizeDemoText(a))}</div>`).join('')
+        : `<p style="color:var(--text-muted);font-size:13px;">${escapeHtml(t('noAnswersYet'))}</p>`;
 
     } else if (q.type === 'mc') {
       const counts = {};
@@ -1555,7 +2391,7 @@ async function renderResponseAggregation() {
         const count = counts[opt] || 0;
         const pct   = total > 0 ? Math.round((count / total) * 100) : 0;
         return `<div class="response-bar-row">
-          <span class="response-bar-label">${escapeHtml(opt)}</span>
+          <span class="response-bar-label">${escapeHtml(localizeDemoText(opt))}</span>
           <div class="response-bar-track"><div class="response-bar-fill" style="width:${pct}%"></div></div>
           <span class="response-bar-pct">${pct}% (${count})</span>
         </div>`;
@@ -1572,7 +2408,7 @@ async function renderResponseAggregation() {
         const count = counts[opt] || 0;
         const pct   = Math.round((count / respondents) * 100);
         return `<div class="response-bar-row">
-          <span class="response-bar-label">${escapeHtml(opt)}</span>
+          <span class="response-bar-label">${escapeHtml(localizeDemoText(opt))}</span>
           <div class="response-bar-track"><div class="response-bar-fill" style="width:${pct}%"></div></div>
           <span class="response-bar-pct">${pct}% (${count})</span>
         </div>`;
@@ -1581,7 +2417,7 @@ async function renderResponseAggregation() {
     } else if (q.type === 'scale') {
       const nums = allAnswers.filter(a => typeof a === 'number');
       if (nums.length === 0) {
-        contentHtml = '<p style="color:var(--text-muted);font-size:13px;">No answers yet.</p>';
+        contentHtml = `<p style="color:var(--text-muted);font-size:13px;">${escapeHtml(t('noAnswersYet'))}</p>`;
       } else {
         const avg = (nums.reduce((s, n) => s + n, 0) / nums.length).toFixed(1);
         // Distribution bars
@@ -1598,15 +2434,15 @@ async function renderResponseAggregation() {
         }).join('');
         contentHtml = `
           <div class="response-scale-big">${avg}</div>
-          <div class="response-scale-sub">avg out of ${q.scaleMax || 5} · ${nums.length} answer${nums.length !== 1 ? 's' : ''}</div>
+          <div class="response-scale-sub">${escapeHtml(t('avgOutOf', { max: q.scaleMax || 5, count: nums.length, plural: plural(nums.length) }))}</div>
           ${distHtml}
         `;
       }
     }
 
     block.innerHTML = `
-      <div class="response-q-label">${escapeHtml(q.label)}</div>
-      <span class="response-count-note">${allAnswers.length} of ${total} answered</span>
+      <div class="response-q-label">${escapeHtml(localizeDemoText(q.label))}</div>
+      <span class="response-count-note">${escapeHtml(t('answeredCount', { answered: allAnswers.length, total }))}</span>
       ${contentHtml}
     `;
     container.appendChild(block);
@@ -1637,11 +2473,11 @@ function generateQr() {
   // Download button (works after QR renders)
   const dlBtn = document.createElement('button');
   dlBtn.className   = 'btn-qr-download';
-  dlBtn.textContent = 'Download QR as PNG';
+  dlBtn.textContent = t('downloadQr');
   dlBtn.addEventListener('click', () => {
     setTimeout(() => {
       const canvas = wrap.querySelector('canvas');
-      if (!canvas) { alert('QR not ready yet, try again.'); return; }
+      if (!canvas) { alert(t('qrNotReady')); return; }
       const a   = document.createElement('a');
       a.href     = canvas.toDataURL('image/png');
       a.download = 'survey-qr.png';
@@ -1674,14 +2510,23 @@ function attachEventListeners() {
     if (nav) navigateToSection(nav.dataset.nav);
   });
 
+  document.querySelector('.language-toggle').addEventListener('click', e => {
+    const btn = e.target.closest('.language-option');
+    if (btn) setLanguage(btn.dataset.lang);
+  });
+
   // New project
   document.getElementById('btnNewProject').addEventListener('click', openNewProject);
   document.getElementById('btnNewProjectEmpty').addEventListener('click', openNewProject);
   document.getElementById('btnLoadDemoEmpty').addEventListener('click', loadDemoData);
+  document.getElementById('btnLoadDemo').addEventListener('click', loadDemoData);
+  document.getElementById('btnResetDemo').addEventListener('click', resetDemoData);
   document.getElementById('btnAboutBack').addEventListener('click', () => navigateToSection('journal'));
   document.getElementById('btnDismissDemoBanner').addEventListener('click', () => document.getElementById('demoBanner').classList.add('hidden'));
   document.getElementById('btnCopyMarkdown').addEventListener('click', copyMarkdownSummary);
   document.getElementById('btnCopyAiPrompt').addEventListener('click', copyAiPrompt);
+  document.getElementById('btnHeaderEntry').addEventListener('click', openNewEntry);
+  document.getElementById('btnHeaderSummary').addEventListener('click', () => navigateToSection('summary'));
 
   // Project modal
   document.getElementById('btnSaveProject').addEventListener('click', saveProject);
@@ -1810,7 +2655,7 @@ function escapeHtml(str) {
 
 function formatDate(iso) {
   if (!iso) return '';
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return new Date(iso).toLocaleDateString(getLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function formatDateFile() {

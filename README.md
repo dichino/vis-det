@@ -2,11 +2,15 @@
 
 Vis Det – Impact Journal is a local-first web prototype for structured impact documentation, built with HTML, CSS, JavaScript and IndexedDB.
 
-## Why This Exists
+## Problem
 
 Social-impact work often starts as workshops, mentoring sessions, local meetings and follow-up conversations long before it becomes formal reporting. Vis Det explores how small teams can document early evidence, track people reached, collect lightweight feedback and prepare a clearer impact narrative without setting up a backend.
 
 The prototype is inspired by Norge Unlimited's work with local social entrepreneurship and neighbourhood-based impact documentation. It is not an official production system.
+
+## Solution
+
+Vis Det turns local project activity into a structured internal workspace: teams can capture evidence notes, track reach, collect lightweight survey feedback, export portable data and prepare a grounded impact summary draft from local records.
 
 ## Features
 
@@ -14,12 +18,14 @@ The prototype is inspired by Norge Unlimited's work with local social entreprene
 - People reached counts, tags and evidence attachments
 - Search and date filtering for journal entries
 - Rich demo data across January 2025 to June 2026
+- Load and reset demo data actions for reliable portfolio review
 - Lightweight survey builder
 - Standalone survey HTML export
 - QR code generation for hosted survey files
 - Survey response JSON import
 - Impact Summary Draft generated from local project data
 - Copyable markdown summary and AI-ready prompt
+- English/Norwegian UI language toggle
 - Local JSON import/export for backup and portability
 
 ## Tech Stack
@@ -60,6 +66,8 @@ The main demo project is `Nabolagets kraft`, covering January 2025 to June 2026 
 
 Existing user data is not overwritten.
 
+If old weak demo data exists, the app can reset local data and load the full `Nabolagets kraft` dataset through the `Reset demo data` action.
+
 ## Impact Summary / AI-Ready Workflow
 
 The Impact Summary page generates a structured draft from local project data:
@@ -74,6 +82,12 @@ The Impact Summary page generates a structured draft from local project data:
 The app does not call an AI API. Instead, it includes a `Copy AI prompt` action that prepares a grounded prompt from local data. This is intentional for a static GitHub Pages frontend because it avoids exposing API keys in client-side code.
 
 A future production version could send project data to a backend or serverless function, then call an AI model securely from the server side.
+
+## Language Toggle
+
+The app starts in English and includes a small English/Norwegian toggle in the sidebar. UI copy is translated with a simple client-side dictionary and the selected language is stored in `localStorage` using `visdetLanguage`.
+
+User-created content and demo journal notes are not machine-translated. This keeps the prototype static, predictable and safe for GitHub Pages.
 
 ## Run Locally
 

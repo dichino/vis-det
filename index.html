@@ -7,7 +7,7 @@
   <title>Vis Det – Impact Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="style.css" />
@@ -22,45 +22,57 @@
           <span class="logo-mark">VD</span>
           <span class="logo-text">Vis Det<br><small>Impact Journal</small></span>
         </div>
+        <div class="product-status">
+          <span data-i18n="productStatus">Local-first MVP</span>
+          <small data-i18n="productStatusText">Impact documentation workspace</small>
+        </div>
       </div>
-      <button class="btn-new-project" id="btnNewProject">+ New Project</button>
+      <button class="btn-new-project" id="btnNewProject" data-i18n="newProject">+ New Project</button>
+      <div class="language-toggle" aria-label="Language">
+        <button type="button" class="language-option active" data-lang="en">EN</button>
+        <button type="button" class="language-option" data-lang="no">NO</button>
+      </div>
     </div>
 
-    <nav class="app-nav" aria-label="Main sections">
-      <button class="nav-item active" data-nav="journal">Journal</button>
-      <button class="nav-item" data-nav="surveys">Surveys</button>
-      <button class="nav-item" data-nav="summary">Impact Summary</button>
-      <button class="nav-item" data-nav="about">About Vis Det</button>
-      <button class="nav-item" data-nav="notes">Project Notes</button>
+    <nav class="app-nav" aria-label="Main sections" data-i18n-aria="mainSections">
+      <button class="nav-item active" data-nav="journal" data-i18n="navJournal">Journal</button>
+      <button class="nav-item" data-nav="surveys" data-i18n="navSurveys">Surveys</button>
+      <button class="nav-item" data-nav="summary" data-i18n="navSummary">Impact Summary</button>
+      <button class="nav-item" data-nav="about" data-i18n="navAbout">About Vis Det</button>
+      <button class="nav-item" data-nav="notes" data-i18n="navNotes">Project Notes</button>
     </nav>
 
-    <div class="project-list-label">Projects</div>
+    <div class="project-list-label" data-i18n="projectsLabel">Projects</div>
     <nav id="projectList" class="project-list"></nav>
     <div class="sidebar-footer">
-      <div class="data-actions">
-        <button class="btn-ghost" id="btnImport">Import</button>
-        <button class="btn-ghost" id="btnExport">Export</button>
+      <div class="demo-actions">
+        <button class="btn-ghost" id="btnLoadDemo" data-i18n="loadDemoData">Load Demo Data</button>
+        <button class="btn-ghost" id="btnResetDemo" data-i18n="resetDemoData">Reset demo data</button>
       </div>
-      <p class="prototype-notice">Local-first prototype. Not a production Norge Unlimited system.</p>
+      <div class="data-actions">
+        <button class="btn-ghost" id="btnImport" data-i18n="import">Import</button>
+        <button class="btn-ghost" id="btnExport" data-i18n="export">Export</button>
+      </div>
+      <p class="prototype-notice" data-i18n="prototypeNotice">Local-first prototype. Not a production Norge Unlimited system.</p>
     </div>
   </aside>
 
   <!-- MAIN -->
   <main id="main">
     <div id="demoBanner" class="demo-banner hidden">
-      <span>Demo data loaded. This is sample impact documentation for exploring the prototype.</span>
-      <button type="button" id="btnDismissDemoBanner" title="Dismiss notice">Dismiss</button>
+      <span data-i18n="demoBanner">Demo data loaded. This is sample impact documentation for exploring the prototype.</span>
+      <button type="button" id="btnDismissDemoBanner" title="Dismiss notice" data-i18n="dismiss" data-i18n-title="dismissNotice">Dismiss</button>
     </div>
 
     <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state hidden">
       <div class="empty-blob"></div>
       <p class="eyebrow">Vis Det – Impact Journal</p>
-      <h1>Document what happened.</h1>
-      <p>Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.</p>
+      <h1 data-i18n="emptyTitle">Document what happened.</h1>
+      <p data-i18n="emptyText">Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.</p>
       <div class="empty-actions">
-        <button class="btn-primary" id="btnNewProjectEmpty">Create Project</button>
-        <button class="btn-secondary" id="btnLoadDemoEmpty">Load Demo Data</button>
+        <button class="btn-primary" id="btnNewProjectEmpty" data-i18n="createProject">Create Project</button>
+        <button class="btn-secondary" id="btnLoadDemoEmpty" data-i18n="loadDemoData">Load Demo Data</button>
       </div>
     </div>
 
@@ -68,69 +80,69 @@
     <div id="aboutView" class="about-view hidden">
       <section class="about-hero">
         <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
-        <p class="eyebrow">About Vis Det</p>
+        <p class="eyebrow" data-i18n="aboutEyebrow">About Vis Det</p>
         <h1>Vis Det – Impact Journal</h1>
-        <p class="about-lede">A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.</p>
-        <button class="btn-primary" id="btnAboutBack">Open Journal</button>
+        <p class="about-lede" data-i18n="aboutLede">A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.</p>
+        <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
       </section>
 
       <section class="about-section">
-        <h2>Why this exists</h2>
-        <p>The prototype is inspired by Norge Unlimited's work with local social entrepreneurship, neighbourhood incubators and impact documentation. It explores how early impact data can be captured before it becomes formal reporting.</p>
+        <h2 data-i18n="whyExists">Why this exists</h2>
+        <p data-i18n="whyExistsText">The prototype is inspired by Norge Unlimited's work with local social entrepreneurship, neighbourhood incubators and impact documentation. It explores how early impact data can be captured before it becomes formal reporting.</p>
       </section>
 
       <section class="about-columns">
         <div class="about-point">
-          <span class="about-kicker">Journal evidence</span>
-          <h3>Document evidence</h3>
-          <p>Log entries with people reached, tags, and optional files so progress can be reviewed later.</p>
+          <span class="about-kicker" data-i18n="aboutPoint1Kicker">Journal evidence</span>
+          <h3 data-i18n="aboutPoint1Title">Document evidence</h3>
+          <p data-i18n="aboutPoint1Text">Log entries with people reached, tags, and optional files so progress can be reviewed later.</p>
         </div>
         <div class="about-point">
-          <span class="about-kicker">People reached</span>
-          <h3>Track reach</h3>
-          <p>Keep simple counts close to the qualitative notes that explain what changed.</p>
+          <span class="about-kicker" data-i18n="aboutPoint2Kicker">People reached</span>
+          <h3 data-i18n="aboutPoint2Title">Track reach</h3>
+          <p data-i18n="aboutPoint2Text">Keep simple counts close to the qualitative notes that explain what changed.</p>
         </div>
         <div class="about-point">
-          <span class="about-kicker">Surveys and QR</span>
-          <h3>Collect responses</h3>
-          <p>Create lightweight surveys, export them as standalone HTML, and import response JSON files.</p>
+          <span class="about-kicker" data-i18n="aboutPoint3Kicker">Surveys and QR</span>
+          <h3 data-i18n="aboutPoint3Title">Collect responses</h3>
+          <p data-i18n="aboutPoint3Text">Create lightweight surveys, export them as standalone HTML, and import response JSON files.</p>
         </div>
         <div class="about-point">
-          <span class="about-kicker">Local-first data</span>
-          <h3>Stay local</h3>
-          <p>Data is stored in this browser with IndexedDB. Export and import are explicit file actions.</p>
+          <span class="about-kicker" data-i18n="aboutPoint4Kicker">Local-first data</span>
+          <h3 data-i18n="aboutPoint4Title">Stay local</h3>
+          <p data-i18n="aboutPoint4Text">Data is stored in this browser with IndexedDB. Export and import are explicit file actions.</p>
         </div>
       </section>
 
       <section class="about-section">
-        <h2>How it works</h2>
+        <h2 data-i18n="howItWorks">How it works</h2>
         <div class="workflow-strip">
           <div class="workflow-step">
             <span>1</span>
-            <strong>Document activities</strong>
-            <p>Write short notes from workshops, meetings and follow-ups.</p>
+            <strong data-i18n="workflow1Title">Document activities</strong>
+            <p data-i18n="workflow1Text">Write short notes from workshops, meetings and follow-ups.</p>
           </div>
           <div class="workflow-step">
             <span>2</span>
-            <strong>Add evidence and reach</strong>
-            <p>Record people reached, tags and optional attachments.</p>
+            <strong data-i18n="workflow2Title">Add evidence and reach</strong>
+            <p data-i18n="workflow2Text">Record people reached, tags and optional attachments.</p>
           </div>
           <div class="workflow-step">
             <span>3</span>
-            <strong>Collect feedback</strong>
-            <p>Use lightweight surveys and import responses locally.</p>
+            <strong data-i18n="workflow3Title">Collect feedback</strong>
+            <p data-i18n="workflow3Text">Use lightweight surveys and import responses locally.</p>
           </div>
           <div class="workflow-step">
             <span>4</span>
-            <strong>Summarize impact</strong>
-            <p>Export data or draft a report-ready summary from local evidence.</p>
+            <strong data-i18n="workflow4Title">Summarize impact</strong>
+            <p data-i18n="workflow4Text">Export data or draft a report-ready summary from local evidence.</p>
           </div>
         </div>
       </section>
 
       <section class="about-section about-note">
-        <h2>Prototype disclaimer</h2>
-        <p>This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.</p>
+        <h2 data-i18n="prototypeDisclaimer">Prototype disclaimer</h2>
+        <p data-i18n="prototypeDisclaimerText">This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.</p>
       </section>
     </div>
 
@@ -138,51 +150,59 @@
     <div id="projectNotesView" class="project-notes-view hidden">
       <section class="notes-hero">
         <div>
-          <p class="eyebrow">Project Notes</p>
-          <h1>Built as a focused app prototype.</h1>
-          <p class="about-lede">A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.</p>
+          <p class="eyebrow" data-i18n="notesEyebrow">Project Notes</p>
+          <h1 data-i18n="notesTitle">Built as a focused app prototype.</h1>
+          <p class="about-lede" data-i18n="notesLede">A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.</p>
         </div>
         <img src="bilder/bilde2.jpg" alt="Dichino Nguyen" class="builder-photo" onerror="this.hidden=true" />
       </section>
 
       <section class="notes-grid">
         <div class="notes-block">
-          <h2>Built by</h2>
-          <p>Dichino Nguyen as an app development prototype for Norge Unlimited.</p>
+          <h2 data-i18n="builtBy">Built by</h2>
+          <p data-i18n="builtByText">Dichino Nguyen as an app development prototype for Norge Unlimited.</p>
         </div>
         <div class="notes-block">
-          <h2>Tech stack</h2>
+          <h2 data-i18n="techStack">Tech stack</h2>
           <ul>
-            <li>HTML, CSS and vanilla JavaScript</li>
-            <li>Dexie.js with IndexedDB</li>
-            <li>Local JSON import and export</li>
+            <li data-i18n="tech1">HTML, CSS and vanilla JavaScript</li>
+            <li data-i18n="tech2">Dexie.js with IndexedDB</li>
+            <li data-i18n="tech3">Local JSON import and export</li>
           </ul>
         </div>
         <div class="notes-block">
-          <h2>Prototype scope</h2>
+          <h2 data-i18n="prototypeScope">Prototype scope</h2>
           <ul>
-            <li>Project-based journal entries</li>
-            <li>Tags, attachments and people reached</li>
-            <li>Survey builder, QR sharing flow and response imports</li>
+            <li data-i18n="scope1">Project-based journal entries</li>
+            <li data-i18n="scope2">Tags, attachments and people reached</li>
+            <li data-i18n="scope3">Survey builder, QR sharing flow and response imports</li>
           </ul>
         </div>
         <div class="notes-block">
-          <h2>Current limits</h2>
+          <h2 data-i18n="currentLimits">Current limits</h2>
           <ul>
-            <li>Local-only data</li>
-            <li>No authentication, backend or multi-user sync</li>
-            <li>Not a production CRM or reporting system</li>
+            <li data-i18n="limit1">Local-only data</li>
+            <li data-i18n="limit2">No authentication, backend or multi-user sync</li>
+            <li data-i18n="limit3">Not a production CRM or reporting system</li>
           </ul>
         </div>
         <div class="notes-block notes-block-wide">
-          <h2>Architecture</h2>
-          <p>Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.</p>
+          <h2 data-i18n="architecture">Architecture</h2>
+          <p data-i18n="architectureText">Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.</p>
+          <div class="architecture-flow" aria-label="Data model" data-i18n-aria="dataModel">
+            <span data-i18n="modelProjects">Projects</span>
+            <span data-i18n="modelEntries">Entries</span>
+            <span data-i18n="modelSurveys">Surveys</span>
+            <span data-i18n="modelResponses">Responses</span>
+            <span data-i18n="modelExport">Export / Import</span>
+            <span data-i18n="modelSummary">Impact Summary</span>
+          </div>
         </div>
       </section>
 
       <section class="about-section">
-        <h2>Possible next steps</h2>
-        <p>Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.</p>
+        <h2 data-i18n="possibleNextSteps">Possible next steps</h2>
+        <p data-i18n="possibleNextStepsText">Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.</p>
       </section>
     </div>
 
@@ -190,15 +210,15 @@
     <div id="impactSummaryView" class="impact-summary-view hidden">
       <header class="summary-hero">
         <div>
-          <p class="eyebrow">AI-ready reporting workflow</p>
-          <h1>Impact Summary Draft</h1>
-          <p class="about-lede">Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.</p>
+          <p class="eyebrow" data-i18n="summaryEyebrow">AI-ready reporting workflow</p>
+          <h1 data-i18n="summaryTitle">Impact Summary Draft</h1>
+          <p class="about-lede" data-i18n="summaryLede">Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.</p>
         </div>
         <div class="summary-context">
-          <span class="summary-context-label">Selected project</span>
-          <strong id="summaryProjectName">No project selected</strong>
-          <span id="summaryPeriod">No reporting period yet</span>
-          <small id="summaryUpdated">Local-first draft</small>
+          <span class="summary-context-label" data-i18n="selectedProject">Selected project</span>
+          <strong id="summaryProjectName" data-i18n="noProjectSelected">No project selected</strong>
+          <span id="summaryPeriod" data-i18n="noReportingPeriod">No reporting period yet</span>
+          <small id="summaryUpdated" data-i18n="localFirstDraft">Local-first draft</small>
         </div>
       </header>
 
@@ -206,35 +226,35 @@
 
       <section class="summary-grid">
         <article class="summary-card summary-card-wide">
-          <h2>Narrative summary</h2>
+          <h2 data-i18n="narrativeSummary">Narrative summary</h2>
           <div id="summaryNarrative"></div>
         </article>
         <article class="summary-card">
-          <h2>Key themes</h2>
+          <h2 data-i18n="keyThemes">Key themes</h2>
           <ul id="summaryThemes"></ul>
         </article>
         <article class="summary-card">
-          <h2>Signals of change</h2>
+          <h2 data-i18n="signalsOfChange">Signals of change</h2>
           <ul id="summarySignals"></ul>
         </article>
         <article class="summary-card">
-          <h2>Evidence gaps</h2>
+          <h2 data-i18n="evidenceGaps">Evidence gaps</h2>
           <ul id="summaryGaps"></ul>
         </article>
         <article class="summary-card">
-          <h2>Recommended next steps</h2>
+          <h2 data-i18n="recommendedNextSteps">Recommended next steps</h2>
           <ul id="summaryNextSteps"></ul>
         </article>
       </section>
 
       <section class="summary-actions">
         <div>
-          <h2>Export actions</h2>
-          <p>Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.</p>
+          <h2 data-i18n="exportActions">Export actions</h2>
+          <p data-i18n="exportActionsText">Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.</p>
         </div>
         <div class="summary-action-buttons">
-          <button class="btn-primary" id="btnCopyMarkdown">Copy Markdown summary</button>
-          <button class="btn-secondary" id="btnCopyAiPrompt">Copy AI prompt</button>
+          <button class="btn-primary" id="btnCopyMarkdown" data-i18n="copyMarkdown">Copy Markdown summary</button>
+          <button class="btn-secondary" id="btnCopyAiPrompt" data-i18n="copyAiPrompt">Copy AI prompt</button>
         </div>
       </section>
     </div>
@@ -242,38 +262,64 @@
     <!-- PROJECT VIEW -->
     <div id="projectView" class="hidden">
       <header class="project-header">
-        <div class="project-title-row">
-          <h1 id="projectTitle" class="project-title">Project Name</h1>
-          <div class="header-actions">
-            <button class="btn-icon" id="btnEditProject" title="Edit project">✎</button>
-            <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project">✕</button>
+        <div class="project-hero-grid">
+          <div class="project-hero-copy">
+            <div class="workspace-kicker">
+              <span data-i18n="workspaceKicker">Impact workspace</span>
+              <strong id="projectPeriodChip">Reporting period</strong>
+            </div>
+            <div class="project-title-row">
+              <h1 id="projectTitle" class="project-title">Project Name</h1>
+            </div>
+            <p id="projectDesc" class="project-desc"></p>
+          </div>
+          <div class="project-hero-actions">
+            <button class="btn-primary" id="btnHeaderEntry" data-i18n="addEntry">+ Add Entry</button>
+            <button class="btn-secondary" id="btnHeaderSummary" data-i18n="openSummary">Open Summary</button>
+            <div class="header-actions">
+              <button class="btn-icon" id="btnEditProject" title="Edit project">✎</button>
+              <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project">✕</button>
+            </div>
           </div>
         </div>
-        <p id="projectDesc" class="project-desc"></p>
         <div class="stats-bar">
           <div class="stat">
             <span class="stat-value" id="statEntries">0</span>
-            <span class="stat-label">Entries</span>
+            <span class="stat-label" data-i18n="statEntries">Entries</span>
           </div>
           <div class="stat">
             <span class="stat-value" id="statPeople">0</span>
-            <span class="stat-label">People Reached</span>
+            <span class="stat-label" data-i18n="statPeople">People Reached</span>
           </div>
           <div class="stat">
             <span class="stat-value" id="statAttachments">0</span>
-            <span class="stat-label">Attachments</span>
+            <span class="stat-label" data-i18n="statAttachments">Attachments</span>
           </div>
           <div class="stat">
             <span class="stat-value" id="statSurveys">0</span>
-            <span class="stat-label">Surveys</span>
+            <span class="stat-label" data-i18n="statSurveys">Surveys</span>
           </div>
         </div>
+        <section class="project-overview-grid" aria-label="Project overview" data-i18n-aria="projectOverview">
+          <article class="overview-panel overview-panel-tags">
+            <span class="panel-kicker" data-i18n="topTags">Top tags</span>
+            <div class="panel-content" id="projectTopTags"></div>
+          </article>
+          <article class="overview-panel">
+            <span class="panel-kicker" data-i18n="latestSurveyActivity">Latest survey activity</span>
+            <div class="panel-content" id="projectSurveySnapshot"></div>
+          </article>
+          <article class="overview-panel">
+            <span class="panel-kicker" data-i18n="evidenceReadiness">Evidence readiness</span>
+            <div class="panel-content" id="projectEvidenceSnapshot"></div>
+          </article>
+        </section>
       </header>
 
       <!-- PROJECT TABS -->
       <div class="view-tabs">
-        <button class="view-tab active" data-view="journal">Journal</button>
-        <button class="view-tab" data-view="surveys">Surveys</button>
+        <button class="view-tab active" data-view="journal" data-i18n="tabJournal">Journal</button>
+        <button class="view-tab" data-view="surveys" data-i18n="tabSurveys">Surveys</button>
       </div>
 
       <!-- JOURNAL SECTION -->
@@ -281,30 +327,30 @@
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">⌕</span>
-            <input type="text" id="searchInput" placeholder="Search entries…" />
+            <input type="text" id="searchInput" placeholder="Search entries…" data-i18n-placeholder="searchEntries" />
           </div>
           <div class="filter-pills" id="filterPills">
-            <button class="pill active" data-filter="all">All time</button>
-            <button class="pill" data-filter="7">Last 7 days</button>
-            <button class="pill" data-filter="30">Last 30 days</button>
+            <button class="pill active" data-filter="all" data-i18n="allTime">All time</button>
+            <button class="pill" data-filter="7" data-i18n="last7">Last 7 days</button>
+            <button class="pill" data-filter="30" data-i18n="last30">Last 30 days</button>
           </div>
-          <button class="btn-primary" id="btnAddEntry">+ Add Entry</button>
+          <button class="btn-primary" id="btnAddEntry" data-i18n="addEntry">+ Add Entry</button>
         </div>
         <div id="entryList" class="entry-list"></div>
         <div id="emptyEntries" class="empty-entries hidden">
-          <p>No entries yet — start documenting your impact!</p>
+          <p data-i18n="noEntries">No entries yet — start documenting your impact!</p>
         </div>
       </div>
 
       <!-- SURVEYS SECTION -->
       <div id="surveysSection" class="hidden">
         <div class="toolbar">
-          <p class="section-hint">Build a survey, share it via QR or file, then import the responses here.</p>
-          <button class="btn-primary" id="btnNewSurvey">+ New Survey</button>
+          <p class="section-hint" data-i18n="surveyHint">Build a survey, share it via QR or file, then import the responses here.</p>
+          <button class="btn-primary" id="btnNewSurvey" data-i18n="newSurvey">+ New Survey</button>
         </div>
         <div id="surveyList" class="survey-list"></div>
         <div id="emptySurveys" class="empty-entries hidden">
-          <p>No surveys yet. Create one to start collecting responses!</p>
+          <p data-i18n="noSurveys">No surveys yet. Create one to start collecting responses!</p>
         </div>
       </div>
     </div>
@@ -312,14 +358,14 @@
     <!-- SURVEY DETAIL VIEW -->
     <div id="surveyDetailView" class="hidden">
       <div class="back-bar">
-        <button class="btn-back" id="btnBackToProject">Back to project</button>
+        <button class="btn-back" id="btnBackToProject" data-i18n="backToProject">Back to project</button>
       </div>
 
       <header class="project-header">
         <div class="project-title-row">
           <h1 id="surveyDetailTitle" class="project-title"></h1>
           <div class="header-actions">
-            <button class="btn-icon btn-danger" id="btnDeleteSurvey" title="Delete survey">✕</button>
+            <button class="btn-icon btn-danger" id="btnDeleteSurvey" title="Delete survey" data-i18n-title="deleteSurvey">✕</button>
           </div>
         </div>
         <p id="surveyDetailDesc" class="project-desc"></p>
@@ -331,9 +377,9 @@
 
       <!-- SURVEY TABS -->
       <div class="view-tabs">
-        <button class="view-tab active" data-survey-tab="questions">Questions</button>
-        <button class="view-tab" data-survey-tab="responses">Responses</button>
-        <button class="view-tab" data-survey-tab="share">Share & QR</button>
+        <button class="view-tab active" data-survey-tab="questions" data-i18n="tabQuestions">Questions</button>
+        <button class="view-tab" data-survey-tab="responses" data-i18n="tabResponses">Responses</button>
+        <button class="view-tab" data-survey-tab="share" data-i18n="tabShare">Share & QR</button>
       </div>
 
       <!-- QUESTIONS TAB -->
@@ -344,12 +390,12 @@
       <!-- RESPONSES TAB -->
       <div id="surveyTabResponses" class="hidden">
         <div class="toolbar">
-          <p class="section-hint">Import response JSON files after people complete the exported survey.</p>
-          <button class="btn-primary" id="btnImportResponse">Import Response JSON</button>
+          <p class="section-hint" data-i18n="responsesHint">Import response JSON files after people complete the exported survey.</p>
+          <button class="btn-primary" id="btnImportResponse" data-i18n="importResponse">Import Response JSON</button>
         </div>
         <div id="responsesAggregation"></div>
         <div id="emptyResponses" class="empty-entries">
-          <p>No responses yet. Import a response JSON file to see results here.</p>
+          <p data-i18n="noResponses">No responses yet. Import a response JSON file to see results here.</p>
         </div>
       </div>
 
@@ -359,28 +405,28 @@
 
           <div class="share-card">
             <div class="share-step-num">1</div>
-            <h3>Export survey</h3>
-            <p>Download a self-contained HTML file. Respondents open it in any browser, fill it in, and download their answers as a JSON file to send back to you.</p>
-            <button class="btn-primary" id="btnExportSurveyHtml">Download Survey HTML</button>
+            <h3 data-i18n="shareStep1Title">Export survey</h3>
+            <p data-i18n="shareStep1Text">Download a self-contained HTML file. Respondents open it in any browser, fill it in, and download their answers as a JSON file to send back to you.</p>
+            <button class="btn-primary" id="btnExportSurveyHtml" data-i18n="downloadSurveyHtml">Download Survey HTML</button>
           </div>
 
           <div class="share-card">
             <div class="share-step-num">2</div>
-            <h3>Host or share file <span class="optional">(for QR code)</span></h3>
-            <p>Host the HTML file online when you want a QR code, or share the file directly for small pilots.</p>
+            <h3><span data-i18n="shareStep2Title">Host or share file</span> <span class="optional" data-i18n="forQrCode">(for QR code)</span></h3>
+            <p data-i18n="shareStep2Text">Host the HTML file online when you want a QR code, or share the file directly for small pilots.</p>
             <div class="hosting-options">
               <a href="https://app.netlify.com/drop" target="_blank" class="hosting-link">Netlify Drop</a>
-              <span class="hosting-note">Drag & drop the HTML file — get a live URL in seconds.</span>
+              <span class="hosting-note" data-i18n="netlifyNote">Drag & drop the HTML file — get a live URL in seconds.</span>
             </div>
           </div>
 
           <div class="share-card share-card-wide">
             <div class="share-step-num">3</div>
-            <h3>Generate QR code</h3>
-            <p>Paste your hosted URL below to generate a QR code you can print, display at events, or share digitally.</p>
+            <h3 data-i18n="shareStep3Title">Generate QR code</h3>
+            <p data-i18n="shareStep3Text">Paste your hosted URL below to generate a QR code you can print, display at events, or share digitally.</p>
             <div class="qr-input-row">
               <input type="url" id="qrUrlInput" placeholder="https://yoursite.netlify.app" />
-              <button class="btn-primary" id="btnGenerateQr">Generate QR</button>
+              <button class="btn-primary" id="btnGenerateQr" data-i18n="generateQr">Generate QR</button>
             </div>
             <div id="qrDisplay" class="qr-display"></div>
           </div>
@@ -396,16 +442,16 @@
   <!-- Project Modal -->
   <div id="projectModal" class="modal-overlay hidden">
     <div class="modal">
-      <h2 id="projectModalTitle">New Project</h2>
-      <label>Project Name
+      <h2 id="projectModalTitle" data-i18n="modalNewProject">New Project</h2>
+      <label><span data-i18n="projectNameLabel">Project Name</span>
         <input type="text" id="inputProjectName" placeholder="e.g. Nabolagets kraft" />
       </label>
-      <label>Description <span class="optional">(optional)</span>
-        <textarea id="inputProjectDesc" rows="3" placeholder="What is this project about?"></textarea>
+      <label><span data-i18n="descriptionLabel">Description</span> <span class="optional" data-i18n="optional">(optional)</span>
+        <textarea id="inputProjectDesc" rows="3" placeholder="What is this project about?" data-i18n-placeholder="projectDescPlaceholder"></textarea>
       </label>
       <div class="modal-actions">
-        <button class="btn-ghost" id="btnCancelProject">Cancel</button>
-        <button class="btn-primary" id="btnSaveProject">Save Project</button>
+        <button class="btn-ghost" id="btnCancelProject" data-i18n="cancel">Cancel</button>
+        <button class="btn-primary" id="btnSaveProject" data-i18n="saveProject">Save Project</button>
       </div>
     </div>
   </div>
@@ -413,28 +459,28 @@
   <!-- Entry Modal -->
   <div id="entryModal" class="modal-overlay hidden">
     <div class="modal modal-wide">
-      <h2 id="entryModalTitle">New Entry</h2>
-      <label>What happened?
-        <textarea id="inputEntryText" rows="4" placeholder="Describe what took place and the impact you observed…"></textarea>
+      <h2 id="entryModalTitle" data-i18n="modalNewEntry">New Entry</h2>
+      <label><span data-i18n="whatHappened">What happened?</span>
+        <textarea id="inputEntryText" rows="4" placeholder="Describe what took place and the impact you observed…" data-i18n-placeholder="entryTextPlaceholder"></textarea>
       </label>
       <div class="row-2col">
-        <label>People Reached
+        <label><span data-i18n="peopleReachedLabel">People Reached</span>
           <input type="number" id="inputEntryCount" placeholder="0" min="0" />
         </label>
-        <label>Tags <span class="optional">(comma-separated)</span>
-          <input type="text" id="inputEntryTags" placeholder="workshop, youth, online" />
+        <label><span data-i18n="tagsLabel">Tags</span> <span class="optional" data-i18n="commaSeparated">(comma-separated)</span>
+          <input type="text" id="inputEntryTags" placeholder="workshop, youth, online" data-i18n-placeholder="tagsPlaceholder" />
         </label>
       </div>
-      <label>Attachments <span class="optional">(photos, docs)</span>
+      <label><span data-i18n="attachmentsLabel">Attachments</span> <span class="optional" data-i18n="photosDocs">(photos, docs)</span>
         <div class="file-drop" id="fileDrop">
-          <span>Drag & drop or <label class="file-link" for="fileInput">browse</label></span>
+          <span><span data-i18n="dragDropOr">Drag & drop or</span> <label class="file-link" for="fileInput" data-i18n="browse">browse</label></span>
           <input type="file" id="fileInput" multiple accept="image/*,.pdf,.docx,.xlsx,.csv" style="display:none" />
         </div>
         <div id="filePreview" class="file-preview"></div>
       </label>
       <div class="modal-actions">
-        <button class="btn-ghost" id="btnCancelEntry">Cancel</button>
-        <button class="btn-primary" id="btnSaveEntry">Save Entry</button>
+        <button class="btn-ghost" id="btnCancelEntry" data-i18n="cancel">Cancel</button>
+        <button class="btn-primary" id="btnSaveEntry" data-i18n="saveEntry">Save Entry</button>
       </div>
     </div>
   </div>
@@ -443,32 +489,32 @@
   <div id="surveyBuilderModal" class="modal-overlay hidden">
     <div class="modal modal-builder">
       <div class="builder-header">
-        <h2>New Survey</h2>
-        <button class="btn-icon" id="btnCloseSurveyBuilder" title="Close">✕</button>
+        <h2 data-i18n="modalNewSurvey">New Survey</h2>
+        <button class="btn-icon" id="btnCloseSurveyBuilder" title="Close" data-i18n-title="close">✕</button>
       </div>
       <div class="builder-body">
         <div class="builder-meta">
-          <label>Survey Title
+          <label><span data-i18n="surveyTitleLabel">Survey Title</span>
             <input type="text" id="inputSurveyTitle" placeholder="e.g. Workshop Feedback" />
           </label>
-          <label>Description <span class="optional">(optional — shown to respondents)</span>
-            <input type="text" id="inputSurveyDesc" placeholder="A short intro for your respondents" />
+          <label><span data-i18n="descriptionLabel">Description</span> <span class="optional" data-i18n="optionalShown">(optional — shown to respondents)</span>
+            <input type="text" id="inputSurveyDesc" placeholder="A short intro for your respondents" data-i18n-placeholder="surveyDescPlaceholder" />
           </label>
         </div>
         <div class="builder-questions-section">
           <div class="builder-questions-header">
-            <span class="section-label">Questions</span>
-            <button class="btn-add-question" id="btnAddQuestion">+ Add Question</button>
+            <span class="section-label" data-i18n="questionsLabel">Questions</span>
+            <button class="btn-add-question" id="btnAddQuestion" data-i18n="addQuestion">+ Add Question</button>
           </div>
           <div id="questionBuilderList" class="question-builder-list"></div>
           <div id="emptyQBuilder" class="empty-qbuilder">
-            <p>No questions yet — click "+ Add Question" to start building.</p>
+            <p data-i18n="noBuilderQuestions">No questions yet — click "+ Add Question" to start building.</p>
           </div>
         </div>
       </div>
       <div class="builder-footer">
-        <button class="btn-ghost" id="btnCancelSurveyBuilder">Cancel</button>
-        <button class="btn-primary" id="btnSaveSurvey">Save Survey</button>
+        <button class="btn-ghost" id="btnCancelSurveyBuilder" data-i18n="cancel">Cancel</button>
+        <button class="btn-primary" id="btnSaveSurvey" data-i18n="saveSurvey">Save Survey</button>
       </div>
     </div>
   </div>
@@ -476,11 +522,11 @@
   <!-- Delete Confirm Modal -->
   <div id="confirmModal" class="modal-overlay hidden">
     <div class="modal modal-sm">
-      <h2>Are you sure?</h2>
-      <p id="confirmMessage">This action cannot be undone.</p>
+      <h2 data-i18n="areYouSure">Are you sure?</h2>
+      <p id="confirmMessage" data-i18n="cannotUndo">This action cannot be undone.</p>
       <div class="modal-actions">
-        <button class="btn-ghost" id="btnCancelConfirm">Cancel</button>
-        <button class="btn-danger-solid" id="btnConfirm">Delete</button>
+        <button class="btn-ghost" id="btnCancelConfirm" data-i18n="cancel">Cancel</button>
+        <button class="btn-danger-solid" id="btnConfirm" data-i18n="delete">Delete</button>
       </div>
     </div>
   </div>
