@@ -34,6 +34,8 @@ let pendingFiles      = [];
 let pendingDeleteFn   = null;
 let editingEntryId    = null;
 let buildingQuestions = [];          // questions staged in survey builder
+let importWizardState = null;
+let showAllEntries    = false;
 const LANG_KEY        = 'visdetLanguage';
 let currentLanguage   = localStorage.getItem(LANG_KEY) || 'en';
 
@@ -49,6 +51,9 @@ const i18n = {
     navAbout: 'About Vis Det',
     navNotes: 'Project Notes',
     projectsLabel: 'Projects',
+    demoActionsLabel: 'Demo',
+    dataActionsLabel: 'Data',
+    demoWalkthrough: 'View demo flow',
     import: 'Import',
     export: 'Export',
     prototypeNotice: 'Local-first prototype. Not a production Norge Unlimited system.',
@@ -56,12 +61,12 @@ const i18n = {
     dismiss: 'Dismiss',
     dismissNotice: 'Dismiss notice',
     emptyTitle: 'Document what happened.',
-    emptyText: 'Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.',
+    emptyText: 'Vis Det turns scattered project notes, feedback and evidence into structured reporting material.',
     createProject: 'Create Project',
     loadDemoData: 'Load Demo Data',
     resetDemoData: 'Reset demo data',
     aboutEyebrow: 'About Vis Det',
-    aboutLede: 'A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.',
+    aboutLede: 'Vis Det turns scattered project notes, feedback and evidence into structured reporting material.',
     openJournal: 'Open Journal',
     whyExists: 'Why this exists',
     whyExistsText: "The prototype is inspired by Norge Unlimited's work with local social entrepreneurship, neighbourhood incubators and impact documentation. It explores how early impact data can be captured before it becomes formal reporting.",
@@ -90,28 +95,34 @@ const i18n = {
     prototypeDisclaimerText: 'This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.',
     notesEyebrow: 'Project Notes',
     notesTitle: 'Built as a focused app prototype.',
-    notesLede: 'A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.',
+    notesLede: 'A focused local-first prototype for social entrepreneurs and support teams documenting impact: validation, IndexedDB modeling, reporting logic and export workflows.',
     builtBy: 'Built by',
     builtByText: 'Dichino Nguyen as an app development prototype for Norge Unlimited.',
     techStack: 'Tech stack',
     tech1: 'HTML, CSS and vanilla JavaScript',
     tech2: 'Dexie.js with IndexedDB',
-    tech3: 'Local JSON import and export',
+    tech3: 'Dexie-backed local-first data model',
+    tech4: 'Static GitHub Pages deployment target',
     prototypeScope: 'Prototype scope',
     scope1: 'Project-based journal entries',
     scope2: 'Tags, attachments and people reached',
     scope3: 'Survey builder, QR sharing flow and response imports',
+    scope4: 'Import Wizard with validation and result summary',
+    scope5: 'Evidence Readiness scoring and Timeline view',
+    scope6: 'Impact Summary, AI-ready prompt and report package export',
+    scope7: 'English/Norwegian language toggle',
     currentLimits: 'Current limits',
     limit1: 'Local-only data',
     limit2: 'No authentication, backend or multi-user sync',
-    limit3: 'Not a production CRM or reporting system',
+    limit3: 'No external AI service or exposed API keys',
+    limit4: 'Not a production CRM or reporting system',
     architecture: 'Architecture',
-    architectureText: 'Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.',
+    architectureText: 'Projects, journal entries, attachments, surveys and responses are stored locally in IndexedDB with Dexie.js. The app validates imports before writing data, calculates reporting readiness locally and exports markdown, JSON and CSV reporting material from browser data.',
     possibleNextSteps: 'Possible next steps',
-    possibleNextStepsText: 'Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.',
+    possibleNextStepsText: 'Backend sync, authentication, role-based access, hosted surveys, serverless AI summary generation, audit logs and team collaboration would be natural production next steps.',
     summaryEyebrow: 'AI-ready reporting workflow',
     summaryTitle: 'Impact Summary Draft',
-    summaryLede: 'Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.',
+    summaryLede: 'The summary is created from local project data. The prototype uses no external AI service or API keys.',
     selectedProject: 'Selected project',
     noProjectSelected: 'No project selected',
     noReportingPeriod: 'No reporting period yet',
@@ -122,7 +133,7 @@ const i18n = {
     evidenceGaps: 'Evidence gaps',
     recommendedNextSteps: 'Recommended next steps',
     exportActions: 'Export actions',
-    exportActionsText: 'Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.',
+    exportActionsText: 'Copy a clean markdown draft, copy an AI-ready prompt, or export local reporting files. The prompt uses only project data stored in this browser.',
     copyMarkdown: 'Copy Markdown summary',
     copyAiPrompt: 'Copy AI prompt',
     statEntries: 'Entries',
@@ -131,6 +142,10 @@ const i18n = {
     statSurveys: 'Surveys',
     tabJournal: 'Journal',
     tabSurveys: 'Surveys',
+    journalSectionKicker: 'Evidence notes',
+    journalSectionTitle: 'Recent project evidence',
+    surveySectionKicker: 'Feedback collection',
+    surveySectionTitle: 'Surveys and QR sharing',
     searchEntries: 'Search entries...',
     allTime: 'All time',
     last7: 'Last 7 days',
@@ -138,10 +153,16 @@ const i18n = {
     addEntry: '+ Add Entry',
     noEntries: 'No entries yet — start documenting your impact!',
     noEntriesShort: 'No entries yet',
+    showAllEntries: 'Show all entries',
+    showFewerEntries: 'Show fewer',
+    recentEvidenceNotes: 'Showing the most recent evidence notes first.',
     surveyHint: 'Build a survey, share it via QR or file, then import the responses here.',
     newSurvey: '+ New Survey',
     noSurveys: 'No surveys yet. Create one to start collecting responses!',
     backToProject: 'Back to project',
+    editProject: 'Edit project',
+    deleteProject: 'Delete project',
+    editEntry: 'Edit entry',
     deleteSurvey: 'Delete survey',
     tabQuestions: 'Questions',
     tabResponses: 'Responses',
@@ -227,6 +248,60 @@ const i18n = {
     importUnknownFormat: 'Unrecognized file format.',
     importMergeConfirm: 'Merge {projects} project(s) and {entries} entries into your data?\n\nThis will not overwrite existing data.',
     importComplete: 'Import complete: {projects} project(s) and {entries} entries imported.',
+    back: 'Back',
+    next: 'Next',
+    confirmImport: 'Confirm import',
+    importWizardKicker: 'Import wizard',
+    importWizardTitle: 'Validate local data before import',
+    importStepChoose: 'Choose file',
+    importStepPreview: 'Preview data',
+    importStepValidate: 'Validate data',
+    importStepSummary: 'Confirm import',
+    importStepConfirm: 'Result summary',
+    importChooseText: 'Choose a JSON export from Vis Det. CSV journal imports are supported for simple rows with project, title, text, date, peopleReached and tags columns.',
+    importPreviewText: 'Preview the records detected before importing.',
+    importValidationText: 'Validation checks for missing titles, invalid dates, relation errors, duplicates and unsupported fields.',
+    importSummaryText: 'Review what is ready to import. Records with errors will not be imported.',
+    importConfirmText: 'Confirm only when the summary looks right. This merges valid records into local IndexedDB data.',
+    chooseImportFile: 'Choose import file',
+    noImportFile: 'No file selected yet.',
+    validRecords: 'Valid records',
+    warnings: 'Warnings',
+    errors: 'Errors',
+    recordsReady: 'Records ready',
+    projectsReady: 'Projects ready',
+    entriesReady: 'Entries ready',
+    surveysReady: 'Surveys ready',
+    responsesReady: 'Responses ready',
+    importBlocked: 'Fix validation errors before importing.',
+    importReady: 'Valid records are ready to import.',
+    importWizardComplete: 'Import complete: {projects} project(s), {entries} entries, {surveys} surveys and {responses} responses imported.',
+    importFinished: 'Import is complete.',
+    importNoValidRecords: 'No valid records to import.',
+    importJsonOnly: 'Use JSON exports for full project data. CSV is limited to journal entries.',
+    evidenceReadinessScore: 'Evidence readiness score',
+    timelineTitle: 'Timeline',
+    readinessNeedsSetup: 'Needs setup',
+    readinessEarly: 'Early evidence',
+    readinessGood: 'Good documentation',
+    readinessReady: 'Reporting ready',
+    readinessExplanation: '{score}% readiness based on journal coverage, timeline spread, reach counts, tags, attachments, survey feedback and recency.',
+    noTimeline: 'No timeline yet. Add journal entries to build a project history.',
+    timelineEntries: '{count} entries',
+    exportReportPackage: 'Export report package',
+    exportPackageComplete: 'Report package exported.',
+    demoWalkthroughKicker: 'Guided demo',
+    demoWalkthroughTitle: 'View the project workflow in one minute',
+    demoStep1Title: 'Review project evidence',
+    demoStep1Text: 'Nabolagets kraft shows structured journal notes, reach, tags and attachments.',
+    demoStep2Title: 'Check evidence readiness',
+    demoStep2Text: 'The app scores how ready the project is for reporting based on local documentation quality.',
+    demoStep3Title: 'Open Impact Summary',
+    demoStep3Text: 'Local project data is turned into a draft summary, evidence gaps and next steps.',
+    demoStep4Title: 'Export reporting material',
+    demoStep4Text: 'Copy a markdown summary, copy an AI-ready prompt or export a report package.',
+    openReadiness: 'Open readiness',
+    openExports: 'Open exports',
     fileTooLarge: '"{name}" is too large (max 10 MB).',
     untitledEvidenceNote: 'Untitled evidence note',
     selectedPeriod: 'the selected period',
@@ -260,6 +335,9 @@ const i18n = {
     navAbout: 'Om Vis Det',
     navNotes: 'Prosjektnotater',
     projectsLabel: 'Prosjekter',
+    demoActionsLabel: 'Demo',
+    dataActionsLabel: 'Data',
+    demoWalkthrough: 'Vis demoflyt',
     import: 'Importer',
     export: 'Eksporter',
     prototypeNotice: 'Lokal prototype. Ikke et produksjonssystem for Norge Unlimited.',
@@ -267,12 +345,12 @@ const i18n = {
     dismiss: 'Lukk',
     dismissNotice: 'Lukk varsel',
     emptyTitle: 'Dokumenter det som skjedde.',
-    emptyText: 'Samle prosjektnotater, personer nådd, evidens og enkle tilbakemeldinger før det blir formell rapportering.',
+    emptyText: 'Vis Det gjør løse prosjektnotater, tilbakemeldinger og evidens om til strukturert rapporteringsgrunnlag.',
     createProject: 'Opprett prosjekt',
     loadDemoData: 'Last demodata',
     resetDemoData: 'Reset demodata',
     aboutEyebrow: 'Om Vis Det',
-    aboutLede: 'En lokal prototype for strukturert effektdokumentasjon. Den hjelper team med å dokumentere prosjekter, observasjoner, evidens, personer nådd og enkle spørreskjema på ett sted.',
+    aboutLede: 'Vis Det gjør løse prosjektnotater, tilbakemeldinger og evidens om til strukturert rapporteringsgrunnlag.',
     openJournal: 'Åpne journal',
     whyExists: 'Hvorfor dette finnes',
     whyExistsText: 'Prototypen er inspirert av Norge Unlimited sitt arbeid med lokalt sosialt entreprenørskap, nabolagsinkubatorer og effektdokumentasjon. Den utforsker hvordan tidlige effektdata kan fanges før de blir formell rapportering.',
@@ -301,28 +379,34 @@ const i18n = {
     prototypeDisclaimerText: 'Dette er en lokal prototype for å utforske effektdokumentasjon. Det er ikke et offisielt produksjonssystem for Norge Unlimited.',
     notesEyebrow: 'Prosjektnotater',
     notesTitle: 'Bygget som en fokusert app-prototype.',
-    notesLede: 'En liten, inspiserbar MVP for rekrutterere og tekniske vurderinger: enkle filer, lokal lagring, ekte import/eksport og ingen falsk tjenestelogikk.',
+    notesLede: 'En fokusert lokal prototype for sosiale entreprenører og støtteapparat som dokumenterer effekt: datavalidering, IndexedDB-modellering, rapportlogikk og eksportflyt.',
     builtBy: 'Bygget av',
     builtByText: 'Dichino Nguyen som en apputviklingsprototype for Norge Unlimited.',
     techStack: 'Teknologi',
     tech1: 'HTML, CSS og vanilla JavaScript',
     tech2: 'Dexie.js med IndexedDB',
-    tech3: 'Lokal JSON-import og -eksport',
+    tech3: 'Dexie-basert lokal datamodell',
+    tech4: 'Statisk GitHub Pages-mål',
     prototypeScope: 'Prototypeomfang',
     scope1: 'Prosjektbaserte journalnotater',
     scope2: 'Tags, vedlegg og personer nådd',
     scope3: 'Skjemabygger, QR-deling og import av svar',
+    scope4: 'Importwizard med validering og resultatoppsummering',
+    scope5: 'Evidensscore og tidslinje',
+    scope6: 'Effektsammendrag, AI-klar prompt og rapportpakke',
+    scope7: 'Språkvalg på engelsk og norsk',
     currentLimits: 'Nåværende begrensninger',
     limit1: 'Kun lokale data',
     limit2: 'Ingen innlogging, backend eller flerbrukersynk',
-    limit3: 'Ikke et produksjonsklart CRM- eller rapporteringssystem',
+    limit3: 'Ingen ekstern AI-tjeneste eller eksponerte API-nøkler',
+    limit4: 'Ikke et produksjonsklart CRM- eller rapporteringssystem',
     architecture: 'Arkitektur',
-    architectureText: 'Prosjekter, notater, spørreskjema og svar lagres lokalt i IndexedDB med Dexie.js. Eksport/import bruker JSON. En produksjonsversjon ville trenge backend-synk, innlogging og rollebasert tilgang før teamdeling.',
+    architectureText: 'Prosjekter, journalnotater, vedlegg, spørreskjema og svar lagres lokalt i IndexedDB med Dexie.js. Appen validerer import før data skrives, beregner rapporteringsklarhet lokalt og eksporterer markdown, JSON og CSV fra data i nettleseren.',
     possibleNextSteps: 'Mulige neste steg',
-    possibleNextStepsText: 'Backend-synk, brukerkontoer, rollebasert tilgang, CSV/PDF-eksport, hostede spørreskjema, analysevisninger og adminrapportering kan utforskes etter validering av dokumentasjonsflyten.',
+    possibleNextStepsText: 'Backend-synk, innlogging, rollebasert tilgang, hostede spørreskjema, serverless AI-oppsummering, audit logs og teamsamarbeid er naturlige neste steg for produksjon.',
     summaryEyebrow: 'AI-klar rapporteringsflyt',
     summaryTitle: 'Utkast til effektsammendrag',
-    summaryLede: 'Generert fra lokale journal-, skjema- og evidensdata. Ingen ekte AI-API brukes i denne statiske prototypen.',
+    summaryLede: 'Oppsummeringen er laget fra lokale prosjektdata. Prototypen bruker ingen ekstern AI-tjeneste eller API-nøkler.',
     selectedProject: 'Valgt prosjekt',
     noProjectSelected: 'Ingen prosjekt valgt',
     noReportingPeriod: 'Ingen rapporteringsperiode ennå',
@@ -333,7 +417,7 @@ const i18n = {
     evidenceGaps: 'Evidensgap',
     recommendedNextSteps: 'Anbefalte neste steg',
     exportActions: 'Eksporthandlinger',
-    exportActionsText: 'Kopier et rent markdown-utkast, eller kopier en prompt til ChatGPT eller et annet AI-verktøy. Prompten bruker bare lokale prosjektdata.',
+    exportActionsText: 'Kopier et rent markdown-utkast, kopier en AI-klar prompt eller eksporter lokale rapportfiler. Prompten bruker bare prosjektdata som ligger i denne nettleseren.',
     copyMarkdown: 'Kopier Markdown-sammendrag',
     copyAiPrompt: 'Kopier AI-prompt',
     statEntries: 'Notater',
@@ -342,6 +426,10 @@ const i18n = {
     statSurveys: 'Skjema',
     tabJournal: 'Journal',
     tabSurveys: 'Skjema',
+    journalSectionKicker: 'Evidensnotater',
+    journalSectionTitle: 'Nyeste prosjektevidens',
+    surveySectionKicker: 'Tilbakemeldinger',
+    surveySectionTitle: 'Spørreskjema og QR-deling',
     searchEntries: 'Søk i notater...',
     allTime: 'Hele perioden',
     last7: 'Siste 7 dager',
@@ -349,10 +437,16 @@ const i18n = {
     addEntry: '+ Nytt notat',
     noEntries: 'Ingen notater ennå — start med å dokumentere effekt.',
     noEntriesShort: 'Ingen notater ennå',
+    showAllEntries: 'Vis alle notater',
+    showFewerEntries: 'Vis færre',
+    recentEvidenceNotes: 'Viser de nyeste evidensnotatene først.',
     surveyHint: 'Lag et skjema, del det via QR eller fil, og importer svarene her.',
     newSurvey: '+ Nytt skjema',
     noSurveys: 'Ingen skjema ennå. Lag ett for å begynne å samle svar.',
     backToProject: 'Tilbake til prosjekt',
+    editProject: 'Rediger prosjekt',
+    deleteProject: 'Slett prosjekt',
+    editEntry: 'Rediger notat',
     deleteSurvey: 'Slett skjema',
     tabQuestions: 'Spørsmål',
     tabResponses: 'Svar',
@@ -438,6 +532,60 @@ const i18n = {
     importUnknownFormat: 'Ukjent filformat.',
     importMergeConfirm: 'Slå sammen {projects} prosjekt(er) og {entries} notater med dine data?\n\nDette overskriver ikke eksisterende data.',
     importComplete: 'Import fullført: {projects} prosjekt(er) og {entries} notater importert.',
+    back: 'Tilbake',
+    next: 'Neste',
+    confirmImport: 'Bekreft import',
+    importWizardKicker: 'Importwizard',
+    importWizardTitle: 'Valider lokale data før import',
+    importStepChoose: 'Velg fil',
+    importStepPreview: 'Forhåndsvis data',
+    importStepValidate: 'Valider data',
+    importStepSummary: 'Bekreft import',
+    importStepConfirm: 'Resultat',
+    importChooseText: 'Velg en JSON-eksport fra Vis Det. CSV-import av journalnotater støttes for enkle rader med project, title, text, date, peopleReached og tags.',
+    importPreviewText: 'Forhåndsvis postene som er oppdaget før import.',
+    importValidationText: 'Valideringen sjekker manglende titler, ugyldige datoer, relasjonsfeil, duplikater og ukjente felt.',
+    importSummaryText: 'Se hva som er klart til import. Poster med feil blir ikke importert.',
+    importConfirmText: 'Bekreft bare når sammendraget ser riktig ut. Gyldige poster flettes inn i lokal IndexedDB-data.',
+    chooseImportFile: 'Velg importfil',
+    noImportFile: 'Ingen fil valgt ennå.',
+    validRecords: 'Gyldige poster',
+    warnings: 'Advarsler',
+    errors: 'Feil',
+    recordsReady: 'Klar til import',
+    projectsReady: 'Prosjekter klare',
+    entriesReady: 'Notater klare',
+    surveysReady: 'Skjema klare',
+    responsesReady: 'Svar klare',
+    importBlocked: 'Rett valideringsfeil før import.',
+    importReady: 'Gyldige poster er klare til import.',
+    importWizardComplete: 'Import fullført: {projects} prosjekt(er), {entries} notater, {surveys} skjema og {responses} svar importert.',
+    importFinished: 'Importen er fullført.',
+    importNoValidRecords: 'Ingen gyldige poster å importere.',
+    importJsonOnly: 'Bruk JSON-eksport for komplette prosjektdata. CSV er begrenset til journalnotater.',
+    evidenceReadinessScore: 'Evidensscore',
+    timelineTitle: 'Tidslinje',
+    readinessNeedsSetup: 'Trenger oppsett',
+    readinessEarly: 'Tidlig evidens',
+    readinessGood: 'God dokumentasjon',
+    readinessReady: 'Rapporteringsklar',
+    readinessExplanation: '{score}% evidensstatus basert på journaldekning, tidsmessig spredning, rekkeviddetall, tags, vedlegg, skjemasvar og fersk aktivitet.',
+    noTimeline: 'Ingen tidslinje ennå. Legg til journalnotater for å bygge prosjekthistorikk.',
+    timelineEntries: '{count} notater',
+    exportReportPackage: 'Eksporter rapportpakke',
+    exportPackageComplete: 'Rapportpakken er eksportert.',
+    demoWalkthroughKicker: 'Veivisert demo',
+    demoWalkthroughTitle: 'Se prosjektflyten på ett minutt',
+    demoStep1Title: 'Se prosjektevidens',
+    demoStep1Text: 'Nabolagets kraft viser strukturerte journalnotater, rekkevidde, tags og vedlegg.',
+    demoStep2Title: 'Sjekk evidensscore',
+    demoStep2Text: 'Appen vurderer hvor klart prosjektet er for rapportering basert på kvaliteten i lokal dokumentasjon.',
+    demoStep3Title: 'Åpne effektsammendrag',
+    demoStep3Text: 'Lokale prosjektdata blir gjort om til utkast, evidensgap og anbefalte neste steg.',
+    demoStep4Title: 'Eksporter rapportgrunnlag',
+    demoStep4Text: 'Kopier markdown, kopier en AI-klar prompt eller eksporter en rapportpakke.',
+    openReadiness: 'Åpne evidensscore',
+    openExports: 'Åpne eksport',
     fileTooLarge: '"{name}" er for stor (maks 10 MB).',
     untitledEvidenceNote: 'Notat uten tittel',
     selectedPeriod: 'den valgte perioden',
@@ -598,6 +746,10 @@ async function setLanguage(lang) {
   if (currentSurveyId && !document.getElementById('surveyDetailView').classList.contains('hidden')) {
     await openSurveyDetail(currentSurveyId, currentSurveyTab);
   }
+
+  if (importWizardState && !document.getElementById('importWizardModal').classList.contains('hidden')) {
+    renderImportWizard();
+  }
 }
 
 // ============ INIT ============
@@ -675,6 +827,7 @@ async function navigateToSection(section) {
 
   syncProjectListActive();
   await renderProjectView(currentProjectTab);
+  scrollToProjectSection(currentProjectTab);
 }
 
 // ============ RENDER PROJECT LIST (SIDEBAR) ============
@@ -720,6 +873,7 @@ async function selectProject(id) {
   currentProjectId = id;
   currentSurveyId  = null;
   currentProjectTab = 'journal';
+  showAllEntries = false;
   setActiveNav('journal');
   syncProjectListActive();
   renderProjectView('journal');
@@ -733,33 +887,55 @@ async function renderProjectView(tab = currentProjectTab || 'journal') {
   if (!project) return;
 
   showView('projectView');
+  currentProjectTab = tab === 'surveys' ? 'surveys' : 'journal';
+  setActiveNav(currentProjectTab);
 
   document.getElementById('projectTitle').textContent = project.name;
   const descEl = document.getElementById('projectDesc');
   descEl.textContent = localizeDemoText(project.description || '');
   descEl.style.display = project.description ? '' : 'none';
 
-  switchProjectTab(tab);
-
   await renderStats();
   await renderProjectOverview();
-  if (tab === 'journal') await renderEntries();
+  await renderEntries();
+  await renderSurveyList();
 }
 
-// ============ SWITCH PROJECT TAB ============
+// ============ PROJECT SECTION SHORTCUTS ============
 
-function switchProjectTab(tab) {
-  currentProjectTab = tab;
-  setActiveNav(tab);
+function scrollToProjectSection(section) {
+  if (document.getElementById('projectView').classList.contains('hidden')) return;
+  const target = section === 'surveys'
+    ? document.getElementById('surveysSection')
+    : section === 'readiness'
+    ? document.querySelector('.readiness-workspace')
+    : document.getElementById('projectView');
+  if (target?.scrollIntoView) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
 
-  document.querySelectorAll('.view-tab[data-view]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === tab);
-  });
+function openDemoWalkthrough() {
+  document.getElementById('demoWalkthroughModal').classList.remove('hidden');
+}
 
-  document.getElementById('journalSection').classList.toggle('hidden', tab !== 'journal');
-  document.getElementById('surveysSection').classList.toggle('hidden', tab !== 'surveys');
+function closeDemoWalkthrough() {
+  document.getElementById('demoWalkthroughModal').classList.add('hidden');
+}
 
-  if (tab === 'surveys') renderSurveyList();
+async function navigateDemoTarget(target) {
+  closeDemoWalkthrough();
+  if (target === 'summary' || target === 'exports') {
+    await navigateToSection('summary');
+    if (target === 'exports') {
+      document.querySelector('.summary-actions')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return;
+  }
+  await navigateToSection('journal');
+  if (target === 'readiness') {
+    scrollToProjectSection('readiness');
+  }
 }
 
 // ============ DEMO DATA ============
@@ -1072,6 +1248,10 @@ async function renderProjectOverview() {
     : [];
   const surveys = await db.surveys.where('projectId').equals(currentProjectId).toArray();
   surveys.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  let responseCount = 0;
+  for (const survey of surveys) {
+    responseCount += await db.responses.where('surveyId').equals(survey.id).count();
+  }
 
   const period = getDateRange(entries);
   document.getElementById('projectPeriodChip').textContent = period.label;
@@ -1101,15 +1281,109 @@ async function renderProjectOverview() {
     document.getElementById('projectSurveySnapshot').innerHTML = `<p>${escapeHtml(t('noSurveyActivity'))}</p>`;
   }
 
+  const readiness = calculateEvidenceReadiness({ entries, attachments, surveys, responseCount });
   document.getElementById('projectEvidenceSnapshot').innerHTML = `
     <div class="overview-snapshot">
       <span class="overview-icon overview-icon-mint">EV</span>
       <div>
-        <strong>${escapeHtml(t('evidenceSnapshot', { attachments: attachments.length, entries: entries.length }))}</strong>
-        <p>${escapeHtml(project.name)} · ${escapeHtml(period.label)}</p>
+        <strong>${escapeHtml(`${readiness.score}% · ${readiness.label}`)}</strong>
+        <p>${escapeHtml(readiness.gaps[0] || t('evidenceSnapshot', { attachments: attachments.length, entries: entries.length }))}</p>
       </div>
     </div>
   `;
+  renderEvidenceReadiness(readiness);
+  renderTimeline(entries);
+}
+
+function calculateEvidenceReadiness(data) {
+  const { entries = [], attachments = [], surveys = [], responseCount = 0 } = data;
+  const validDates = entries.map(entry => new Date(entry.createdAt)).filter(date => !Number.isNaN(date.getTime()));
+  const uniqueMonths = new Set(validDates.map(date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`));
+  const taggedEntries = entries.filter(entry => (entry.tags || []).length > 0).length;
+  const entriesWithReach = entries.filter(entry => Number(entry.count) > 0).length;
+  const attachmentEntryIds = new Set(attachments.map(attachment => attachment.entryId));
+  const entriesWithAttachments = entries.filter(entry => attachmentEntryIds.has(entry.id)).length;
+  const latestDate = validDates.length ? new Date(Math.max(...validDates.map(date => date.getTime()))) : null;
+  const daysSinceLatest = latestDate ? Math.floor((Date.now() - latestDate.getTime()) / 86400000) : Infinity;
+  const entryCount = entries.length || 1;
+
+  const components = [
+    { key: 'journal', label: currentLanguage === 'no' ? 'Journaldekning' : 'Journal coverage', points: Math.min(entries.length / 12, 1) * 18, ratio: Math.min(entries.length / 12, 1) },
+    { key: 'spread', label: currentLanguage === 'no' ? 'Tidsmessig spredning' : 'Timeline spread', points: Math.min(uniqueMonths.size / 6, 1) * 14, ratio: Math.min(uniqueMonths.size / 6, 1) },
+    { key: 'reach', label: currentLanguage === 'no' ? 'Personer nådd' : 'People reached recorded', points: (entriesWithReach / entryCount) * 12, ratio: entriesWithReach / entryCount },
+    { key: 'tags', label: currentLanguage === 'no' ? 'Tags' : 'Tags', points: (taggedEntries / entryCount) * 14, ratio: taggedEntries / entryCount },
+    { key: 'attachments', label: currentLanguage === 'no' ? 'Vedlegg' : 'Attachments', points: (entriesWithAttachments / entryCount) * 12, ratio: entriesWithAttachments / entryCount },
+    { key: 'surveys', label: currentLanguage === 'no' ? 'Skjema' : 'Surveys', points: Math.min(surveys.length / 2, 1) * 10, ratio: Math.min(surveys.length / 2, 1) },
+    { key: 'responses', label: currentLanguage === 'no' ? 'Skjemasvar' : 'Survey responses', points: Math.min(responseCount / 10, 1) * 12, ratio: Math.min(responseCount / 10, 1) },
+    { key: 'recency', label: currentLanguage === 'no' ? 'Fersk aktivitet' : 'Recency', points: latestDate ? (daysSinceLatest <= 90 ? 8 : daysSinceLatest <= 180 ? 4 : 1) : 0, ratio: latestDate ? (daysSinceLatest <= 90 ? 1 : daysSinceLatest <= 180 ? 0.5 : 0.15) : 0 }
+  ];
+
+  const score = Math.max(0, Math.min(100, Math.round(components.reduce((sum, item) => sum + item.points, 0))));
+  const labelKey = score >= 80 ? 'readinessReady' : score >= 60 ? 'readinessGood' : score >= 35 ? 'readinessEarly' : 'readinessNeedsSetup';
+  const strengths = components.filter(item => item.ratio >= 0.75).map(item => `${item.label}: ${currentLanguage === 'no' ? 'sterk' : 'strong'}`);
+  const gaps = components.filter(item => item.ratio < 0.5).map(item => `${item.label}: ${currentLanguage === 'no' ? 'trenger oppfølging' : 'needs follow-up'}`);
+  const breakdown = components.map(item => {
+    const level = item.ratio >= 0.75 ? (currentLanguage === 'no' ? 'sterk' : 'strong') : item.ratio >= 0.45 ? (currentLanguage === 'no' ? 'middels' : 'medium') : (currentLanguage === 'no' ? 'trenger oppfølging' : 'needs follow-up');
+    return { ...item, level };
+  });
+
+  return {
+    score,
+    label: t(labelKey),
+    explanation: t('readinessExplanation', { score }),
+    strengths,
+    gaps,
+    breakdown
+  };
+}
+
+function renderEvidenceReadiness(readiness) {
+  document.getElementById('readinessScore').textContent = `${readiness.score}%`;
+  document.getElementById('readinessLabel').textContent = readiness.label;
+  document.getElementById('readinessExplanation').textContent = readiness.explanation;
+  document.getElementById('readinessBreakdown').innerHTML = readiness.breakdown.map(item => `
+    <div class="readiness-row">
+      <span>${escapeHtml(item.label)}</span>
+      <strong>${escapeHtml(item.level)}</strong>
+    </div>
+  `).join('');
+}
+
+function renderTimeline(entries) {
+  const container = document.getElementById('projectTimeline');
+  const count = document.getElementById('timelineCount');
+  if (count) count.textContent = t('timelineEntries', { count: entries.length });
+  if (!entries.length) {
+    container.innerHTML = `<p>${escapeHtml(t('noTimeline'))}</p>`;
+    return;
+  }
+
+  container.innerHTML = buildTimelineGroups(entries).map(({ label, entries: monthEntries }) => `
+    <div class="timeline-month">
+      <h3>${escapeHtml(label)}</h3>
+      <ul>
+        ${monthEntries.map(entry => `
+          <li>
+            <span>${escapeHtml(getEntryTitle(localizeDemoText(entry.text)))}</span>
+            <small>${escapeHtml(t('peopleReached', { count: (Number(entry.count) || 0).toLocaleString(getLocale()) }))}</small>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function buildTimelineGroups(entries) {
+  const groups = new Map();
+  entries.forEach(entry => {
+    const key = formatMonthYear(entry.createdAt);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(entry);
+  });
+  return Array.from(groups.entries()).reverse().map(([label, groupEntries]) => ({
+    label,
+    entries: groupEntries.slice().reverse()
+  }));
 }
 
 // ============ IMPACT SUMMARY ============
@@ -1171,7 +1445,7 @@ async function renderImpactSummary() {
   `).join('');
 
   const narrative = buildNarrativeSummary(data);
-  document.getElementById('summaryNarrative').innerHTML = narrative.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+  document.getElementById('summaryNarrative').innerHTML = narrative.map(p => `<p>${escapeHtml(p)}</p>`).join('\n');
   renderList('summaryThemes', inferThemes(data));
   renderList('summarySignals', buildSignals(data));
   renderList('summaryGaps', buildEvidenceGaps(data));
@@ -1318,9 +1592,14 @@ async function copyAiPrompt() {
 function buildMarkdownSummary(data) {
   const { project, entries, attachments, surveys, responseCount, totalPeople, topTag, period } = data;
   const narrative = buildNarrativeSummary(data);
+  const readiness = calculateEvidenceReadiness(data);
+  const topTags = Object.entries(data.tagCounts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const timeline = buildTimelineMarkdown(entries);
 
   if (currentLanguage === 'no') {
     return `# Utkast til effektsammendrag: ${project.name}
+
+${localizeDemoText(project.description) || 'Ingen beskrivelse lagt inn.'}
 
 **Rapporteringsperiode:** ${period.label}
 **Personer nådd:** ${totalPeople.toLocaleString(getLocale())}
@@ -1329,6 +1608,13 @@ function buildMarkdownSummary(data) {
 **Skjemasvar:** ${responseCount}
 **Vedlegg:** ${attachments.length}
 **Topp-tag:** ${topTag}
+**Evidensscore:** ${readiness.score}% · ${readiness.label}
+
+## Topp-tags
+${topTags.length ? topTags.map(([tag, count]) => `- ${tag} (${count})`).join('\n') : '- Ingen tags ennå'}
+
+## Tidslinje
+${timeline || '- Ingen tidslinje ennå'}
 
 ## Narrativ Oppsummering
 
@@ -1350,6 +1636,8 @@ ${buildNextSteps(data).map(item => `- ${item}`).join('\n')}
 
   return `# Impact Summary Draft: ${project.name}
 
+${project.description || 'No description provided.'}
+
 **Reporting period:** ${period.label}
 **People reached:** ${totalPeople.toLocaleString()}
 **Journal entries:** ${entries.length}
@@ -1357,6 +1645,13 @@ ${buildNextSteps(data).map(item => `- ${item}`).join('\n')}
 **Survey responses:** ${responseCount}
 **Attachments:** ${attachments.length}
 **Top tag:** ${topTag}
+**Evidence readiness:** ${readiness.score}% · ${readiness.label}
+
+## Top Tags
+${topTags.length ? topTags.map(([tag, count]) => `- ${tag} (${count})`).join('\n') : '- No tags yet'}
+
+## Timeline
+${timeline || '- No timeline yet'}
 
 ## Narrative Summary
 
@@ -1374,6 +1669,89 @@ ${buildEvidenceGaps(data).map(item => `- ${item}`).join('\n')}
 ## Recommended Next Steps
 ${buildNextSteps(data).map(item => `- ${item}`).join('\n')}
 `;
+}
+
+function buildTimelineMarkdown(entries) {
+  return buildTimelineGroups(entries).map(group => {
+    const rows = group.entries.map(entry => {
+      const title = getEntryTitle(localizeDemoText(entry.text));
+      const count = Number(entry.count) || 0;
+      const suffix = currentLanguage === 'no'
+        ? `${count.toLocaleString(getLocale())} personer nådd`
+        : `${count.toLocaleString(getLocale())} people reached`;
+      return `- ${title} · ${suffix}`;
+    }).join('\n');
+    return `### ${group.label}\n${rows}`;
+  }).join('\n\n');
+}
+
+async function exportReportPackage() {
+  const data = await getImpactSummaryData();
+  if (!data) return;
+
+  const readiness = calculateEvidenceReadiness(data);
+  const surveyIds = data.surveys.map(survey => survey.id);
+  const responses = surveyIds.length
+    ? await db.responses.where('surveyId').anyOf(surveyIds).toArray()
+    : [];
+  const attachmentMeta = data.attachments.map(({ id, entryId, name, type, size }) => ({ id, entryId, name, type, size }));
+  const packageData = {
+    exportedAt: new Date().toISOString(),
+    version: 3,
+    note: 'Local report package. Attachments are exported as metadata only.',
+    project: data.project,
+    reportingPeriod: data.period.label,
+    evidenceReadiness: {
+      score: readiness.score,
+      label: readiness.label,
+      strengths: readiness.strengths,
+      gaps: readiness.gaps,
+      breakdown: readiness.breakdown.map(({ label, level }) => ({ label, level }))
+    },
+    timeline: buildTimelineGroups(data.entries).map(group => ({
+      label: group.label,
+      entries: group.entries.map(entry => ({
+        id: entry.id,
+        title: getEntryTitle(localizeDemoText(entry.text)),
+        createdAt: entry.createdAt,
+        count: Number(entry.count) || 0
+      }))
+    })),
+    entries: data.entries,
+    attachments: attachmentMeta,
+    surveys: data.surveys,
+    responses
+  };
+
+  downloadText(buildMarkdownSummary(data), 'impact-summary.md', 'text/markdown');
+  downloadJson(packageData, 'project-data.json');
+  downloadText(buildJournalEntriesCsv(data.entries, data.attachments), 'journal-entries.csv', 'text/csv');
+  flashButton(document.getElementById('btnExportReportPackage'), t('exportPackageComplete'));
+}
+
+function buildJournalEntriesCsv(entries, attachments) {
+  const attachmentNames = attachments.reduce((map, attachment) => {
+    if (!map.has(attachment.entryId)) map.set(attachment.entryId, []);
+    map.get(attachment.entryId).push(attachment.name);
+    return map;
+  }, new Map());
+  const rows = [
+    ['date', 'title', 'text', 'peopleReached', 'tags', 'attachments'],
+    ...entries.map(entry => [
+      entry.createdAt ? entry.createdAt.slice(0, 10) : '',
+      getEntryTitle(localizeDemoText(entry.text)),
+      localizeDemoText(entry.text),
+      Number(entry.count) || 0,
+      (entry.tags || []).join('; '),
+      (attachmentNames.get(entry.id) || []).join('; ')
+    ])
+  ];
+  return rows.map(row => row.map(csvEscape).join(',')).join('\n');
+}
+
+function csvEscape(value) {
+  const text = String(value ?? '');
+  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 
 function buildAiPrompt(data) {
@@ -1491,6 +1869,7 @@ function formatMonthYear(iso) {
 async function renderEntries() {
   const searchVal    = document.getElementById('searchInput').value.toLowerCase().trim();
   const activeFilter = document.querySelector('.pill.active')?.dataset.filter || 'all';
+  const control = document.getElementById('entryListControl');
 
   let entries = await db.entries
     .where('projectId').equals(currentProjectId)
@@ -1511,13 +1890,30 @@ async function renderEntries() {
   const list     = document.getElementById('entryList');
   const emptyMsg = document.getElementById('emptyEntries');
   list.innerHTML = '';
+  control.innerHTML = '';
 
   if (entries.length === 0) { emptyMsg.classList.remove('hidden'); return; }
   emptyMsg.classList.add('hidden');
 
-  for (const entry of entries) {
+  const canCollapse = !searchVal && activeFilter === 'all' && entries.length > 6;
+  const visibleEntries = canCollapse && !showAllEntries ? entries.slice(0, 6) : entries;
+
+  for (const entry of visibleEntries) {
     const attachments = await db.attachments.where('entryId').equals(entry.id).toArray();
     list.appendChild(buildEntryCard(entry, attachments));
+  }
+
+  if (canCollapse) {
+    control.innerHTML = `
+      <p>${escapeHtml(t('recentEvidenceNotes'))}</p>
+      <button class="btn-secondary" type="button" id="btnToggleEntries">
+        ${escapeHtml(t(showAllEntries ? 'showFewerEntries' : 'showAllEntries'))}
+      </button>
+    `;
+    document.getElementById('btnToggleEntries').addEventListener('click', () => {
+      showAllEntries = !showAllEntries;
+      renderEntries();
+    });
   }
 }
 
@@ -1545,8 +1941,8 @@ function buildEntryCard(entry, attachments) {
         <p class="entry-text">${escapeHtml(entryPreview)}</p>
       </div>
       <div class="entry-actions">
-        <button class="btn-icon" data-edit="${entry.id}" title="Edit">✎</button>
-        <button class="btn-icon btn-danger" data-delete="${entry.id}" title="Delete">✕</button>
+        <button class="btn-icon" data-edit="${entry.id}" title="${escapeHtml(t('editEntry'))}">✎</button>
+        <button class="btn-icon btn-danger" data-delete="${entry.id}" title="${escapeHtml(t('delete'))}">✕</button>
       </div>
     </div>
     <div class="entry-meta">
@@ -1791,46 +2187,637 @@ async function exportData() {
 }
 
 async function importData(file) {
-  let payload;
-  try { payload = JSON.parse(await file.text()); }
-  catch { alert(t('importInvalidJson')); return; }
+  openImportWizard();
+  if (file) await processImportWizardFile(file);
+}
 
-  if (!payload.projects || !payload.entries) { alert(t('importUnknownFormat')); return; }
+function openImportWizard() {
+  importWizardState = {
+    step: 0,
+    fileName: '',
+    normalized: null,
+    validation: null,
+    imported: false,
+    result: null,
+    error: ''
+  };
+  document.getElementById('importWizardModal').classList.remove('hidden');
+  renderImportWizard();
+}
 
-  const ok = confirm(t('importMergeConfirm', { projects: payload.projects.length, entries: payload.entries.length }));
-  if (!ok) return;
+function closeImportWizard() {
+  importWizardState = null;
+  document.getElementById('importWizardModal').classList.add('hidden');
+}
 
-  const projectIdMap = {};
-  for (const p of payload.projects) {
-    const oldId = p.id; delete p.id;
-    projectIdMap[oldId] = await db.projects.add(p);
+async function processImportWizardFile(file) {
+  if (!importWizardState) openImportWizard();
+  importWizardState.fileName = file.name;
+  importWizardState.error = '';
+  importWizardState.imported = false;
+  importWizardState.result = null;
+
+  try {
+    const text = await file.text();
+    const isCsv = /\.csv$/i.test(file.name) || file.type.includes('csv');
+    importWizardState.normalized = isCsv
+      ? normalizeCsvImport(text)
+      : normalizeJsonImport(JSON.parse(text));
+    importWizardState.validation = await validateImportPackage(importWizardState.normalized);
+    importWizardState.step = 1;
+  } catch (err) {
+    importWizardState.normalized = null;
+    importWizardState.validation = null;
+    importWizardState.step = 0;
+    importWizardState.error = err instanceof SyntaxError || err?.message === 'invalid-json' ? t('importInvalidJson') : t('importUnknownFormat');
   }
 
-  const entryIdMap = {};
-  for (const e of payload.entries) {
-    const oldId = e.id; delete e.id;
-    e.projectId = projectIdMap[e.projectId] || e.projectId;
-    entryIdMap[oldId] = await db.entries.add(e);
+  renderImportWizard();
+}
+
+function renderImportWizard() {
+  if (!importWizardState) return;
+
+  const { step, validation, normalized, imported } = importWizardState;
+  document.querySelectorAll('#importWizardSteps li').forEach((item, index) => {
+    item.classList.toggle('active', index === step);
+    item.classList.toggle('done', index < step);
+  });
+
+  const body = document.getElementById('importWizardBody');
+  body.innerHTML = buildImportWizardBody();
+
+  const chooseBtn = document.getElementById('btnSelectImportFile');
+  if (chooseBtn) chooseBtn.addEventListener('click', () => document.getElementById('importInput').click());
+
+  const backBtn = document.getElementById('btnImportWizardBack');
+  const nextBtn = document.getElementById('btnImportWizardNext');
+  backBtn.disabled = step === 0 || imported;
+  nextBtn.disabled = imported || step === 4 || (step === 0 && !normalized) || (step === 3 && (!validation || validation.errors.length > 0 || validation.readyTotal === 0));
+  nextBtn.textContent = step === 3 ? t('confirmImport') : t('next');
+}
+
+function buildImportWizardBody() {
+  const { step, fileName, normalized, validation, error, imported, result } = importWizardState;
+
+  if (step === 0) {
+    return `
+      <div class="wizard-panel">
+        <p>${escapeHtml(t('importChooseText'))}</p>
+        <button class="btn-primary" id="btnSelectImportFile">${escapeHtml(t('chooseImportFile'))}</button>
+        <small>${escapeHtml(fileName || t('noImportFile'))}</small>
+        ${error ? `<div class="validation-alert validation-error">${escapeHtml(error)}</div>` : ''}
+        <div class="validation-alert">${escapeHtml(t('importJsonOnly'))}</div>
+      </div>
+    `;
   }
 
-  if (payload.surveys) {
-    const surveyIdMap = {};
-    for (const s of payload.surveys) {
-      const oldId = s.id; delete s.id;
-      s.projectId = projectIdMap[s.projectId] || s.projectId;
-      surveyIdMap[oldId] = await db.surveys.add(s);
+  if (!normalized || !validation) {
+    return `<div class="wizard-panel"><p>${escapeHtml(t('noImportFile'))}</p></div>`;
+  }
+
+  if (step === 1) {
+    return `
+      <div class="wizard-panel">
+        <p>${escapeHtml(t('importPreviewText'))}</p>
+        ${buildImportSummaryStats(validation)}
+        <div class="import-preview-grid">
+          ${buildPreviewList(t('projectsReady'), normalized.projects.map(project => project.name).slice(0, 4))}
+          ${buildPreviewList(t('entriesReady'), normalized.entries.map(entry => getEntryTitle(entry.text)).slice(0, 4))}
+          ${buildPreviewList(t('surveysReady'), normalized.surveys.map(survey => survey.title).slice(0, 4))}
+        </div>
+      </div>
+    `;
+  }
+
+  if (step === 2) {
+    return `
+      <div class="wizard-panel">
+        <p>${escapeHtml(t('importValidationText'))}</p>
+        ${buildImportSummaryStats(validation)}
+        ${buildValidationIssues(validation)}
+      </div>
+    `;
+  }
+
+  if (step === 3) {
+    return `
+      <div class="wizard-panel">
+        <p>${escapeHtml(t('importSummaryText'))}</p>
+        ${buildImportSummaryStats(validation)}
+        <div class="validation-alert ${validation.errors.length ? 'validation-error' : 'validation-ready'}">
+          ${escapeHtml(validation.errors.length ? t('importBlocked') : t('importReady'))}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="wizard-panel">
+      <p>${escapeHtml(imported ? t('importFinished') : t('importConfirmText'))}</p>
+      ${buildImportSummaryStats(validation)}
+      ${imported && result ? `<div class="validation-alert validation-ready">${escapeHtml(t('importWizardComplete', result))}</div>` : ''}
+    </div>
+  `;
+}
+
+function buildImportSummaryStats(validation) {
+  return `
+    <div class="validation-stats">
+      <div><span>${escapeHtml(t('validRecords'))}</span><strong>${validation.validRecords}</strong></div>
+      <div><span>${escapeHtml(t('warnings'))}</span><strong>${validation.warnings.length}</strong></div>
+      <div><span>${escapeHtml(t('errors'))}</span><strong>${validation.errors.length}</strong></div>
+      <div><span>${escapeHtml(t('recordsReady'))}</span><strong>${validation.readyTotal}</strong></div>
+    </div>
+    <div class="validation-stats validation-stats-compact">
+      <div><span>${escapeHtml(t('projectsReady'))}</span><strong>${validation.ready.projects.length}</strong></div>
+      <div><span>${escapeHtml(t('entriesReady'))}</span><strong>${validation.ready.entries.length}</strong></div>
+      <div><span>${escapeHtml(t('surveysReady'))}</span><strong>${validation.ready.surveys.length}</strong></div>
+      <div><span>${escapeHtml(t('responsesReady'))}</span><strong>${validation.ready.responses.length}</strong></div>
+    </div>
+  `;
+}
+
+function buildPreviewList(title, items) {
+  return `
+    <article class="import-preview-card">
+      <h3>${escapeHtml(title)}</h3>
+      ${items.length ? `<ul>${items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : `<p>${escapeHtml(currentLanguage === 'no' ? 'Ingen funnet.' : 'None found.')}</p>`}
+    </article>
+  `;
+}
+
+function buildValidationIssues(validation) {
+  const issues = [...validation.errors, ...validation.warnings].slice(0, 12);
+  if (!issues.length) {
+    return `<div class="validation-alert validation-ready">${escapeHtml(t('importReady'))}</div>`;
+  }
+  return `
+    <div class="validation-issues">
+      ${issues.map(issue => `
+        <div class="validation-issue ${issue.type === 'error' ? 'issue-error' : 'issue-warning'}">
+          <strong>${escapeHtml(issue.type === 'error' ? t('errors') : t('warnings'))}</strong>
+          <span>${escapeHtml(issue.message)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function importWizardBack() {
+  if (!importWizardState || importWizardState.step === 0) return;
+  importWizardState.step -= 1;
+  renderImportWizard();
+}
+
+async function importWizardNext() {
+  if (!importWizardState) return;
+  const { step, validation } = importWizardState;
+  if (step < 3) {
+    importWizardState.step += 1;
+    renderImportWizard();
+    return;
+  }
+  if (step === 3) {
+    if (!validation || validation.errors.length || validation.readyTotal === 0) return;
+    importWizardState.result = await commitImportPackage(validation);
+    importWizardState.imported = true;
+    importWizardState.step = 4;
+    await renderProjectList();
+    renderImportWizard();
+    return;
+  }
+}
+
+function normalizeJsonImport(payload) {
+  if (!payload || typeof payload !== 'object') throw new Error('invalid-json');
+  const projects = Array.isArray(payload.projects) ? payload.projects : (payload.project ? [payload.project] : []);
+  const entries = Array.isArray(payload.entries) ? payload.entries : [];
+  const surveys = Array.isArray(payload.surveys) ? payload.surveys : [];
+  const responses = Array.isArray(payload.responses) ? payload.responses : [];
+  const attachments = Array.isArray(payload.attachments) ? payload.attachments : [];
+  if (!projects.length && !entries.length && !surveys.length) throw new Error('unknown-format');
+
+  const issues = [];
+  return {
+    format: 'json',
+    issues,
+    projects: projects.map((project, index) => normalizeImportProject(project, index, issues)),
+    entries: entries.map((entry, index) => normalizeImportEntry(entry, index, issues)),
+    attachments: attachments.map((attachment, index) => normalizeImportAttachment(attachment, index, issues)),
+    surveys: surveys.map((survey, index) => normalizeImportSurvey(survey, index, issues)),
+    responses: responses.map((responseItem, index) => normalizeImportResponse(responseItem, index, issues))
+  };
+}
+
+function normalizeCsvImport(text) {
+  const rows = parseCsvRows(text);
+  if (rows.length < 2) throw new Error('unknown-format');
+  const headers = rows[0].map(header => header.trim());
+  const normalizedHeaders = headers.map(normalizeFieldName);
+  const supported = new Set(['project', 'projecttitle', 'projectname', 'title', 'text', 'date', 'createdat', 'peoplereached', 'count', 'tags']);
+  const issues = [];
+  normalizedHeaders.forEach(header => {
+    if (header && !supported.has(header)) addImportIssue(issues, 'warning', currentLanguage === 'no' ? `Ukjent CSV-felt: ${header}` : `Unknown CSV field: ${header}`);
+  });
+
+  const projectNames = new Set();
+  const entries = rows.slice(1).filter(row => row.some(cell => cell.trim())).map((row, index) => {
+    const record = {};
+    headers.forEach((header, i) => { record[header] = row[i] || ''; });
+    const projectName = getImportField(record, ['project', 'projectTitle', 'projectName']);
+    if (projectName) projectNames.add(projectName.trim());
+    return normalizeImportEntry({
+      projectName,
+      title: getImportField(record, ['title']),
+      text: getImportField(record, ['text']),
+      createdAt: getImportField(record, ['createdAt', 'date']),
+      count: getImportField(record, ['peopleReached', 'count']),
+      tags: getImportField(record, ['tags'])
+    }, index, issues);
+  });
+
+  return {
+    format: 'csv',
+    issues,
+    projects: Array.from(projectNames).map((name, index) => normalizeImportProject({ name }, index, issues)),
+    entries,
+    attachments: [],
+    surveys: [],
+    responses: []
+  };
+}
+
+function normalizeImportProject(project, index, issues) {
+  flagUnknownFields(project, ['id', 'name', 'title', 'description', 'createdAt', 'updatedAt'], 'project', index, issues);
+  const name = String(project.name || project.title || '').trim();
+  return {
+    sourceIndex: index,
+    oldId: project.id,
+    importKeys: buildProjectImportKeys(project.id, name),
+    name,
+    description: String(project.description || '').trim(),
+    createdAt: normalizeDateValue(project.createdAt) || new Date().toISOString(),
+    updatedAt: normalizeDateValue(project.updatedAt) || new Date().toISOString()
+  };
+}
+
+function normalizeImportEntry(entry, index, issues) {
+  flagUnknownFields(entry, ['id', 'projectId', 'projectName', 'projectTitle', 'project', 'title', 'text', 'description', 'count', 'peopleReached', 'people_reached', 'tags', 'createdAt', 'date', 'attachments'], 'entry', index, issues);
+  const title = String(entry.title || '').trim();
+  const rawText = String(entry.text || entry.description || '').trim();
+  const text = title && rawText && !rawText.toLowerCase().startsWith(title.toLowerCase())
+    ? `${title}. ${rawText}`
+    : rawText || title;
+  const projectName = String(entry.projectName || entry.projectTitle || entry.project || '').trim();
+  return {
+    sourceIndex: index,
+    oldId: entry.id,
+    projectId: entry.projectId,
+    projectName,
+    projectKeys: buildProjectImportKeys(entry.projectId, projectName),
+    title,
+    text,
+    count: entry.count ?? entry.peopleReached ?? entry.people_reached ?? '',
+    tags: normalizeTags(entry.tags),
+    createdAtRaw: entry.createdAt || entry.date || '',
+    createdAt: normalizeDateValue(entry.createdAt || entry.date),
+    attachments: Array.isArray(entry.attachments) ? entry.attachments : []
+  };
+}
+
+function normalizeImportSurvey(survey, index, issues) {
+  flagUnknownFields(survey, ['id', 'projectId', 'projectName', 'projectTitle', 'project', 'title', 'description', 'questions', 'createdAt'], 'survey', index, issues);
+  const projectName = String(survey.projectName || survey.projectTitle || survey.project || '').trim();
+  return {
+    sourceIndex: index,
+    oldId: survey.id,
+    projectId: survey.projectId,
+    projectName,
+    projectKeys: buildProjectImportKeys(survey.projectId, projectName),
+    title: String(survey.title || '').trim(),
+    description: String(survey.description || '').trim(),
+    questions: Array.isArray(survey.questions) ? survey.questions : [],
+    createdAt: normalizeDateValue(survey.createdAt) || new Date().toISOString()
+  };
+}
+
+function normalizeImportResponse(responseItem, index, issues) {
+  flagUnknownFields(responseItem, ['id', 'surveyId', 'surveyTitle', 'answers', 'submittedAt'], 'response', index, issues);
+  return {
+    sourceIndex: index,
+    oldId: responseItem.id,
+    surveyId: responseItem.surveyId,
+    surveyTitle: String(responseItem.surveyTitle || '').trim(),
+    answers: Array.isArray(responseItem.answers) ? responseItem.answers : [],
+    submittedAt: normalizeDateValue(responseItem.submittedAt) || new Date().toISOString()
+  };
+}
+
+function normalizeImportAttachment(attachment, index, issues) {
+  flagUnknownFields(attachment, ['id', 'entryId', 'name', 'type', 'size', 'data'], 'attachment', index, issues);
+  return {
+    sourceIndex: index,
+    oldId: attachment.id,
+    entryId: attachment.entryId,
+    name: String(attachment.name || '').trim(),
+    type: String(attachment.type || '').trim(),
+    size: Number(attachment.size) || 0,
+    data: attachment.data
+  };
+}
+
+async function validateImportPackage(pkg) {
+  const issues = [...pkg.issues];
+  const ready = { projects: [], entries: [], attachments: [], surveys: [], responses: [] };
+  const projectTargets = new Map();
+  const existingProjects = await db.projects.toArray();
+  const existingEntries = await db.entries.toArray();
+  const existingProjectById = new Map(existingProjects.map(project => [project.id, project]));
+  const existingProjectByName = new Map(existingProjects.map(project => [project.name.toLowerCase(), project]));
+
+  pkg.projects.forEach(project => {
+    if (!project.name) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Prosjekt mangler tittel.' : 'Project is missing a title.', 'project', project.sourceIndex);
+    if (!hasRecordError(issues, 'project', project.sourceIndex)) {
+      ready.projects.push(project);
+      project.importKeys.forEach(key => projectTargets.set(key, { mode: 'import', key, project }));
     }
-    if (payload.responses) {
-      for (const r of payload.responses) {
-        delete r.id;
-        r.surveyId = surveyIdMap[r.surveyId] || r.surveyId;
-        await db.responses.add(r);
+  });
+
+  const importedEntryKeys = new Set();
+  const existingEntryKeys = new Set(existingEntries.map(entry => duplicateEntryKey(entry, { mode: 'existing', id: entry.projectId })));
+
+  pkg.entries.forEach(entry => {
+    if (!entry.title) addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Notat mangler eksplisitt tittel. Vis Det avleder tittel fra tekst.' : 'Entry is missing an explicit title. Vis Det will derive the title from the text.', 'entry', entry.sourceIndex);
+    if (!entry.text) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Notat mangler tekst.' : 'Entry is missing text.', 'entry', entry.sourceIndex);
+    if (entry.createdAtRaw && !entry.createdAt) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Notat har ugyldig dato.' : 'Entry has an invalid date.', 'entry', entry.sourceIndex);
+    if (!entry.createdAt) {
+      entry.createdAt = new Date().toISOString();
+      addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Notat mangler dato og får dagens dato.' : 'Entry is missing a date and will use today.', 'entry', entry.sourceIndex);
+    }
+    if (entry.count !== '' && Number.isNaN(Number(entry.count))) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Personer nådd er ikke et tall.' : 'People reached is not a number.', 'entry', entry.sourceIndex);
+
+    const target = resolveProjectTarget(entry, projectTargets, existingProjectById, existingProjectByName);
+    if (!target && currentProjectId) {
+      entry.target = { mode: 'current', id: currentProjectId };
+      addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Notat mangler eksplisitt prosjektrelasjon og kobles til valgt prosjekt.' : 'Entry has no explicit project relation and will be attached to the selected project.', 'entry', entry.sourceIndex);
+    } else if (!target) {
+      addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Notat mangler prosjektrelasjon.' : 'Entry has no project relation.', 'entry', entry.sourceIndex);
+    } else {
+      entry.target = target;
+    }
+
+    if (entry.target) {
+      const key = duplicateEntryKey(entry, entry.target);
+      if (existingEntryKeys.has(key) || importedEntryKeys.has(key)) {
+        addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Mulig duplikatnotat funnet.' : 'Possible duplicate entry detected.', 'entry', entry.sourceIndex);
       }
+      importedEntryKeys.add(key);
+    }
+
+    if (!hasRecordError(issues, 'entry', entry.sourceIndex)) ready.entries.push(entry);
+  });
+
+  pkg.attachments.forEach(attachment => {
+    if (attachment.entryId == null) addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Vedlegg mangler notatreferanse og hoppes over.' : 'Attachment has no entry reference and will be skipped.', 'attachment', attachment.sourceIndex);
+    if (attachment.name && attachment.entryId != null) ready.attachments.push(attachment);
+  });
+
+  const surveyTargets = new Map();
+  pkg.surveys.forEach(survey => {
+    if (!survey.title) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Skjema mangler tittel.' : 'Survey is missing a title.', 'survey', survey.sourceIndex);
+    if (!survey.questions.length) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Skjema mangler spørsmål.' : 'Survey has no questions.', 'survey', survey.sourceIndex);
+    survey.questions.forEach((question, index) => {
+      if (!String(question.label || '').trim()) addImportIssue(issues, 'error', currentLanguage === 'no' ? `Skjema har tomt spørsmål ${index + 1}.` : `Survey has empty question ${index + 1}.`, 'survey', survey.sourceIndex);
+    });
+
+    const target = resolveProjectTarget(survey, projectTargets, existingProjectById, existingProjectByName);
+    if (!target && currentProjectId) {
+      survey.target = { mode: 'current', id: currentProjectId };
+      addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Skjema mangler prosjektrelasjon og kobles til valgt prosjekt.' : 'Survey has no project relation and will be attached to the selected project.', 'survey', survey.sourceIndex);
+    } else if (!target) {
+      addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Skjema mangler prosjektrelasjon.' : 'Survey has no project relation.', 'survey', survey.sourceIndex);
+    } else {
+      survey.target = target;
+    }
+
+    if (!hasRecordError(issues, 'survey', survey.sourceIndex)) {
+      ready.surveys.push(survey);
+      if (survey.oldId != null) surveyTargets.set(`id:${survey.oldId}`, { mode: 'import', key: `id:${survey.oldId}`, survey });
+      if (survey.title) surveyTargets.set(`title:${survey.title.toLowerCase()}`, { mode: 'import', key: survey.oldId != null ? `id:${survey.oldId}` : `title:${survey.title.toLowerCase()}`, survey });
+    }
+  });
+
+  pkg.responses.forEach(responseItem => {
+    const key = responseItem.surveyId != null ? `id:${responseItem.surveyId}` : (responseItem.surveyTitle ? `title:${responseItem.surveyTitle.toLowerCase()}` : '');
+    const target = surveyTargets.get(key);
+    if (!target) addImportIssue(issues, 'error', currentLanguage === 'no' ? 'Svar mangler skjemarelasjon.' : 'Response has no survey relation.', 'response', responseItem.sourceIndex);
+    else responseItem.target = target;
+    if (!responseItem.answers.length) addImportIssue(issues, 'warning', currentLanguage === 'no' ? 'Svar mangler innhold.' : 'Response has no answers.', 'response', responseItem.sourceIndex);
+    if (!hasRecordError(issues, 'response', responseItem.sourceIndex)) ready.responses.push(responseItem);
+  });
+
+  const errors = issues.filter(issue => issue.type === 'error');
+  const warnings = issues.filter(issue => issue.type === 'warning');
+  const readyTotal = ready.projects.length + ready.entries.length + ready.surveys.length + ready.responses.length;
+  return {
+    issues,
+    errors,
+    warnings,
+    ready,
+    readyTotal,
+    validRecords: readyTotal + ready.attachments.length
+  };
+}
+
+async function commitImportPackage(validation) {
+  const projectIdMap = new Map();
+  const entryIdMap = new Map();
+  const surveyIdMap = new Map();
+  let firstProjectId = null;
+
+  await db.transaction('rw', db.projects, db.entries, db.attachments, db.surveys, db.responses, async () => {
+    for (const project of validation.ready.projects) {
+      const id = await db.projects.add({
+        name: project.name,
+        description: project.description,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt
+      });
+      if (!firstProjectId) firstProjectId = id;
+      project.importKeys.forEach(key => projectIdMap.set(key, id));
+    }
+
+    for (const entry of validation.ready.entries) {
+      const projectId = resolveCommittedProjectId(entry.target, projectIdMap);
+      const id = await db.entries.add({
+        projectId,
+        text: entry.text,
+        count: entry.count === '' ? '' : Number(entry.count),
+        tags: entry.tags,
+        createdAt: entry.createdAt
+      });
+      if (entry.oldId != null) entryIdMap.set(String(entry.oldId), id);
+      entry.attachments.forEach((attachment, i) => {
+        const key = `inline:${entry.sourceIndex}:${i}`;
+        validation.ready.attachments.push({ ...normalizeImportAttachment(attachment, i, []), entryId: key });
+        entryIdMap.set(key, id);
+      });
+    }
+
+    for (const attachment of validation.ready.attachments) {
+      const entryId = entryIdMap.get(String(attachment.entryId));
+      if (!entryId) continue;
+      await db.attachments.add({
+        entryId,
+        name: attachment.name,
+        type: attachment.type,
+        size: attachment.size,
+        data: attachment.data
+      });
+    }
+
+    for (const survey of validation.ready.surveys) {
+      const projectId = resolveCommittedProjectId(survey.target, projectIdMap);
+      const id = await db.surveys.add({
+        projectId,
+        title: survey.title,
+        description: survey.description,
+        questions: survey.questions,
+        createdAt: survey.createdAt
+      });
+      if (survey.oldId != null) surveyIdMap.set(`id:${survey.oldId}`, id);
+      surveyIdMap.set(`title:${survey.title.toLowerCase()}`, id);
+    }
+
+    for (const responseItem of validation.ready.responses) {
+      const targetKey = responseItem.target?.key;
+      const surveyId = surveyIdMap.get(targetKey) || (responseItem.surveyTitle ? surveyIdMap.get(`title:${responseItem.surveyTitle.toLowerCase()}`) : null);
+      if (!surveyId) continue;
+      await db.responses.add({
+        surveyId,
+        answers: responseItem.answers,
+        submittedAt: responseItem.submittedAt
+      });
+    }
+  });
+
+  if (firstProjectId) currentProjectId = firstProjectId;
+  currentProjectTab = 'journal';
+  return {
+    projects: validation.ready.projects.length,
+    entries: validation.ready.entries.length,
+    surveys: validation.ready.surveys.length,
+    responses: validation.ready.responses.length
+  };
+}
+
+function resolveCommittedProjectId(target, projectIdMap) {
+  if (!target) return currentProjectId;
+  if (target.mode === 'import') return projectIdMap.get(target.key) || projectIdMap.get(`name:${target.project?.name?.toLowerCase()}`) || currentProjectId;
+  return target.id;
+}
+
+function resolveProjectTarget(record, projectTargets, existingProjectById, existingProjectByName) {
+  for (const key of record.projectKeys || []) {
+    if (projectTargets.has(key)) return projectTargets.get(key);
+  }
+  if (record.projectId != null && existingProjectById.has(Number(record.projectId))) {
+    return { mode: 'existing', id: Number(record.projectId) };
+  }
+  if (record.projectName && existingProjectByName.has(record.projectName.toLowerCase())) {
+    return { mode: 'existing', id: existingProjectByName.get(record.projectName.toLowerCase()).id };
+  }
+  return null;
+}
+
+function duplicateEntryKey(entry, target) {
+  const projectKey = target.mode === 'import' ? target.key : `existing:${target.id}`;
+  const date = entry.createdAt ? entry.createdAt.slice(0, 10) : 'no-date';
+  return `${projectKey}|${date}|${getEntryTitle(entry.text).toLowerCase()}`;
+}
+
+function buildProjectImportKeys(id, name) {
+  const keys = [];
+  if (id != null && id !== '') keys.push(`id:${id}`);
+  if (name) keys.push(`name:${String(name).toLowerCase()}`);
+  return keys;
+}
+
+function normalizeTags(tags) {
+  if (Array.isArray(tags)) return tags.map(tag => String(tag).trim()).filter(Boolean);
+  return String(tags || '').split(',').map(tag => tag.trim()).filter(Boolean);
+}
+
+function normalizeDateValue(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+}
+
+function flagUnknownFields(record, allowed, label, index, issues) {
+  const allowedSet = new Set(allowed.map(normalizeFieldName));
+  Object.keys(record || {}).forEach(field => {
+    if (!allowedSet.has(normalizeFieldName(field))) {
+      addImportIssue(issues, 'warning', currentLanguage === 'no'
+        ? `Ukjent felt i ${label} ${index + 1}: ${field}`
+        : `Unknown field in ${label} ${index + 1}: ${field}`, label, index);
+    }
+  });
+}
+
+function addImportIssue(issues, type, message, recordType = 'file', index = -1) {
+  issues.push({ type, message, recordType, index });
+}
+
+function hasRecordError(issues, recordType, index) {
+  return issues.some(issue => issue.type === 'error' && issue.recordType === recordType && issue.index === index);
+}
+
+function normalizeFieldName(field) {
+  return String(field || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+}
+
+function getImportField(record, names) {
+  const normalized = new Map(Object.keys(record).map(key => [normalizeFieldName(key), record[key]]));
+  for (const name of names) {
+    const value = normalized.get(normalizeFieldName(name));
+    if (value != null && String(value).trim()) return String(value).trim();
+  }
+  return '';
+}
+
+function parseCsvRows(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+    if (char === '"' && quoted && next === '"') {
+      cell += '"';
+      i += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === ',' && !quoted) {
+      row.push(cell);
+      cell = '';
+    } else if ((char === '\n' || char === '\r') && !quoted) {
+      if (char === '\r' && next === '\n') i += 1;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+    } else {
+      cell += char;
     }
   }
 
-  await renderProjectList();
-  alert(t('importComplete', { projects: payload.projects.length, entries: payload.entries.length }));
+  row.push(cell);
+  rows.push(row);
+  return rows.filter(csvRow => csvRow.some(value => value.trim()));
 }
 
 // ============ SURVEY LIST ============
@@ -2090,11 +3077,8 @@ function deleteCurrentSurvey() {
     await db.surveys.delete(currentSurveyId);
     await db.projects.update(currentProjectId, { updatedAt: new Date().toISOString() });
     currentSurveyId = null;
-    await renderStats();
-    await renderProjectOverview();
-    showView('projectView');
-    switchProjectTab('surveys');
-    renderSurveyList();
+    await renderProjectView('surveys');
+    scrollToProjectSection('surveys');
   });
 }
 
@@ -2521,10 +3505,17 @@ function attachEventListeners() {
   document.getElementById('btnLoadDemoEmpty').addEventListener('click', loadDemoData);
   document.getElementById('btnLoadDemo').addEventListener('click', loadDemoData);
   document.getElementById('btnResetDemo').addEventListener('click', resetDemoData);
+  document.getElementById('btnDemoWalkthrough').addEventListener('click', openDemoWalkthrough);
+  document.getElementById('btnCloseDemoWalkthrough').addEventListener('click', closeDemoWalkthrough);
+  document.getElementById('demoWalkthroughModal').addEventListener('click', e => {
+    const target = e.target.closest('[data-demo-target]');
+    if (target) navigateDemoTarget(target.dataset.demoTarget);
+  });
   document.getElementById('btnAboutBack').addEventListener('click', () => navigateToSection('journal'));
   document.getElementById('btnDismissDemoBanner').addEventListener('click', () => document.getElementById('demoBanner').classList.add('hidden'));
   document.getElementById('btnCopyMarkdown').addEventListener('click', copyMarkdownSummary);
   document.getElementById('btnCopyAiPrompt').addEventListener('click', copyAiPrompt);
+  document.getElementById('btnExportReportPackage').addEventListener('click', exportReportPackage);
   document.getElementById('btnHeaderEntry').addEventListener('click', openNewEntry);
   document.getElementById('btnHeaderSummary').addEventListener('click', () => navigateToSection('summary'));
 
@@ -2536,12 +3527,6 @@ function attachEventListeners() {
   // Edit/delete project
   document.getElementById('btnEditProject').addEventListener('click', openEditProject);
   document.getElementById('btnDeleteProject').addEventListener('click', deleteCurrentProject);
-
-  // Project tabs
-  document.getElementById('projectView').addEventListener('click', e => {
-    const tab = e.target.closest('.view-tab[data-view]');
-    if (tab) switchProjectTab(tab.dataset.view);
-  });
 
   // New survey
   document.getElementById('btnNewSurvey').addEventListener('click', openSurveyBuilder);
@@ -2559,10 +3544,10 @@ function attachEventListeners() {
   });
 
   // Back to project from survey
-  document.getElementById('btnBackToProject').addEventListener('click', () => {
+  document.getElementById('btnBackToProject').addEventListener('click', async () => {
     currentSurveyId = null;
-    showView('projectView');
-    switchProjectTab('surveys');
+    await renderProjectView('surveys');
+    scrollToProjectSection('surveys');
   });
 
   // Survey detail tabs
@@ -2620,17 +3605,22 @@ function attachEventListeners() {
     if (!pill) return;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     pill.classList.add('active');
+    showAllEntries = false;
     renderEntries();
   });
 
   // Journal export / import
   document.getElementById('btnExport').addEventListener('click', exportData);
-  document.getElementById('btnImport').addEventListener('click', () => document.getElementById('importInput').click());
+  document.getElementById('btnImport').addEventListener('click', openImportWizard);
   document.getElementById('importInput').addEventListener('change', e => {
     const file = e.target.files[0];
     if (file) importData(file);
     e.target.value = '';
   });
+  document.getElementById('btnImportWizardBack').addEventListener('click', importWizardBack);
+  document.getElementById('btnImportWizardNext').addEventListener('click', importWizardNext);
+  document.getElementById('btnImportWizardCancel').addEventListener('click', closeImportWizard);
+  document.getElementById('btnCloseImportWizard').addEventListener('click', closeImportWizard);
 
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -2719,6 +3709,16 @@ function parseOptions(raw) {
 
 function downloadJson(data, filename) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadText(text, filename, type = 'text/plain') {
+  const blob = new Blob([text], { type });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;

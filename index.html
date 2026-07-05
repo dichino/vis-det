@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A local-first MVP for documenting community impact, evidence, and lightweight survey responses." />
+  <meta name="description" content="A local-first MVP for turning project notes, feedback and evidence into structured impact reporting material." />
   <title>Vis Det – Impact Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=20260705-final" />
 </head>
 <body>
 
@@ -45,10 +45,13 @@
     <div class="project-list-label" data-i18n="projectsLabel">Projects</div>
     <nav id="projectList" class="project-list"></nav>
     <div class="sidebar-footer">
+      <span class="sidebar-action-label" data-i18n="demoActionsLabel">Demo</span>
       <div class="demo-actions">
         <button class="btn-ghost" id="btnLoadDemo" data-i18n="loadDemoData">Load Demo Data</button>
         <button class="btn-ghost" id="btnResetDemo" data-i18n="resetDemoData">Reset demo data</button>
       </div>
+      <button class="btn-ghost btn-demo-flow" id="btnDemoWalkthrough" data-i18n="demoWalkthrough">View demo flow</button>
+      <span class="sidebar-action-label" data-i18n="dataActionsLabel">Data</span>
       <div class="data-actions">
         <button class="btn-ghost" id="btnImport" data-i18n="import">Import</button>
         <button class="btn-ghost" id="btnExport" data-i18n="export">Export</button>
@@ -69,7 +72,7 @@
       <div class="empty-blob"></div>
       <p class="eyebrow">Vis Det – Impact Journal</p>
       <h1 data-i18n="emptyTitle">Document what happened.</h1>
-      <p data-i18n="emptyText">Capture project notes, people reached, evidence and lightweight survey feedback before it becomes formal reporting.</p>
+      <p data-i18n="emptyText">Vis Det turns scattered project notes, feedback and evidence into structured reporting material.</p>
       <div class="empty-actions">
         <button class="btn-primary" id="btnNewProjectEmpty" data-i18n="createProject">Create Project</button>
         <button class="btn-secondary" id="btnLoadDemoEmpty" data-i18n="loadDemoData">Load Demo Data</button>
@@ -82,7 +85,7 @@
         <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
         <p class="eyebrow" data-i18n="aboutEyebrow">About Vis Det</p>
         <h1>Vis Det – Impact Journal</h1>
-        <p class="about-lede" data-i18n="aboutLede">A local-first prototype for structured impact documentation. It helps teams document projects, observations, evidence, people reached and lightweight survey feedback in one place.</p>
+        <p class="about-lede" data-i18n="aboutLede">Vis Det turns scattered project notes, feedback and evidence into structured reporting material.</p>
         <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
       </section>
 
@@ -152,7 +155,7 @@
         <div>
           <p class="eyebrow" data-i18n="notesEyebrow">Project Notes</p>
           <h1 data-i18n="notesTitle">Built as a focused app prototype.</h1>
-          <p class="about-lede" data-i18n="notesLede">A small, inspectable MVP for recruiters and technical reviewers: plain files, local storage, real import/export flows and no fake service layer.</p>
+          <p class="about-lede" data-i18n="notesLede">A focused local-first prototype for social entrepreneurs and support teams documenting impact: validation, IndexedDB modeling, reporting logic and export workflows.</p>
         </div>
         <img src="bilder/bilde2.jpg" alt="Dichino Nguyen" class="builder-photo" onerror="this.hidden=true" />
       </section>
@@ -167,7 +170,8 @@
           <ul>
             <li data-i18n="tech1">HTML, CSS and vanilla JavaScript</li>
             <li data-i18n="tech2">Dexie.js with IndexedDB</li>
-            <li data-i18n="tech3">Local JSON import and export</li>
+            <li data-i18n="tech3">Dexie-backed local-first data model</li>
+            <li data-i18n="tech4">Static GitHub Pages deployment target</li>
           </ul>
         </div>
         <div class="notes-block">
@@ -176,6 +180,10 @@
             <li data-i18n="scope1">Project-based journal entries</li>
             <li data-i18n="scope2">Tags, attachments and people reached</li>
             <li data-i18n="scope3">Survey builder, QR sharing flow and response imports</li>
+            <li data-i18n="scope4">Import Wizard with validation and result summary</li>
+            <li data-i18n="scope5">Evidence Readiness scoring and Timeline view</li>
+            <li data-i18n="scope6">Impact Summary, AI-ready prompt and report package export</li>
+            <li data-i18n="scope7">English/Norwegian language toggle</li>
           </ul>
         </div>
         <div class="notes-block">
@@ -183,7 +191,8 @@
           <ul>
             <li data-i18n="limit1">Local-only data</li>
             <li data-i18n="limit2">No authentication, backend or multi-user sync</li>
-            <li data-i18n="limit3">Not a production CRM or reporting system</li>
+            <li data-i18n="limit3">No external AI service or exposed API keys</li>
+            <li data-i18n="limit4">Not a production CRM or reporting system</li>
           </ul>
         </div>
         <div class="notes-block notes-block-wide">
@@ -212,7 +221,7 @@
         <div>
           <p class="eyebrow" data-i18n="summaryEyebrow">AI-ready reporting workflow</p>
           <h1 data-i18n="summaryTitle">Impact Summary Draft</h1>
-          <p class="about-lede" data-i18n="summaryLede">Generated from local journal, survey and evidence data. No real AI API is used in this static prototype.</p>
+          <p class="about-lede" data-i18n="summaryLede">The summary is created from local project data. The prototype uses no external AI service or API keys.</p>
         </div>
         <div class="summary-context">
           <span class="summary-context-label" data-i18n="selectedProject">Selected project</span>
@@ -250,11 +259,12 @@
       <section class="summary-actions">
         <div>
           <h2 data-i18n="exportActions">Export actions</h2>
-          <p data-i18n="exportActionsText">Copy a clean markdown draft, or copy a prompt for ChatGPT or another AI tool. The prompt uses only local project data.</p>
+          <p data-i18n="exportActionsText">Copy a clean markdown draft, copy an AI-ready prompt, or export local reporting files. The prompt uses only project data stored in this browser.</p>
         </div>
         <div class="summary-action-buttons">
           <button class="btn-primary" id="btnCopyMarkdown" data-i18n="copyMarkdown">Copy Markdown summary</button>
           <button class="btn-secondary" id="btnCopyAiPrompt" data-i18n="copyAiPrompt">Copy AI prompt</button>
+          <button class="btn-secondary" id="btnExportReportPackage" data-i18n="exportReportPackage">Export report package</button>
         </div>
       </section>
     </div>
@@ -277,8 +287,8 @@
             <button class="btn-primary" id="btnHeaderEntry" data-i18n="addEntry">+ Add Entry</button>
             <button class="btn-secondary" id="btnHeaderSummary" data-i18n="openSummary">Open Summary</button>
             <div class="header-actions">
-              <button class="btn-icon" id="btnEditProject" title="Edit project">✎</button>
-              <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project">✕</button>
+              <button class="btn-icon" id="btnEditProject" title="Edit project" data-i18n-title="editProject">✎</button>
+              <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project" data-i18n-title="deleteProject">✕</button>
             </div>
           </div>
         </div>
@@ -314,16 +324,32 @@
             <div class="panel-content" id="projectEvidenceSnapshot"></div>
           </article>
         </section>
+        <section class="readiness-workspace" aria-label="Evidence readiness and timeline">
+          <article class="readiness-card">
+            <div class="readiness-heading">
+              <span class="panel-kicker" data-i18n="evidenceReadinessScore">Evidence readiness score</span>
+              <strong id="readinessScore">0%</strong>
+            </div>
+            <h2 id="readinessLabel">Needs setup</h2>
+            <p id="readinessExplanation"></p>
+            <div id="readinessBreakdown" class="readiness-breakdown"></div>
+          </article>
+          <article class="timeline-card">
+            <div class="readiness-heading">
+              <span class="panel-kicker" data-i18n="timelineTitle">Timeline</span>
+              <strong id="timelineCount">0</strong>
+            </div>
+            <div id="projectTimeline" class="timeline-list"></div>
+          </article>
+        </section>
       </header>
-
-      <!-- PROJECT TABS -->
-      <div class="view-tabs">
-        <button class="view-tab active" data-view="journal" data-i18n="tabJournal">Journal</button>
-        <button class="view-tab" data-view="surveys" data-i18n="tabSurveys">Surveys</button>
-      </div>
 
       <!-- JOURNAL SECTION -->
       <div id="journalSection">
+        <div class="section-heading">
+          <span class="panel-kicker" data-i18n="journalSectionKicker">Evidence notes</span>
+          <h2 data-i18n="journalSectionTitle">Recent project evidence</h2>
+        </div>
         <div class="toolbar">
           <div class="search-wrap">
             <span class="search-icon">⌕</span>
@@ -337,13 +363,18 @@
           <button class="btn-primary" id="btnAddEntry" data-i18n="addEntry">+ Add Entry</button>
         </div>
         <div id="entryList" class="entry-list"></div>
+        <div id="entryListControl" class="entry-list-control"></div>
         <div id="emptyEntries" class="empty-entries hidden">
           <p data-i18n="noEntries">No entries yet — start documenting your impact!</p>
         </div>
       </div>
 
       <!-- SURVEYS SECTION -->
-      <div id="surveysSection" class="hidden">
+      <div id="surveysSection" class="project-section">
+        <div class="section-heading">
+          <span class="panel-kicker" data-i18n="surveySectionKicker">Feedback collection</span>
+          <h2 data-i18n="surveySectionTitle">Surveys and QR sharing</h2>
+        </div>
         <div class="toolbar">
           <p class="section-hint" data-i18n="surveyHint">Build a survey, share it via QR or file, then import the responses here.</p>
           <button class="btn-primary" id="btnNewSurvey" data-i18n="newSurvey">+ New Survey</button>
@@ -531,10 +562,75 @@
     </div>
   </div>
 
+  <!-- Demo Walkthrough Modal -->
+  <div id="demoWalkthroughModal" class="modal-overlay hidden">
+    <div class="modal modal-wide demo-walkthrough">
+      <div class="modal-title-row">
+        <div>
+          <p class="modal-kicker" data-i18n="demoWalkthroughKicker">Guided demo</p>
+          <h2 data-i18n="demoWalkthroughTitle">View the project workflow in one minute</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseDemoWalkthrough" title="Close" data-i18n-title="close">✕</button>
+      </div>
+      <div class="walkthrough-steps">
+        <article>
+          <span>1</span>
+          <h3 data-i18n="demoStep1Title">Review project evidence</h3>
+          <p data-i18n="demoStep1Text">Nabolagets kraft shows structured journal notes, reach, tags and attachments.</p>
+          <button class="btn-secondary" data-demo-target="journal" data-i18n="openJournal">Open Journal</button>
+        </article>
+        <article>
+          <span>2</span>
+          <h3 data-i18n="demoStep2Title">Check evidence readiness</h3>
+          <p data-i18n="demoStep2Text">The app scores how ready the project is for reporting based on local documentation quality.</p>
+          <button class="btn-secondary" data-demo-target="readiness" data-i18n="openReadiness">Open readiness</button>
+        </article>
+        <article>
+          <span>3</span>
+          <h3 data-i18n="demoStep3Title">Open Impact Summary</h3>
+          <p data-i18n="demoStep3Text">Local project data is turned into a draft summary, evidence gaps and next steps.</p>
+          <button class="btn-secondary" data-demo-target="summary" data-i18n="openSummary">Open Summary</button>
+        </article>
+        <article>
+          <span>4</span>
+          <h3 data-i18n="demoStep4Title">Export reporting material</h3>
+          <p data-i18n="demoStep4Text">Copy a markdown summary, copy an AI-ready prompt or export a report package.</p>
+          <button class="btn-secondary" data-demo-target="exports" data-i18n="openExports">Open exports</button>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Wizard Modal -->
+  <div id="importWizardModal" class="modal-overlay hidden">
+    <div class="modal modal-wide import-wizard">
+      <div class="modal-title-row">
+        <div>
+          <p class="modal-kicker" data-i18n="importWizardKicker">Import wizard</p>
+          <h2 data-i18n="importWizardTitle">Validate local data before import</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseImportWizard" title="Close" data-i18n-title="close">✕</button>
+      </div>
+      <ol class="wizard-steps" id="importWizardSteps">
+        <li class="active" data-step="0" data-i18n="importStepChoose">Choose file</li>
+        <li data-step="1" data-i18n="importStepPreview">Preview data</li>
+        <li data-step="2" data-i18n="importStepValidate">Validate data</li>
+        <li data-step="3" data-i18n="importStepSummary">Confirm import</li>
+        <li data-step="4" data-i18n="importStepConfirm">Result summary</li>
+      </ol>
+      <div id="importWizardBody" class="wizard-body"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="btnImportWizardBack" data-i18n="back">Back</button>
+        <button class="btn-ghost" id="btnImportWizardCancel" data-i18n="cancel">Cancel</button>
+        <button class="btn-primary" id="btnImportWizardNext" data-i18n="next">Next</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Hidden file inputs -->
-  <input type="file" id="importInput" accept=".json" style="display:none" />
+  <input type="file" id="importInput" accept=".json,.csv,text/csv,application/json" style="display:none" />
   <input type="file" id="responseImportInput" accept=".json" style="display:none" />
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20260705-final"></script>
 </body>
 </html>
