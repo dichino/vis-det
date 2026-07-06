@@ -177,27 +177,6 @@ Then visit `http://localhost:8000`.
 
 No build step is required.
 
-## Screenshots
-
-Suggested screenshots for GitHub and project presentation:
-
-![Project dashboard screenshot placeholder](docs/screenshots/01-project-dashboard.png)
-![Import wizard validation screenshot placeholder](docs/screenshots/02-import-wizard-validation.png)
-![Impact summary screenshot placeholder](docs/screenshots/03-impact-summary.png)
-![Survey sharing screenshot placeholder](docs/screenshots/04-survey-sharing.png)
-
-Suggested screenshots for a LinkedIn post:
-
-- Journal dashboard with `Nabolagets kraft`
-- Evidence Readiness Score and Timeline on the project dashboard
-- Rich journal evidence cards
-- Import Wizard validation states
-- Impact Summary Draft
-- Export Report Package actions
-- Survey sharing / QR flow
-- About Vis Det
-- Project Notes / architecture card
-
 ## Limitations
 
 - Data is stored only in the current browser.
