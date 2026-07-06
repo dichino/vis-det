@@ -3597,15 +3597,19 @@ body {
 
 .survey-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
   gap: 14px;
 }
 
 .survey-card {
   position: relative;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
   align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
   overflow: hidden;
-  padding: 20px;
+  padding: 20px 34px 20px 20px;
 }
 
 .survey-card::before {
@@ -3630,14 +3634,60 @@ body {
   border-radius: 12px;
 }
 
+.survey-card-info {
+  min-width: 0;
+}
+
 .survey-card-title {
   color: var(--ink);
   font-size: 16px;
   font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
 .survey-card-desc {
   color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.survey-card-chips {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.survey-card .meta-chip,
+.survey-meta-chips .meta-chip {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.survey-card-arrow {
+  position: absolute;
+  top: 24px;
+  right: 18px;
+  margin: 0;
+}
+
+.survey-meta-chips {
+  flex-wrap: wrap;
+}
+
+.share-card,
+.question-display-card,
+.response-question-block,
+.survey-card {
+  min-width: 0;
+}
+
+.share-card h3,
+.share-card p,
+.question-display-card,
+.response-question-block,
+.survey-meta-chips,
+.questions-display-list,
+#responsesAggregation {
+  overflow-wrap: anywhere;
 }
 
 .impact-summary-view,

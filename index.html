@@ -23,8 +23,8 @@
           <span class="logo-text">Vis Det<br><small>Impact Journal</small></span>
         </div>
         <div class="product-status">
-          <span data-i18n="productStatus">Local-first MVP</span>
-          <small data-i18n="productStatusText">Impact documentation workspace</small>
+          <span data-i18n="productStatus">Local workspace</span>
+          <small data-i18n="productStatusText">Impact notes and reporting</small>
         </div>
       </div>
       <button class="btn-new-project" id="btnNewProject" data-i18n="newProject">+ New Project</button>
@@ -39,7 +39,7 @@
       <button class="nav-item" data-nav="surveys" data-i18n="navSurveys">Surveys</button>
       <button class="nav-item" data-nav="summary" data-i18n="navSummary">Impact Summary</button>
       <button class="nav-item" data-nav="about" data-i18n="navAbout">About Vis Det</button>
-      <button class="nav-item" data-nav="notes" data-i18n="navNotes">Project Notes</button>
+      <button class="nav-item" data-nav="notes" data-i18n="navNotes">Prototype Notes</button>
     </nav>
 
     <div class="project-list-label" data-i18n="projectsLabel">Projects</div>
@@ -50,7 +50,7 @@
         <button class="btn-ghost" id="btnLoadDemo" data-i18n="loadDemoData">Load Demo Data</button>
         <button class="btn-ghost" id="btnResetDemo" data-i18n="resetDemoData">Reset demo data</button>
       </div>
-      <button class="btn-ghost btn-demo-flow" id="btnDemoWalkthrough" data-i18n="demoWalkthrough">View demo flow</button>
+      <button class="btn-ghost btn-demo-flow" id="btnDemoWalkthrough" data-i18n="demoWalkthrough">Show how it works</button>
       <span class="sidebar-action-label" data-i18n="dataActionsLabel">Data</span>
       <div class="data-actions">
         <button class="btn-ghost" id="btnImport" data-i18n="import">Import</button>
@@ -85,7 +85,7 @@
         <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
         <p class="eyebrow" data-i18n="aboutEyebrow">About Vis Det</p>
         <h1>Vis Det – Impact Journal</h1>
-        <p class="about-lede" data-i18n="aboutLede">Vis Det turns scattered project notes, feedback and evidence into structured reporting material.</p>
+        <p class="about-lede" data-i18n="aboutLede">Vis Det – Impact Journal is a local workspace for documenting activities, feedback and early signs of change. It helps teams keep useful evidence close to the work, before it becomes formal reporting.</p>
         <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
       </section>
 
@@ -144,7 +144,7 @@
       </section>
 
       <section class="about-section about-note">
-        <h2 data-i18n="prototypeDisclaimer">Prototype disclaimer</h2>
+        <h2 data-i18n="prototypeDisclaimer">Prototype note</h2>
         <p data-i18n="prototypeDisclaimerText">This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.</p>
       </section>
     </div>
@@ -153,9 +153,9 @@
     <div id="projectNotesView" class="project-notes-view hidden">
       <section class="notes-hero">
         <div>
-          <p class="eyebrow" data-i18n="notesEyebrow">Project Notes</p>
-          <h1 data-i18n="notesTitle">Built as a focused app prototype.</h1>
-          <p class="about-lede" data-i18n="notesLede">A focused local-first prototype for social entrepreneurs and support teams documenting impact: validation, IndexedDB modeling, reporting logic and export workflows.</p>
+          <p class="eyebrow" data-i18n="notesEyebrow">Prototype Notes</p>
+          <h1 data-i18n="notesTitle">A local prototype for impact documentation.</h1>
+          <p class="about-lede" data-i18n="notesLede">Vis Det shows how activities, feedback and evidence can be gathered in one local workspace before they become formal reporting.</p>
         </div>
         <img src="bilder/bilde2.jpg" alt="Dichino Nguyen" class="builder-photo" onerror="this.hidden=true" />
       </section>
@@ -163,10 +163,10 @@
       <section class="notes-grid">
         <div class="notes-block">
           <h2 data-i18n="builtBy">Built by</h2>
-          <p data-i18n="builtByText">Dichino Nguyen as an app development prototype for Norge Unlimited.</p>
+          <p data-i18n="builtByText">Dichino Nguyen as a local-first prototype inspired by Norge Unlimited's work with impact documentation.</p>
         </div>
         <div class="notes-block">
-          <h2 data-i18n="techStack">Tech stack</h2>
+          <h2 data-i18n="techStack">How it is built</h2>
           <ul>
             <li data-i18n="tech1">HTML, CSS and vanilla JavaScript</li>
             <li data-i18n="tech2">Dexie.js with IndexedDB</li>
@@ -175,14 +175,14 @@
           </ul>
         </div>
         <div class="notes-block">
-          <h2 data-i18n="prototypeScope">Prototype scope</h2>
+          <h2 data-i18n="prototypeScope">What is included</h2>
           <ul>
             <li data-i18n="scope1">Project-based journal entries</li>
             <li data-i18n="scope2">Tags, attachments and people reached</li>
             <li data-i18n="scope3">Survey builder, QR sharing flow and response imports</li>
-            <li data-i18n="scope4">Import Wizard with validation and result summary</li>
+            <li data-i18n="scope4">Import flow with preview, validation and result summary</li>
             <li data-i18n="scope5">Evidence Readiness scoring and Timeline view</li>
-            <li data-i18n="scope6">Impact Summary, AI-ready prompt and report package export</li>
+            <li data-i18n="scope6">Impact Summary, writing prompt and report package export</li>
             <li data-i18n="scope7">English/Norwegian language toggle</li>
           </ul>
         </div>
@@ -197,7 +197,7 @@
         </div>
         <div class="notes-block notes-block-wide">
           <h2 data-i18n="architecture">Architecture</h2>
-          <p data-i18n="architectureText">Projects, entries, surveys and responses are stored locally in IndexedDB with Dexie.js. Export/import uses JSON. A production version would need backend sync, authentication and role-based access before supporting shared teams.</p>
+          <p data-i18n="architectureText">The prototype stores data locally in the browser with IndexedDB. That makes it easy to test without accounts, servers or setup. A production version would need user accounts, shared storage, access control and hosted survey links.</p>
           <div class="architecture-flow" aria-label="Data model" data-i18n-aria="dataModel">
             <span data-i18n="modelProjects">Projects</span>
             <span data-i18n="modelEntries">Entries</span>
@@ -211,7 +211,7 @@
 
       <section class="about-section">
         <h2 data-i18n="possibleNextSteps">Possible next steps</h2>
-        <p data-i18n="possibleNextStepsText">Backend sync, user accounts, role-based access, CSV/PDF exports, hosted survey pages, analytics views and admin reporting could be explored after validating the core documentation workflow.</p>
+        <p data-i18n="possibleNextStepsText">Backend sync, user accounts, role-based access, shared storage, hosted surveys, audit logs and team collaboration would be natural production next steps.</p>
       </section>
     </div>
 
@@ -219,9 +219,9 @@
     <div id="impactSummaryView" class="impact-summary-view hidden">
       <header class="summary-hero">
         <div>
-          <p class="eyebrow" data-i18n="summaryEyebrow">AI-ready reporting workflow</p>
+          <p class="eyebrow" data-i18n="summaryEyebrow">Reporting draft</p>
           <h1 data-i18n="summaryTitle">Impact Summary Draft</h1>
-          <p class="about-lede" data-i18n="summaryLede">The summary is created from local project data. The prototype uses no external AI service or API keys.</p>
+          <p class="about-lede" data-i18n="summaryLede">This draft brings together key numbers, notes and feedback from the project. It can be used as a starting point for reporting, reflection or a more polished impact story.</p>
         </div>
         <div class="summary-context">
           <span class="summary-context-label" data-i18n="selectedProject">Selected project</span>
@@ -259,11 +259,11 @@
       <section class="summary-actions">
         <div>
           <h2 data-i18n="exportActions">Export actions</h2>
-          <p data-i18n="exportActionsText">Copy a clean markdown draft, copy an AI-ready prompt, or export local reporting files. The prompt uses only project data stored in this browser.</p>
+          <p data-i18n="exportActionsText">Copy a clean markdown draft, copy a prompt for further writing, or export local reporting files. Any final report should still be reviewed by the team and checked against the original evidence.</p>
         </div>
         <div class="summary-action-buttons">
           <button class="btn-primary" id="btnCopyMarkdown" data-i18n="copyMarkdown">Copy Markdown summary</button>
-          <button class="btn-secondary" id="btnCopyAiPrompt" data-i18n="copyAiPrompt">Copy AI prompt</button>
+          <button class="btn-secondary" id="btnCopyAiPrompt" data-i18n="copyAiPrompt">Copy writing prompt</button>
           <button class="btn-secondary" id="btnExportReportPackage" data-i18n="exportReportPackage">Export report package</button>
         </div>
       </section>
@@ -348,7 +348,7 @@
       <div id="journalSection">
         <div class="section-heading">
           <span class="panel-kicker" data-i18n="journalSectionKicker">Evidence notes</span>
-          <h2 data-i18n="journalSectionTitle">Recent project evidence</h2>
+          <h2 data-i18n="journalSectionTitle">Recent evidence notes</h2>
         </div>
         <div class="toolbar">
           <div class="search-wrap">
@@ -376,7 +376,7 @@
           <h2 data-i18n="surveySectionTitle">Surveys and QR sharing</h2>
         </div>
         <div class="toolbar">
-          <p class="section-hint" data-i18n="surveyHint">Build a survey, share it via QR or file, then import the responses here.</p>
+          <p class="section-hint" data-i18n="surveyHint">Create a simple feedback form, share it with participants and import responses back into the project.</p>
           <button class="btn-primary" id="btnNewSurvey" data-i18n="newSurvey">+ New Survey</button>
         </div>
         <div id="surveyList" class="survey-list"></div>
@@ -568,15 +568,15 @@
       <div class="modal-title-row">
         <div>
           <p class="modal-kicker" data-i18n="demoWalkthroughKicker">Guided demo</p>
-          <h2 data-i18n="demoWalkthroughTitle">View the project workflow in one minute</h2>
+          <h2 data-i18n="demoWalkthroughTitle">Follow the example project flow</h2>
         </div>
         <button class="btn-icon" id="btnCloseDemoWalkthrough" title="Close" data-i18n-title="close">✕</button>
       </div>
       <div class="walkthrough-steps">
         <article>
           <span>1</span>
-          <h3 data-i18n="demoStep1Title">Review project evidence</h3>
-          <p data-i18n="demoStep1Text">Nabolagets kraft shows structured journal notes, reach, tags and attachments.</p>
+          <h3 data-i18n="demoStep1Title">Open Nabolagets kraft</h3>
+          <p data-i18n="demoStep1Text">Start with a sample project that includes notes, reach, tags, attachments and feedback.</p>
           <button class="btn-secondary" data-demo-target="journal" data-i18n="openJournal">Open Journal</button>
         </article>
         <article>
@@ -594,7 +594,7 @@
         <article>
           <span>4</span>
           <h3 data-i18n="demoStep4Title">Export reporting material</h3>
-          <p data-i18n="demoStep4Text">Copy a markdown summary, copy an AI-ready prompt or export a report package.</p>
+          <p data-i18n="demoStep4Text">Copy a markdown summary, copy a writing prompt or export a report package.</p>
           <button class="btn-secondary" data-demo-target="exports" data-i18n="openExports">Open exports</button>
         </article>
       </div>

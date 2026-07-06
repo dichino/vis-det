@@ -12,7 +12,7 @@ The prototype is inspired by Norge Unlimited's work with local social entreprene
 
 Vis Det turns local project activity into a structured internal workspace: teams can capture evidence notes, track reach, collect lightweight survey feedback, export portable data and prepare a grounded impact summary draft from local records.
 
-It is designed as a focused MVP for local impact documentation: practical internal-tool workflows, local-first architecture, validation-heavy import and responsible AI-ready reporting without pretending to be a production SaaS platform.
+This project explores how a local-first web app can support structured impact documentation and reporting preparation without pretending to be a production SaaS platform.
 
 ## Features
 
@@ -29,7 +29,7 @@ It is designed as a focused MVP for local impact documentation: practical intern
 - Evidence Readiness Score calculated from local project data
 - Timeline view grouped by month for project history
 - Impact Summary Draft generated from local project data
-- Copyable markdown summary and AI-ready prompt
+- Copyable markdown summary and writing prompt
 - Export Report Package with markdown, project JSON and journal CSV
 - English/Norwegian UI language toggle
 - Local JSON import/export for backup and portability
@@ -43,7 +43,7 @@ It is designed as a focused MVP for local impact documentation: practical intern
 - Dexie.js and IndexedDB for local-first storage
 - QRCode.js for QR generation
 
-No React, Vite, TypeScript, Tailwind, backend or real AI API is used.
+No React, Vite, TypeScript, Tailwind, backend or external AI API is used.
 
 ## Local-First Architecture
 
@@ -92,7 +92,7 @@ The Evidence Readiness Score is calculated locally from the selected project:
 - Surveys and imported survey responses
 - Recency of latest evidence note
 
-The score produces a percentage, readiness label, strengths and gaps. This shows reporting logic and product thinking without adding analytics dependencies.
+The score produces a percentage, readiness label, strengths and gaps without adding analytics dependencies.
 
 ## Timeline
 
@@ -108,16 +108,16 @@ The selected project can export reporting material directly from local browser d
 
 This supports a complete workflow: data in, structured documentation, readiness check, report out.
 
-## Product and Engineering Value
+## Product and Technical Value
 
-The project demonstrates practical internal-tools engineering rather than a fake SaaS shell:
+The project focuses on a practical local workflow for impact documentation:
 
 - Data validation before import
 - Local data modeling with related projects, entries, surveys, responses and attachments
-- Deterministic reporting logic from real local records
+- Reporting logic from real local records
 - Export workflows for handoff and portability
 - User-friendly warning and error states
-- Production-aware limitations around auth, sync, file storage and AI APIs
+- Clear limitations around auth, sync, file storage and hosted writing support
 
 ## Demo Data
 
@@ -135,7 +135,7 @@ Existing user data is not overwritten.
 
 If old weak demo data exists, the app can reset local data and load the full `Nabolagets kraft` dataset through the `Reset demo data` action.
 
-## Impact Summary / AI-Ready Workflow
+## Impact Summary / Reporting Draft Workflow
 
 The Impact Summary page generates a structured draft from local project data:
 
@@ -148,9 +148,9 @@ The Impact Summary page generates a structured draft from local project data:
 - Evidence gaps
 - Recommended next steps
 
-The app does not call an AI API. Instead, it includes a `Copy AI prompt` action that prepares a grounded prompt from local data. This is intentional for a static GitHub Pages frontend because it avoids exposing API keys in client-side code.
+The app does not call an external AI API. Instead, it includes a writing prompt that can be copied and used outside the app. This keeps the static GitHub Pages version simple and avoids exposing API keys in client-side code.
 
-A future production version could send project data to a backend or serverless function, then call an AI model securely from the server side.
+A future production version could send project data to a backend or serverless function if hosted writing support becomes part of the product.
 
 ## Language Toggle
 
@@ -181,10 +181,10 @@ No build step is required.
 
 Suggested screenshots for GitHub and project presentation:
 
-![Project dashboard screenshot placeholder](docs/screenshots/01-project-dashboard.png)
-![Import wizard validation screenshot placeholder](docs/screenshots/02-import-wizard-validation.png)
-![Impact summary screenshot placeholder](docs/screenshots/03-impact-summary.png)
-![Survey sharing screenshot placeholder](docs/screenshots/04-survey-sharing.png)
+![Project dashboard screenshot placeholder](docs/01-project-dashboard.png)
+![Import wizard validation screenshot placeholder](docs/02-import-wizard-validation.png)
+![Impact summary screenshot placeholder](docs/03-impact-summary.png)
+![Survey sharing screenshot placeholder](docs/04-survey-sharing.png)
 
 Suggested screenshots for a LinkedIn post:
 
@@ -196,7 +196,7 @@ Suggested screenshots for a LinkedIn post:
 - Export Report Package actions
 - Survey sharing / QR flow
 - About Vis Det
-- Project Notes / architecture card
+- Prototype Notes / architecture card
 
 ## Limitations
 
@@ -215,7 +215,7 @@ Suggested screenshots for a LinkedIn post:
 - Authentication
 - Role-based access
 - Hosted surveys
-- Serverless AI summary generation
+- Serverless writing support
 - Audit logs
 - Team collaboration
 - PDF report export and zip report packages
@@ -228,5 +228,5 @@ Suggested screenshots for a LinkedIn post:
 - How to turn project records into readiness scoring, timelines and exports
 - How to design a useful MVP without overbuilding the stack
 - How to shape a product story around real social-impact workflows
-- How to prepare an AI-ready workflow safely without exposing API keys
+- How to prepare a writing-support workflow safely without exposing API keys
 - How to balance qualitative impact notes with structured reporting data
