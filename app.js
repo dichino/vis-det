@@ -36,6 +36,7 @@ let editingEntryId    = null;
 let buildingQuestions = [];          // questions staged in survey builder
 let importWizardState = null;
 let showAllEntries    = false;
+let entryPreviewTimer = null;
 const LANG_KEY        = 'visdetLanguage';
 let currentLanguage   = localStorage.getItem(LANG_KEY) || 'en';
 
@@ -44,7 +45,7 @@ const i18n = {
     mainSections: 'Main sections',
     newProject: '+ New Project',
     productStatus: 'Local workspace',
-    productStatusText: 'Impact notes and reporting',
+    productStatusText: 'Working impact prototype',
     navJournal: 'Journal',
     navSurveys: 'Surveys',
     navSummary: 'Impact Summary',
@@ -60,8 +61,12 @@ const i18n = {
     demoBanner: 'Demo data loaded. This is sample impact documentation for exploring the prototype.',
     dismiss: 'Dismiss',
     dismissNotice: 'Dismiss notice',
-    emptyTitle: 'Document what happened.',
-    emptyText: 'Vis Det turns scattered project notes, feedback and evidence into structured reporting material.',
+    emptyTitle: 'Turn local work into report-ready evidence.',
+    emptyText: 'Vis Det is a working local-first prototype for logging activities, collecting feedback and drafting impact summaries from real project data.',
+    emptyProof1: 'Local-first data model',
+    emptyProof2: 'Survey builder and QR export',
+    emptyProof3: 'Impact summary draft',
+    emptyProof4: 'Import and export flows',
     createProject: 'Create Project',
     loadDemoData: 'Load Demo Data',
     resetDemoData: 'Reset demo data',
@@ -94,8 +99,14 @@ const i18n = {
     prototypeDisclaimer: 'Prototype note',
     prototypeDisclaimerText: 'This is a local-first prototype for exploring impact documentation. It is not an official production system for Norge Unlimited.',
     notesEyebrow: 'Prototype Notes',
-    notesTitle: 'A local prototype for impact documentation.',
+    notesTitle: 'A working impact prototype.',
     notesLede: 'Vis Det shows how activities, feedback and evidence can be gathered in one local workspace before they become formal reporting.',
+    caseRoleLabel: 'Role',
+    caseRoleValue: 'Product design and frontend',
+    caseStackLabel: 'Stack',
+    caseStackValue: 'HTML, CSS, JavaScript, Dexie',
+    caseScopeLabel: 'Scope',
+    caseScopeValue: 'Journal, surveys, reporting export',
     builtBy: 'Built by',
     builtByText: "Dichino Nguyen as a local-first prototype inspired by Norge Unlimited's work with impact documentation.",
     techStack: 'How it is built',
@@ -200,6 +211,12 @@ const i18n = {
     photosDocs: '(photos, docs)',
     dragDropOr: 'Drag & drop or',
     browse: 'browse',
+    livePreviewKicker: 'Live report preview',
+    livePreviewEmpty: 'Start writing and the reporting preview will respond here.',
+    livePreviewNoText: 'Start writing and the reporting preview will respond here.',
+    livePreviewPeople: '{count} people reached',
+    livePreviewNoTags: 'No tags yet',
+    livePreviewTags: 'Tags: {tags}',
     saveEntry: 'Save Entry',
     modalNewSurvey: 'New Survey',
     close: 'Close',
@@ -328,7 +345,7 @@ const i18n = {
     mainSections: 'Hovedseksjoner',
     newProject: '+ Nytt prosjekt',
     productStatus: 'Lokal arbeidsflate',
-    productStatusText: 'Notater og rapportering',
+    productStatusText: 'Fungerende impact-prototype',
     navJournal: 'Journal',
     navSurveys: 'Spørreskjema',
     navSummary: 'Effektsammendrag',
@@ -344,8 +361,12 @@ const i18n = {
     demoBanner: 'Demodata er lastet inn. Dette er eksempeldokumentasjon for å utforske prototypen.',
     dismiss: 'Lukk',
     dismissNotice: 'Lukk varsel',
-    emptyTitle: 'Dokumenter det som skjedde.',
-    emptyText: 'Vis Det gjør løse prosjektnotater, tilbakemeldinger og evidens om til strukturert rapporteringsgrunnlag.',
+    emptyTitle: 'Gjør lokalt arbeid om til rapportklar evidens.',
+    emptyText: 'Vis Det er en fungerende lokal prototype for å loggføre aktiviteter, samle tilbakemeldinger og lage effektsammendrag fra ekte prosjektdata.',
+    emptyProof1: 'Lokal datamodell',
+    emptyProof2: 'Skjemabygger og QR-eksport',
+    emptyProof3: 'Utkast til effektsammendrag',
+    emptyProof4: 'Import- og eksportflyter',
     createProject: 'Opprett prosjekt',
     loadDemoData: 'Last demodata',
     resetDemoData: 'Reset demodata',
@@ -378,8 +399,14 @@ const i18n = {
     prototypeDisclaimer: 'Prototypenotat',
     prototypeDisclaimerText: 'Dette er en lokal prototype for å utforske effektdokumentasjon. Det er ikke et offisielt produksjonssystem for Norge Unlimited.',
     notesEyebrow: 'Prototypenotater',
-    notesTitle: 'En lokal prototype for enklere impact-dokumentasjon.',
+    notesTitle: 'En fungerende impact-prototype.',
     notesLede: 'Vis Det viser hvordan aktiviteter, tilbakemeldinger og evidens kan samles i én lokal arbeidsflate før det blir formell rapportering.',
+    caseRoleLabel: 'Rolle',
+    caseRoleValue: 'Produktdesign og frontend',
+    caseStackLabel: 'Stack',
+    caseStackValue: 'HTML, CSS, JavaScript, Dexie',
+    caseScopeLabel: 'Omfang',
+    caseScopeValue: 'Journal, skjema, rapporteksport',
     builtBy: 'Bygget av',
     builtByText: 'Dichino Nguyen som en lokal prototype inspirert av Norge Unlimited sitt arbeid med effektdokumentasjon.',
     techStack: 'Slik er den bygget',
@@ -484,6 +511,12 @@ const i18n = {
     photosDocs: '(bilder, dokumenter)',
     dragDropOr: 'Dra og slipp eller',
     browse: 'bla gjennom',
+    livePreviewKicker: 'Live rapport-preview',
+    livePreviewEmpty: 'Begynn å skrive, så svarer rapport-previewen her.',
+    livePreviewNoText: 'Begynn å skrive, så svarer rapport-previewen her.',
+    livePreviewPeople: '{count} personer nådd',
+    livePreviewNoTags: 'Ingen tags ennå',
+    livePreviewTags: 'Tags: {tags}',
     saveEntry: 'Lagre notat',
     modalNewSurvey: 'Nytt skjema',
     close: 'Lukk',
@@ -725,6 +758,9 @@ function applyLanguage() {
     btn.classList.toggle('active', btn.dataset.lang === currentLanguage);
     btn.setAttribute('aria-pressed', btn.dataset.lang === currentLanguage ? 'true' : 'false');
   });
+  if (!document.getElementById('entryModal')?.classList.contains('hidden')) {
+    updateEntryLivePreview({ animate: false });
+  }
 }
 
 async function setLanguage(lang) {
@@ -779,6 +815,8 @@ function setActiveNav(section) {
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.nav === section);
   });
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.scrollTop = 0;
 }
 
 function clearProjectListActive() {
@@ -2063,6 +2101,7 @@ function openNewEntry() {
   document.getElementById('inputEntryTags').value         = '';
   document.getElementById('filePreview').innerHTML        = '';
   document.getElementById('entryModal').classList.remove('hidden');
+  updateEntryLivePreview({ animate: false });
   setTimeout(() => document.getElementById('inputEntryText').focus(), 50);
 }
 
@@ -2083,7 +2122,34 @@ async function openEditEntry(entryId) {
   existing.forEach(a => addFilePreviewChip(a.name, null, a.id));
 
   document.getElementById('entryModal').classList.remove('hidden');
+  updateEntryLivePreview({ animate: false });
   setTimeout(() => document.getElementById('inputEntryText').focus(), 50);
+}
+
+function updateEntryLivePreview({ animate = true } = {}) {
+  const wrap = document.getElementById('entryLivePreview');
+  if (!wrap) return;
+
+  const textEl  = document.getElementById('entryPreviewText');
+  const countEl = document.getElementById('entryPreviewCount');
+  const tagsEl  = document.getElementById('entryPreviewTags');
+  const text    = document.getElementById('inputEntryText').value.trim();
+  const count   = parseInt(document.getElementById('inputEntryCount').value, 10) || 0;
+  const tags    = document.getElementById('inputEntryTags').value
+    .split(',')
+    .map(tag => tag.trim())
+    .filter(Boolean);
+
+  textEl.textContent = text ? (text.length > 260 ? `${text.slice(0, 257)}...` : text) : t('livePreviewNoText');
+  countEl.textContent = t('livePreviewPeople', { count: count.toLocaleString(getLocale()) });
+  tagsEl.textContent = tags.length ? t('livePreviewTags', { tags: tags.join(', ') }) : t('livePreviewNoTags');
+
+  if (!animate) return;
+  wrap.classList.remove('is-updating');
+  void wrap.offsetWidth;
+  wrap.classList.add('is-updating');
+  clearTimeout(entryPreviewTimer);
+  entryPreviewTimer = setTimeout(() => wrap.classList.remove('is-updating'), 260);
 }
 
 async function saveEntry() {
@@ -3120,40 +3186,42 @@ function buildSurveyHtml(surveyDataJson, title) {
   <title>${escapeHtml(title)}</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f6f1; color: #171717; min-height: 100vh; padding: 40px 20px 80px; font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-    .container { max-width: 600px; margin: 0 auto; }
-    .survey-header { margin-bottom: 36px; }
-    .survey-title { font-size: 32px; font-weight: 700; letter-spacing: 0; line-height: 1.14; margin-bottom: 12px; }
-    .survey-desc { font-size: 16px; color: #6b6b67; line-height: 1.65; }
-    .question-card { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 20px 22px; margin-bottom: 14px; transition: border-color 0.15s; }
-    .question-card.error { border-color: #e8c5c2; }
-    .q-label { font-size: 16px; font-weight: 600; color: #111110; margin-bottom: 14px; line-height: 1.45; }
-    .q-num { font-size: 12px; font-weight: 600; color: #a0a09c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .required-star { color: #c0392b; }
-    textarea.text-input { width: 100%; padding: 12px 14px; border: 1px solid #e8e8e4; border-radius: 8px; background: #f7f7f5; font-family: inherit; font-size: 15px; color: #111110; outline: none; resize: vertical; min-height: 96px; transition: border-color 0.15s; }
-    textarea.text-input:focus { border-color: #d0d0ca; background: #fff; }
-    .option { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: 1px solid #e8e8e4; border-radius: 9px; margin-bottom: 8px; cursor: pointer; transition: all 0.12s; user-select: none; }
-    .option:hover { background: #f7f7f5; }
-    .option.selected { border-color: #111110; background: #f0f0ec; }
-    .option-indicator { width: 18px; height: 18px; border: 1.5px solid #d0d0ca; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.12s; font-size: 11px; color: #fff; }
+    :root { --bg: #f7f1e6; --ink: #0a3f32; --accent: #ff7448; --line: rgba(10,63,50,0.24); --line-strong: rgba(10,63,50,0.56); --radius: 8px; }
+    body { font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 44px 20px 80px; font-size: 17px; line-height: 1.62; -webkit-font-smoothing: antialiased; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .survey-header { border-bottom: 2px solid var(--ink); margin-bottom: 32px; padding-bottom: 24px; }
+    .survey-title { font-family: Fraunces, Georgia, serif; font-size: clamp(42px, 8vw, 76px); font-weight: 800; letter-spacing: 0; line-height: 0.94; margin-bottom: 16px; }
+    .survey-desc { font-size: 18px; color: var(--ink); line-height: 1.6; max-width: 38rem; }
+    .question-card { background: transparent; border: 2px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 14px; transition: border-color 180ms ease-out, transform 180ms ease-out; }
+    .question-card.error { border-color: var(--ink); outline: 3px solid var(--accent); outline-offset: 1px; }
+    .q-label { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 14px; line-height: 1.38; }
+    .q-num { font-size: 13px; font-weight: 900; color: var(--ink); text-transform: uppercase; letter-spacing: 0; margin-bottom: 6px; }
+    .required-star { color: var(--ink); }
+    textarea.text-input { width: 100%; padding: 13px 14px; border: 2px solid var(--line); border-radius: var(--radius); background: rgba(247,241,230,0.72); font-family: inherit; font-size: 16px; color: var(--ink); outline: none; resize: vertical; min-height: 112px; transition: border-color 180ms ease-out, outline-color 180ms ease-out; }
+    textarea.text-input:focus { border-color: var(--ink); outline: 3px solid rgba(255,116,72,0.34); outline-offset: 1px; }
+    .option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 2px solid var(--line); border-radius: var(--radius); margin-bottom: 8px; cursor: pointer; transition: border-color 180ms ease-out, background 180ms ease-out; user-select: none; }
+    .option:hover { border-color: var(--line-strong); }
+    .option.selected { border-color: var(--ink); background: rgba(255,116,72,0.18); }
+    .option-indicator { width: 18px; height: 18px; border: 2px solid var(--ink); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 180ms ease-out; font-size: 11px; color: var(--ink); }
     .radio-indicator { border-radius: 50%; }
-    .option.selected .option-indicator { background: #111110; border-color: #111110; }
-    .radio-indicator::after { content: ''; width: 6px; height: 6px; background: #fff; border-radius: 50%; opacity: 0; transition: opacity 0.12s; }
+    .option.selected .option-indicator { background: var(--accent); border-color: var(--ink); }
+    .radio-indicator::after { content: ''; width: 6px; height: 6px; background: var(--ink); border-radius: 50%; opacity: 0; transition: opacity 180ms ease-out; }
     .option.selected .radio-indicator::after { opacity: 1; }
-    .option-label { font-size: 15px; color: #111110; }
+    .option-label { font-size: 16px; color: var(--ink); }
     .scale-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-    .scale-btn { min-width: 44px; height: 44px; padding: 0 10px; border: 1.5px solid #e8e8e4; border-radius: 9px; background: #f7f7f5; font-size: 16px; font-weight: 500; color: #111110; cursor: pointer; transition: all 0.12s; font-family: inherit; }
-    .scale-btn:hover { border-color: #d0d0ca; background: #f0f0ec; }
-    .scale-btn.selected { background: #111110; border-color: #111110; color: #fff; }
-    .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: #a0a09c; padding: 0 2px; }
-    .error-msg { font-size: 12px; color: #c0392b; margin-top: 8px; display: none; }
+    .scale-btn { min-width: 44px; height: 44px; padding: 0 10px; border: 2px solid var(--line); border-radius: var(--radius); background: transparent; font-size: 16px; font-weight: 800; color: var(--ink); cursor: pointer; transition: border-color 180ms ease-out, background 180ms ease-out; font-family: inherit; }
+    .scale-btn:hover { border-color: var(--line-strong); }
+    .scale-btn.selected { background: var(--accent); border-color: var(--ink); color: var(--ink); }
+    .scale-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--ink); padding: 0 2px; }
+    .error-msg { font-size: 13px; color: var(--ink); margin-top: 8px; display: none; font-weight: 800; }
     .submit-bar { margin-top: 32px; }
-    .btn-submit { width: 100%; padding: 15px; background: #111110; color: #fff; border: none; border-radius: 10px; font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-    .btn-submit:hover { background: #333330; }
+    .btn-submit { width: 100%; padding: 15px; background: var(--ink); color: var(--bg); border: 2px solid var(--ink); border-radius: var(--radius); font-family: inherit; font-size: 16px; font-weight: 900; cursor: pointer; transition: background 180ms ease-out, color 180ms ease-out; }
+    .btn-submit:hover { background: var(--accent); color: var(--ink); }
     .success-screen { text-align: center; padding: 80px 20px; }
     .success-icon { font-size: 56px; margin-bottom: 20px; }
-    .success-title { font-size: 27px; font-weight: 700; letter-spacing: 0; margin-bottom: 12px; }
-    .success-msg { font-size: 16px; color: #6b6b67; line-height: 1.7; max-width: 400px; margin: 0 auto; }
+    .success-title { font-family: Fraunces, Georgia, serif; font-size: 46px; font-weight: 800; letter-spacing: 0; line-height: 1; margin-bottom: 12px; }
+    .success-msg { font-size: 17px; color: var(--ink); line-height: 1.65; max-width: 420px; margin: 0 auto; }
+    @media (max-width: 480px) { body { padding: 28px 14px 54px; } .question-card { padding: 18px; } }
   </style>
 </head>
 <body>
@@ -3446,7 +3514,7 @@ function generateQr() {
   wrap.className = 'qr-canvas-wrap';
   display.appendChild(wrap);
 
-  new QRCode(wrap, { text: url, width: 200, height: 200, colorDark: '#111110', colorLight: '#ffffff' });
+  new QRCode(wrap, { text: url, width: 200, height: 200, colorDark: '#0a3f32', colorLight: '#f7f1e6' });
 
   // URL label
   const label = document.createElement('p');
@@ -3583,6 +3651,9 @@ function attachEventListeners() {
     document.getElementById('entryModal').classList.add('hidden');
     pendingFiles   = [];
     editingEntryId = null;
+  });
+  ['inputEntryText', 'inputEntryCount', 'inputEntryTags'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateEntryLivePreview);
   });
 
   // Confirm modal

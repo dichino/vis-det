@@ -7,10 +7,10 @@
   <title>Vis Det – Impact Journal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=20260705-final" />
+  <link rel="stylesheet" href="style.css?v=20260925-recruiter" />
 </head>
 <body>
 
@@ -77,6 +77,15 @@
         <button class="btn-primary" id="btnNewProjectEmpty" data-i18n="createProject">Create Project</button>
         <button class="btn-secondary" id="btnLoadDemoEmpty" data-i18n="loadDemoData">Load Demo Data</button>
       </div>
+      <div class="hero-proof" aria-label="Prototype capabilities">
+        <span data-i18n="emptyProof1">Local-first data model</span>
+        <span data-i18n="emptyProof2">Survey builder and QR export</span>
+        <span data-i18n="emptyProof3">Impact summary draft</span>
+        <span data-i18n="emptyProof4">Import and export flows</span>
+      </div>
+      <figure class="empty-photo">
+        <img src="assets/brand/toyen-bench.webp" alt="A Tøyen Unlimited community member seated on a colorful bench" />
+      </figure>
     </div>
 
     <!-- ABOUT VIEW -->
@@ -87,6 +96,9 @@
         <h1>Vis Det – Impact Journal</h1>
         <p class="about-lede" data-i18n="aboutLede">Vis Det – Impact Journal is a local workspace for documenting activities, feedback and early signs of change. It helps teams keep useful evidence close to the work, before it becomes formal reporting.</p>
         <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
+        <figure class="about-photo-strip">
+          <img src="assets/brand/toyen-conversation.webp" alt="Two people talking beside a Tøyen Unlimited member wall" />
+        </figure>
       </section>
 
       <section class="about-section">
@@ -154,10 +166,15 @@
       <section class="notes-hero">
         <div>
           <p class="eyebrow" data-i18n="notesEyebrow">Prototype Notes</p>
-          <h1 data-i18n="notesTitle">A local prototype for impact documentation.</h1>
+          <h1 data-i18n="notesTitle">A working impact prototype.</h1>
           <p class="about-lede" data-i18n="notesLede">Vis Det shows how activities, feedback and evidence can be gathered in one local workspace before they become formal reporting.</p>
+          <div class="case-meta" aria-label="Prototype case details">
+            <span><strong data-i18n="caseRoleLabel">Role</strong><em data-i18n="caseRoleValue">Product design and frontend</em></span>
+            <span><strong data-i18n="caseStackLabel">Stack</strong><em data-i18n="caseStackValue">HTML, CSS, JavaScript, Dexie</em></span>
+            <span><strong data-i18n="caseScopeLabel">Scope</strong><em data-i18n="caseScopeValue">Journal, surveys, reporting export</em></span>
+          </div>
         </div>
-        <img src="bilder/bilde2.jpg" alt="Dichino Nguyen" class="builder-photo" onerror="this.hidden=true" />
+        <img src="assets/brand/toyen-workspace.webp" alt="A Tøyen Unlimited workspace with community seating and safety equipment" class="builder-photo" onerror="this.hidden=true" />
       </section>
 
       <section class="notes-grid">
@@ -509,6 +526,14 @@
         </div>
         <div id="filePreview" class="file-preview"></div>
       </label>
+      <aside class="entry-live-preview" id="entryLivePreview" aria-live="polite">
+        <span class="panel-kicker" data-i18n="livePreviewKicker">Live report preview</span>
+        <p id="entryPreviewText" data-i18n="livePreviewEmpty">Start writing and the reporting preview will respond here.</p>
+        <div class="entry-preview-meta">
+          <span id="entryPreviewCount">0 people reached</span>
+          <span id="entryPreviewTags">No tags yet</span>
+        </div>
+      </aside>
       <div class="modal-actions">
         <button class="btn-ghost" id="btnCancelEntry" data-i18n="cancel">Cancel</button>
         <button class="btn-primary" id="btnSaveEntry" data-i18n="saveEntry">Save Entry</button>
@@ -631,6 +656,6 @@
   <input type="file" id="importInput" accept=".json,.csv,text/csv,application/json" style="display:none" />
   <input type="file" id="responseImportInput" accept=".json" style="display:none" />
 
-  <script src="app.js?v=20260705-final"></script>
+  <script src="app.js?v=20260925-recruiter"></script>
 </body>
 </html>
