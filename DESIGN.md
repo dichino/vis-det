@@ -1,6 +1,6 @@
 # DESIGN.md — UI rules for this project. Read before touching any UI.
 
-Reference: editorial product studios and high-end case-study sites: AREA 17, Work & Co, Studio Heyday/COLLINS-style typography, Tide/Solene pacing, and real Tøyen Unlimited photography.
+Reference: editorial product studios and high-end case-study sites: AREA 17, Work & Co, Studio Heyday/COLLINS-style typography, Tide/Solene pacing, and real Unlimited photography from local incubator settings.
 Tone in three words: sharp, warm, credible.
 Audience: tech recruiters and product-minded reviewers checking whether this is a polished, working prototype, plus local incubator teams documenting activities, feedback, and early impact evidence.
 
@@ -16,13 +16,13 @@ Typefaces:
 - Body: Inter, because the app has dense forms, notes, buttons, metrics, and generated report text that need to read cleanly at 17-19px.
 
 Layout:
-The page should read like a polished product case study that happens to be fully usable: a slim dark navigation rail, a dramatic asymmetric first screen, real Tøyen photography, and product areas that show working data rather than fake decoration. The journal, surveys, and summary views stay practical, but the About and Prototype Notes views should make the craft, stack, and scope obvious to a recruiter.
+The page should read like a polished product case study that happens to be fully usable: a slim dark navigation rail, a dramatic asymmetric first screen, real Unlimited photography, and product areas that show working data rather than fake decoration. The journal, surveys, and summary views stay practical, but the About and Prototype Notes views should make the craft, stack, and scope obvious to a recruiter.
 
 Motion:
 One motion idea only: content responds when it arrives or changes. Views, real photos, newly added records, and the live entry preview use a short ease-out rise under 280ms. No looping or decorative animation.
 
 How the reference shows up:
-AREA 17 and Work & Co show up through restrained product clarity, serious typography, and confidence in whitespace. Tide/Solene shows up through editorial pacing and warm restraint. Tøyen Unlimited shows up through deep green, real local photography, and the subject matter; avoid fake proof, decorative blobs, gradients, generic SaaS sections, and stock-like layout patterns.
+AREA 17 and Work & Co show up through restrained product clarity, serious typography, and confidence in whitespace. Tide/Solene shows up through editorial pacing and warm restraint. Unlimited shows up through deep green, real local incubator photography, and the social-impact subject matter; avoid fake proof, decorative blobs, gradients, generic SaaS sections, and stock-like layout patterns.
 
 ## Process
 

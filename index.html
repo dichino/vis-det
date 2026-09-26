@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A local-first MVP for turning project notes, feedback and evidence into structured impact reporting material." />
-  <title>Vis Det – Impact Journal</title>
+  <meta name="description" content="A local-first MVP for social entrepreneurs who want to map, investigate and show the social impact of their work." />
+  <title>Vis Det – Social Impact Tool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/dexie@3/dist/dexie.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=20260925-recruiter" />
+  <link rel="stylesheet" href="style.css?v=20260926-final8" />
 </head>
 <body>
 
@@ -20,11 +20,11 @@
       <div class="brand-lockup">
         <div class="logo">
           <span class="logo-mark">VD</span>
-          <span class="logo-text">Vis Det<br><small>Impact Journal</small></span>
+          <span class="logo-text">Vis Det<br><small>Social Impact Tool</small></span>
         </div>
         <div class="product-status">
           <span data-i18n="productStatus">Local workspace</span>
-          <small data-i18n="productStatusText">Impact notes and reporting</small>
+          <small data-i18n="productStatusText">Measure social impact</small>
         </div>
       </div>
       <button class="btn-new-project" id="btnNewProject" data-i18n="newProject">+ New Project</button>
@@ -35,11 +35,26 @@
     </div>
 
     <nav class="app-nav" aria-label="Main sections" data-i18n-aria="mainSections">
-      <button class="nav-item active" data-nav="journal" data-i18n="navJournal">Journal</button>
-      <button class="nav-item" data-nav="surveys" data-i18n="navSurveys">Surveys</button>
-      <button class="nav-item" data-nav="summary" data-i18n="navSummary">Impact Summary</button>
-      <button class="nav-item" data-nav="about" data-i18n="navAbout">About Vis Det</button>
-      <button class="nav-item" data-nav="notes" data-i18n="navNotes">Prototype Notes</button>
+      <button class="nav-item active" data-nav="journal">
+        <span class="nav-label" data-i18n="navJournal">Map it</span>
+        <span class="nav-hint" data-i18n="navJournalHint">Project story and assumptions</span>
+      </button>
+      <button class="nav-item" data-nav="surveys">
+        <span class="nav-label" data-i18n="navSurveys">Investigate it</span>
+        <span class="nav-hint" data-i18n="navSurveysHint">Data collection and feedback</span>
+      </button>
+      <button class="nav-item" data-nav="summary">
+        <span class="nav-label" data-i18n="navSummary">Tell it</span>
+        <span class="nav-hint" data-i18n="navSummaryHint">Impact story and export</span>
+      </button>
+      <button class="nav-item" data-nav="about">
+        <span class="nav-label" data-i18n="navAbout">About</span>
+        <span class="nav-hint" data-i18n="navAboutHint">Purpose and social impact</span>
+      </button>
+      <button class="nav-item" data-nav="notes">
+        <span class="nav-label" data-i18n="navNotes">Prototype</span>
+        <span class="nav-hint" data-i18n="navNotesHint">Design and frontend scope</span>
+      </button>
     </nav>
 
     <div class="project-list-label" data-i18n="projectsLabel">Projects</div>
@@ -69,10 +84,9 @@
 
     <!-- EMPTY STATE -->
     <div id="emptyState" class="empty-state hidden">
-      <div class="empty-blob"></div>
-      <p class="eyebrow">Vis Det – Impact Journal</p>
-      <h1 data-i18n="emptyTitle">Document what happened.</h1>
-      <p data-i18n="emptyText">Vis Det turns scattered project notes, feedback and evidence into structured reporting material.</p>
+      <p class="eyebrow">Vis Det – Social Impact Tool</p>
+      <h1 data-i18n="emptyTitle">Measure and show the social impact of your work.</h1>
+      <p data-i18n="emptyText">Vis Det helps social entrepreneurs map the project story, investigate what changes, and tell others about the effect of their work.</p>
       <div class="empty-actions">
         <button class="btn-primary" id="btnNewProjectEmpty" data-i18n="createProject">Create Project</button>
         <button class="btn-secondary" id="btnLoadDemoEmpty" data-i18n="loadDemoData">Load Demo Data</button>
@@ -84,20 +98,22 @@
         <span data-i18n="emptyProof4">Import and export flows</span>
       </div>
       <figure class="empty-photo">
-        <img src="assets/brand/toyen-bench.webp" alt="A Tøyen Unlimited community member seated on a colorful bench" />
+        <img src="assets/brand/stavanger-workshop.webp" alt="A workshop group organizing notes and evidence around a table" />
       </figure>
     </div>
 
     <!-- ABOUT VIEW -->
     <div id="aboutView" class="about-view hidden">
       <section class="about-hero">
-        <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
-        <p class="eyebrow" data-i18n="aboutEyebrow">About Vis Det</p>
-        <h1>Vis Det – Impact Journal</h1>
-        <p class="about-lede" data-i18n="aboutLede">Vis Det – Impact Journal is a local workspace for documenting activities, feedback and early signs of change. It helps teams keep useful evidence close to the work, before it becomes formal reporting.</p>
-        <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
+        <div class="about-copy">
+          <img src="bilder/bilde1.png" alt="Norge Unlimited" class="about-logo" onerror="this.hidden=true" />
+          <p class="eyebrow" data-i18n="aboutEyebrow">About Vis Det</p>
+          <h1>Vis Det – Social Impact Tool</h1>
+          <p class="about-lede" data-i18n="aboutLede">Vis Det is a practical tool for social entrepreneurs, nonprofits and local initiatives who want to understand, measure and show the effect their work has on society.</p>
+          <button class="btn-primary" id="btnAboutBack" data-i18n="openJournal">Open Journal</button>
+        </div>
         <figure class="about-photo-strip">
-          <img src="assets/brand/toyen-conversation.webp" alt="Two people talking beside a Tøyen Unlimited member wall" />
+          <img src="assets/brand/stavanger-group-portrait.webp" alt="A workshop group discussing local project evidence around a table" />
         </figure>
       </section>
 
@@ -150,7 +166,7 @@
           <div class="workflow-step">
             <span>4</span>
             <strong data-i18n="workflow4Title">Summarize impact</strong>
-            <p data-i18n="workflow4Text">Export data or draft a report-ready summary from local evidence.</p>
+            <p data-i18n="workflow4Text">Shape local evidence into an impact story and export a clear draft.</p>
           </div>
         </div>
       </section>
@@ -167,68 +183,200 @@
         <div>
           <p class="eyebrow" data-i18n="notesEyebrow">Prototype Notes</p>
           <h1 data-i18n="notesTitle">A working impact prototype.</h1>
-          <p class="about-lede" data-i18n="notesLede">Vis Det shows how activities, feedback and evidence can be gathered in one local workspace before they become formal reporting.</p>
+          <p class="about-lede" data-i18n="notesLede">This prototype explores how social entrepreneurs can map assumptions, collect data and tell a clearer story about social impact.</p>
           <div class="case-meta" aria-label="Prototype case details">
             <span><strong data-i18n="caseRoleLabel">Role</strong><em data-i18n="caseRoleValue">Product design and frontend</em></span>
             <span><strong data-i18n="caseStackLabel">Stack</strong><em data-i18n="caseStackValue">HTML, CSS, JavaScript, Dexie</em></span>
-            <span><strong data-i18n="caseScopeLabel">Scope</strong><em data-i18n="caseScopeValue">Journal, surveys, reporting export</em></span>
+            <span><strong data-i18n="caseScopeLabel">Scope</strong><em data-i18n="caseScopeValue">Journal, surveys, impact export</em></span>
           </div>
         </div>
-        <img src="assets/brand/toyen-workspace.webp" alt="A Tøyen Unlimited workspace with community seating and safety equipment" class="builder-photo" onerror="this.hidden=true" />
+        <img src="assets/brand/stavanger-whiteboard.webp" alt="A workshop group discussing notes beside a whiteboard" class="builder-photo" onerror="this.hidden=true" />
       </section>
 
-      <section class="notes-grid">
-        <div class="notes-block">
-          <h2 data-i18n="builtBy">Built by</h2>
-          <p data-i18n="builtByText">Dichino Nguyen as a local-first prototype inspired by Norge Unlimited's work with impact documentation.</p>
+      <section class="notes-section notes-overview">
+        <span class="notes-index">01</span>
+        <div>
+          <h2 data-i18n="notesOverviewTitle">From organizational need to working MVP</h2>
+          <p data-i18n="notesOverviewText">I translated an impact-documentation need into MVP scope, user flows, data structures, interface design and a working browser-native frontend.</p>
         </div>
-        <div class="notes-block">
-          <h2 data-i18n="techStack">How it is built</h2>
-          <ul>
-            <li data-i18n="tech1">HTML, CSS and vanilla JavaScript</li>
-            <li data-i18n="tech2">Dexie.js with IndexedDB</li>
-            <li data-i18n="tech3">Dexie-backed local-first data model</li>
-            <li data-i18n="tech4">Static GitHub Pages deployment target</li>
-          </ul>
-        </div>
-        <div class="notes-block">
-          <h2 data-i18n="prototypeScope">What is included</h2>
-          <ul>
-            <li data-i18n="scope1">Project-based journal entries</li>
-            <li data-i18n="scope2">Tags, attachments and people reached</li>
-            <li data-i18n="scope3">Survey builder, QR sharing flow and response imports</li>
-            <li data-i18n="scope4">Import flow with preview, validation and result summary</li>
-            <li data-i18n="scope5">Evidence Readiness scoring and Timeline view</li>
-            <li data-i18n="scope6">Impact Summary, writing prompt and report package export</li>
-            <li data-i18n="scope7">English/Norwegian language toggle</li>
-          </ul>
-        </div>
-        <div class="notes-block">
-          <h2 data-i18n="currentLimits">Current limits</h2>
-          <ul>
-            <li data-i18n="limit1">Local-only data</li>
-            <li data-i18n="limit2">No authentication, backend or multi-user sync</li>
-            <li data-i18n="limit3">No external AI service or exposed API keys</li>
-            <li data-i18n="limit4">Not a production CRM or reporting system</li>
-          </ul>
-        </div>
-        <div class="notes-block notes-block-wide">
-          <h2 data-i18n="architecture">Architecture</h2>
-          <p data-i18n="architectureText">The prototype stores data locally in the browser with IndexedDB. That makes it easy to test without accounts, servers or setup. A production version would need user accounts, shared storage, access control and hosted survey links.</p>
-          <div class="architecture-flow" aria-label="Data model" data-i18n-aria="dataModel">
-            <span data-i18n="modelProjects">Projects</span>
-            <span data-i18n="modelEntries">Entries</span>
-            <span data-i18n="modelSurveys">Surveys</span>
-            <span data-i18n="modelResponses">Responses</span>
-            <span data-i18n="modelExport">Export / Import</span>
-            <span data-i18n="modelSummary">Impact Summary</span>
+      </section>
+
+      <section class="notes-section notes-problem">
+        <span class="notes-index">02</span>
+        <div>
+          <h2 data-i18n="notesProblemTitle">Problem to MVP</h2>
+          <div class="problem-flow">
+            <div>
+              <strong data-i18n="notesBeforeTitle">Before</strong>
+              <p data-i18n="notesBeforeText">Activities, notes, attendance, attachments and feedback lived in separate places.</p>
+            </div>
+            <div>
+              <strong data-i18n="notesVisDetTitle">Vis Det</strong>
+              <p data-i18n="notesVisDetText">Map the project story, investigate change with data, and tell the social impact clearly from one local workspace.</p>
+            </div>
+            <div>
+              <strong data-i18n="notesMvpTitle">Implemented MVP</strong>
+              <p data-i18n="notesMvpText">Projects, journal entries, attachments, surveys, responses, readiness scoring, timeline, import/export and Impact Summary.</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="about-section">
-        <h2 data-i18n="possibleNextSteps">Possible next steps</h2>
-        <p data-i18n="possibleNextStepsText">Backend sync, user accounts, role-based access, shared storage, hosted surveys, audit logs and team collaboration would be natural production next steps.</p>
+      <section class="notes-section">
+        <span class="notes-index">03</span>
+        <div>
+          <h2 data-i18n="notesWorkflowTitle">Product workflow</h2>
+          <div class="workflow-strip notes-workflow">
+            <div class="workflow-step">
+              <span>1</span>
+              <strong data-i18n="notesFlow1Title">Capture</strong>
+              <p data-i18n="notesFlow1Text">Journal entries</p>
+            </div>
+            <div class="workflow-step">
+              <span>2</span>
+              <strong data-i18n="notesFlow2Title">Structure</strong>
+              <p data-i18n="notesFlow2Text">Reach, tags and attachments</p>
+            </div>
+            <div class="workflow-step">
+              <span>3</span>
+              <strong data-i18n="notesFlow3Title">Collect</strong>
+              <p data-i18n="notesFlow3Text">Surveys and responses</p>
+            </div>
+            <div class="workflow-step">
+              <span>4</span>
+              <strong data-i18n="notesFlow4Title">Review</strong>
+              <p data-i18n="notesFlow4Text">Timeline and readiness</p>
+            </div>
+            <div class="workflow-step">
+              <span>5</span>
+              <strong data-i18n="notesFlow5Title">Prepare</strong>
+              <p data-i18n="notesFlow5Text">Impact Summary exports</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes-section data-model-section">
+        <span class="notes-index">04</span>
+        <div>
+          <h2 data-i18n="notesModelTitle">Real local data model</h2>
+          <p data-i18n="notesModelText">Model derived from the prototype's IndexedDB structure.</p>
+          <div class="data-model-map" aria-label="IndexedDB data model" data-i18n-aria="dataModel">
+            <div class="model-node model-root"><strong data-i18n="modelProjects">Projects</strong></div>
+            <div class="model-branch">
+              <div class="model-node"><strong data-i18n="modelEntries">Entries</strong><span data-i18n="modelEntriesMeta">tags, count, date</span></div>
+              <div class="model-node"><strong data-i18n="modelAttachments">Attachments</strong><span data-i18n="modelAttachmentsMeta">entryId metadata and file data</span></div>
+            </div>
+            <div class="model-branch">
+              <div class="model-node"><strong data-i18n="modelSurveys">Surveys</strong><span data-i18n="modelSurveysMeta">questions and share flow</span></div>
+              <div class="model-node"><strong data-i18n="modelResponses">Responses</strong><span data-i18n="modelResponsesMeta">surveyId answers</span></div>
+            </div>
+            <div class="model-node model-output"><strong data-i18n="modelSummary">Impact Summary</strong><span data-i18n="modelSummaryMeta">derived impact story</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes-section">
+        <span class="notes-index">05</span>
+        <div>
+          <h2 data-i18n="notesDecisionsTitle">Engineering decisions</h2>
+          <div class="decision-list">
+            <article>
+              <span data-i18n="decisionProblem">Problem / trade-off</span>
+              <h3 data-i18n="decisionLocalTitle">Testable without account infrastructure</h3>
+              <p data-i18n="decisionLocalText">The prototype uses IndexedDB through Dexie so project data persists locally while staying simple enough for static deployment.</p>
+            </article>
+            <article>
+              <span data-i18n="decisionDecision">Decision</span>
+              <h3 data-i18n="decisionImportTitle">Validate before import</h3>
+              <p data-i18n="decisionImportText">JSON and CSV imports are normalized, previewed and checked for relation errors or duplicates before valid records are merged.</p>
+            </article>
+            <article>
+              <span data-i18n="decisionWhy">Why</span>
+              <h3 data-i18n="decisionReportingTitle">Derived impact story, not static copy</h3>
+              <p data-i18n="decisionReportingText">Evidence Readiness, timelines, summaries, markdown exports and writing prompts are generated from current stored records.</p>
+            </article>
+            <article>
+              <span data-i18n="decisionWhy">Why</span>
+              <h3 data-i18n="decisionLocaleTitle">Two-language interface</h3>
+              <p data-i18n="decisionLocaleText">A structured translation object updates UI text, placeholders, titles, summaries and the live entry preview in English or Norwegian.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes-section implementation-section">
+        <span class="notes-index">06</span>
+        <div>
+          <h2 data-i18n="notesEvidenceTitle">Implementation evidence</h2>
+          <div class="implementation-grid">
+            <article>
+              <h3 data-i18n="evidenceSchemaTitle">Dexie schema</h3>
+              <p data-i18n="evidenceSchemaText">The app persists projects, journal entries, attachments, surveys and imported survey responses in browser storage.</p>
+              <pre><code>db.version(2).stores({
+  projects: '++id, name, description, createdAt, updatedAt',
+  entries: '++id, projectId, text, count, tags, createdAt',
+  attachments: '++id, entryId, name, type, size, data',
+  surveys: '++id, projectId, title, description, createdAt',
+  responses: '++id, surveyId, submittedAt'
+});</code></pre>
+            </article>
+            <article>
+              <h3 data-i18n="evidenceReadinessTitle">Evidence readiness logic</h3>
+              <p data-i18n="evidenceReadinessText">The score combines actual project records: journal coverage, timeline spread, reach, tags, attachments, surveys, responses and recency.</p>
+              <pre><code>const components = [
+  { key: 'journal', points: Math.min(entries.length / 12, 1) * 18 },
+  { key: 'spread', points: Math.min(uniqueMonths.size / 6, 1) * 14 },
+  { key: 'surveys', points: Math.min(surveys.length / 2, 1) * 10 },
+  { key: 'responses', points: Math.min(responseCount / 10, 1) * 12 }
+];</code></pre>
+            </article>
+            <article>
+              <h3 data-i18n="evidencePackageTitle">Impact package export</h3>
+              <p data-i18n="evidencePackageText">Export actions create a markdown summary, a JSON package and a CSV journal export from the same local data.</p>
+              <pre><code>downloadText(buildMarkdownSummary(data), 'impact-summary.md', 'text/markdown');
+downloadJson(packageData, 'project-data.json');
+downloadText(buildJournalEntriesCsv(data.entries, data.attachments),
+  'journal-entries.csv',
+  'text/csv');</code></pre>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes-section boundary-section">
+        <span class="notes-index">07</span>
+        <div>
+          <h2 data-i18n="notesBoundaryTitle">Prototype boundary</h2>
+          <div class="boundary-columns">
+            <div>
+              <h3 data-i18n="builtForPrototype">Built for this prototype</h3>
+              <ul>
+                <li data-i18n="limit1">Local-only data</li>
+                <li data-i18n="limit4">Not a production CRM or reporting system</li>
+                <li data-i18n="boundaryExport">Portable import/export files</li>
+                <li data-i18n="boundaryStatic">Static deployment architecture</li>
+              </ul>
+            </div>
+            <div>
+              <h3 data-i18n="productionEvolution">Production evolution</h3>
+              <ul>
+                <li data-i18n="boundaryBackend">Shared server-side persistence</li>
+                <li data-i18n="boundaryAuth">Authentication and role-based access</li>
+                <li data-i18n="boundarySync">Multi-user synchronization and backups</li>
+                <li data-i18n="boundaryAudit">Auditability for formal reporting</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes-section technology-section">
+        <span class="notes-index">08</span>
+        <div>
+          <h2 data-i18n="notesTechnologyTitle">Technology</h2>
+          <p data-i18n="notesTechnologyText">A deliberately lightweight browser-native architecture: HTML for structure, CSS for the responsive design system, JavaScript for state and product logic, IndexedDB/Dexie for local persistence, and static deployment for sharing the prototype.</p>
+        </div>
       </section>
     </div>
 
@@ -236,14 +384,14 @@
     <div id="impactSummaryView" class="impact-summary-view hidden">
       <header class="summary-hero">
         <div>
-          <p class="eyebrow" data-i18n="summaryEyebrow">Reporting draft</p>
+          <p class="eyebrow" data-i18n="summaryEyebrow">Impact story draft</p>
           <h1 data-i18n="summaryTitle">Impact Summary Draft</h1>
           <p class="about-lede" data-i18n="summaryLede">This draft brings together key numbers, notes and feedback from the project. It can be used as a starting point for reporting, reflection or a more polished impact story.</p>
         </div>
         <div class="summary-context">
           <span class="summary-context-label" data-i18n="selectedProject">Selected project</span>
           <strong id="summaryProjectName" data-i18n="noProjectSelected">No project selected</strong>
-          <span id="summaryPeriod" data-i18n="noReportingPeriod">No reporting period yet</span>
+          <span id="summaryPeriod" data-i18n="noReportingPeriod">No period set yet</span>
           <small id="summaryUpdated" data-i18n="localFirstDraft">Local-first draft</small>
         </div>
       </header>
@@ -281,7 +429,7 @@
         <div class="summary-action-buttons">
           <button class="btn-primary" id="btnCopyMarkdown" data-i18n="copyMarkdown">Copy Markdown summary</button>
           <button class="btn-secondary" id="btnCopyAiPrompt" data-i18n="copyAiPrompt">Copy writing prompt</button>
-          <button class="btn-secondary" id="btnExportReportPackage" data-i18n="exportReportPackage">Export report package</button>
+          <button class="btn-secondary" id="btnExportReportPackage" data-i18n="exportReportPackage">Export impact package</button>
         </div>
       </section>
     </div>
@@ -291,22 +439,41 @@
       <header class="project-header">
         <div class="project-hero-grid">
           <div class="project-hero-copy">
-            <div class="workspace-kicker">
-              <span data-i18n="workspaceKicker">Impact workspace</span>
-              <strong id="projectPeriodChip">Reporting period</strong>
+            <div class="product-identity-line">
+              <span class="product-name">Vis Det</span>
+              <strong data-i18n="productHeroStatus">Working prototype</strong>
             </div>
-            <div class="project-title-row">
-              <h1 id="projectTitle" class="project-title">Project Name</h1>
+            <h1 class="product-hero-title" data-i18n="productHeroTitle">Measure and show the social impact of your work.</h1>
+            <p class="project-desc product-hero-desc" data-i18n="productHeroText">A practical prototype for social entrepreneurs who need to understand, measure and explain the difference their work makes.</p>
+            <div class="tech-stack-line" aria-label="Main actions" data-i18n-aria="techStackLabel">
+              <span data-i18n="heroAction1">Map assumptions</span>
+              <span data-i18n="heroAction2">Collect feedback</span>
+              <span data-i18n="heroAction3">Measure change</span>
+              <span data-i18n="heroAction4">Tell impact</span>
             </div>
-            <p id="projectDesc" class="project-desc"></p>
           </div>
-          <div class="project-hero-actions">
-            <button class="btn-primary" id="btnHeaderEntry" data-i18n="addEntry">+ Add Entry</button>
-            <button class="btn-secondary" id="btnHeaderSummary" data-i18n="openSummary">Open Summary</button>
-            <div class="header-actions">
-              <button class="btn-icon" id="btnEditProject" title="Edit project" data-i18n-title="editProject">✎</button>
-              <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project" data-i18n-title="deleteProject">✕</button>
+          <div class="project-hero-side">
+            <figure class="project-hero-photo">
+              <img src="assets/brand/stavanger-workshop.webp" alt="A workshop group organizing notes and evidence around a table" />
+              <figcaption>
+                <span data-i18n="homePhotoKicker">Impact in practice</span>
+                <strong data-i18n="homePhotoText">Map the story, investigate the change, then tell it clearly.</strong>
+              </figcaption>
+            </figure>
+            <div class="project-hero-actions">
+              <button class="btn-primary" id="btnHeaderEntry" data-i18n="addEntry">+ Add Entry</button>
+              <button class="btn-secondary" id="btnHeaderSummary" data-i18n="openSummary">Open Summary</button>
+              <div class="header-actions">
+                <button class="btn-icon" id="btnEditProject" title="Edit project" data-i18n-title="editProject">✎</button>
+                <button class="btn-icon btn-danger" id="btnDeleteProject" title="Delete project" data-i18n-title="deleteProject">✕</button>
+              </div>
             </div>
+          </div>
+          <div class="current-project-strip">
+            <span data-i18n="currentProjectLabel">Current project</span>
+            <strong id="projectTitle" class="current-project-name">Project Name</strong>
+            <em id="projectPeriodChip">Reporting period</em>
+            <p id="projectDesc" class="project-desc"></p>
           </div>
         </div>
         <div class="stats-bar">
@@ -619,7 +786,7 @@
         <article>
           <span>4</span>
           <h3 data-i18n="demoStep4Title">Export reporting material</h3>
-          <p data-i18n="demoStep4Text">Copy a markdown summary, copy a writing prompt or export a report package.</p>
+          <p data-i18n="demoStep4Text">Copy a markdown summary, copy a writing prompt or export an impact package.</p>
           <button class="btn-secondary" data-demo-target="exports" data-i18n="openExports">Open exports</button>
         </article>
       </div>
@@ -656,6 +823,6 @@
   <input type="file" id="importInput" accept=".json,.csv,text/csv,application/json" style="display:none" />
   <input type="file" id="responseImportInput" accept=".json" style="display:none" />
 
-  <script src="app.js?v=20260925-recruiter"></script>
+  <script src="app.js?v=20260926-final8"></script>
 </body>
 </html>
